@@ -1,0 +1,137 @@
+/*
+ * 디자인 토큰 — CLAUDE.md 7장의 색상·간격·반경 기준.
+ * 브랜드 색은 채움·아이콘·강조선에 사용하고, 작은 글자와 흰 글자 버튼에는
+ * WCAG AA(4.5:1)를 만족하는 *-strong 변형을 사용한다.
+ */
+:root {
+  /* 색상 */
+  --color-bg: #f5f7fb;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f9fafc;
+  --color-surface-sunken: #eef2f8;
+
+  --color-primary: #3478f6;
+  --color-primary-strong: #1f63db; /* 흰 배경 대비 5.4:1 */
+  --color-primary-hover: #1a55bf;
+  --color-primary-soft: #eaf1fe;
+
+  --color-secondary: #27c2d4;
+  --color-secondary-strong: #0e7c8a;
+  --color-secondary-soft: #e6f8fa;
+
+  --color-accent: #6d5dfb;
+  --color-accent-strong: #5b4ae8;
+  --color-accent-soft: #efedff;
+
+  --color-heading: #1f2937;
+  --color-text: #4b5563;
+  --color-text-muted: #667085; /* 작은 보조 글자 (대비 4.97:1) */
+  --color-muted: #8b95a5; /* 아이콘·장식·자리표시 전용 */
+
+  --color-border: #e5eaf1;
+  --color-border-strong: #8b95a5; /* 입력 요소 경계 (대비 3:1) */
+
+  --color-success: #22a06b;
+  --color-success-strong: #177a51;
+  --color-success-soft: #e7f6ef;
+  --color-warning: #f59e0b;
+  --color-warning-strong: #a15c00;
+  --color-warning-soft: #fef4e2;
+  --color-danger: #e5484d;
+  --color-danger-strong: #c93338;
+  --color-danger-soft: #fdecec;
+
+  /* 타이포그래피 */
+  --font-sans: 'Pretendard Variable', Pretendard, 'Noto Sans KR', sans-serif;
+  --fs-xs: 0.75rem; /* 12px */
+  --fs-sm: 0.8125rem; /* 13px */
+  --fs-base: 0.9375rem; /* 15px */
+  --fs-md: 1rem; /* 16px */
+  --fs-lg: 1.125rem; /* 18px */
+  --fs-xl: 1.375rem; /* 22px */
+  --fs-2xl: 1.625rem; /* 26px */
+  --fs-3xl: 2.25rem; /* 36px */
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --lh-tight: 1.35;
+  --lh-base: 1.6;
+
+  /* 간격 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 56px;
+
+  /* 반경·그림자 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 4px 14px rgba(16, 24, 40, 0.08);
+  --shadow-lg: 0 18px 48px rgba(16, 24, 40, 0.18);
+  --focus-ring: 0 0 0 3px rgba(52, 120, 246, 0.35);
+
+  /* 레이아웃 */
+  --header-height: 64px;
+  --sidebar-width: 256px;
+  --content-max: 1280px;
+  --page-gutter: 32px;
+  --card-gap: 24px;
+  --card-padding: 24px;
+
+  /* Bootstrap 5 변수 연결 */
+  --bs-body-font-family: var(--font-sans);
+  --bs-body-font-size: var(--fs-base);
+  --bs-body-line-height: var(--lh-base);
+  --bs-body-color: var(--color-text);
+  --bs-body-color-rgb: 75, 85, 99;
+  --bs-body-bg: var(--color-bg);
+  --bs-emphasis-color: var(--color-heading);
+  --bs-heading-color: var(--color-heading);
+  --bs-secondary-color: var(--color-text-muted);
+  --bs-primary: #3478f6;
+  --bs-primary-rgb: 52, 120, 246;
+  --bs-success: #22a06b;
+  --bs-success-rgb: 34, 160, 107;
+  --bs-warning: #f59e0b;
+  --bs-warning-rgb: 245, 158, 11;
+  --bs-danger: #e5484d;
+  --bs-danger-rgb: 229, 72, 77;
+  --bs-info: #27c2d4;
+  --bs-info-rgb: 39, 194, 212;
+  --bs-link-color: var(--color-primary-strong);
+  --bs-link-color-rgb: 31, 99, 219;
+  --bs-link-hover-color: var(--color-primary-hover);
+  --bs-link-hover-color-rgb: 26, 85, 191;
+  --bs-border-color: var(--color-border);
+  --bs-border-radius: var(--radius-sm);
+  --bs-border-radius-sm: 6px;
+  --bs-border-radius-lg: var(--radius-md);
+  --bs-border-radius-xl: var(--radius-lg);
+  --bs-focus-ring-color: rgba(52, 120, 246, 0.35);
+}
+
+@media (max-width: 991.98px) {
+  :root {
+    --page-gutter: 24px;
+    --card-gap: 20px;
+    --card-padding: 20px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  :root {
+    --page-gutter: 16px;
+    --card-gap: 16px;
+    --card-padding: 16px;
+    --header-height: 56px;
+  }
+}

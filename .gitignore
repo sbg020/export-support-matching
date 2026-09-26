@@ -1,0 +1,43 @@
+# ── 의존성·빌드 결과 ──
+node_modules/
+dist/
+dist-ssr/
+coverage/
+*.tsbuildinfo
+.eslintcache
+.vite/
+
+# ── Python ──
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+staticfiles/
+
+# ── 환경변수·비밀값 (예시 파일만 커밋) ──
+.env
+.env.*
+!.env.example
+*.local
+
+# ── DB 덤프·업로드 문서·개인 데이터 ──
+*.sqlite3
+*.db
+*.dump
+*.sql.gz
+backups/
+media/
+uploads/
+
+# ── 로그·에디터·OS ──
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# ── 배포 도구 ──
+.vercel/
