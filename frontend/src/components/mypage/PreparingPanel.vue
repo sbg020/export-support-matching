@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 준비 중 탭: 서류·계획서를 준비하는 사업 (기존 준비 중 사업 화면) */
 import { computed } from 'vue'
 import {
   IconCalendarDue,
@@ -8,7 +9,6 @@ import {
   IconLink,
   IconProgressCheck,
 } from '@tabler/icons-vue'
-import PageHeader from '@/components/layout/PageHeader.vue'
 import SectionCard from '@/components/common/SectionCard.vue'
 import StatTile from '@/components/common/StatTile.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
@@ -16,21 +16,16 @@ import InfoList from '@/components/common/InfoList.vue'
 import InfoRow from '@/components/common/InfoRow.vue'
 import ActionButton from '@/components/common/ActionButton.vue'
 import DisabledReason from '@/components/common/DisabledReason.vue'
-import { useTrackingStore } from '@/stores/trackingStore'
+import { useApplicationStore } from '@/stores/applicationStore'
+import ApplicationRecordTable from './ApplicationRecordTable.vue'
 
-const tracking = useTrackingStore()
-const items = computed(() => tracking.state.preparation)
+const applications = useApplicationStore()
+const items = computed(() => applications.records.value.filter((r) => r.status === 'preparing'))
 const itemCount = computed(() => (items.value.length > 0 ? `${items.value.length}건` : null))
 </script>
 
 <template>
-  <div class="page">
-    <PageHeader
-      title="준비 중 사업"
-      description="신청을 준비하는 사업의 필요서류 체크리스트와 준비도를 관리하고, 서류함·사업계획서와 연결합니다."
-    />
-
-    <div class="stack">
+  <div class="stack">
       <div class="tile-grid">
         <StatTile label="준비 중 사업" :value="itemCount" :icon="IconChecklist" />
         <StatTile label="준비도" :value="null" :icon="IconProgressCheck" tone="secondary" hint="준비 중인 사업이 생기면 표시" />
@@ -43,12 +38,13 @@ const itemCount = computed(() => (items.value.length > 0 ? `${items.value.length
           v-if="items.length === 0"
           :icon="IconChecklist"
           title="준비 중인 사업이 없습니다"
-          description="공고가 등록되면 상세 화면에서 준비를 시작할 수 있습니다. 사업마다 준비도, 남은 서류, 마감일을 함께 보여 드립니다."
+          description="관심 탭의 사업을 '준비 중'으로 바꾸면 이곳에 표시됩니다. 사업마다 준비도, 남은 서류, 마감일을 함께 보여 드립니다."
         >
           <template #actions>
             <RouterLink :to="{ name: 'programs-recommended' }" class="btn btn-secondary">맞춤 추천 보기</RouterLink>
           </template>
         </EmptyState>
+        <ApplicationRecordTable v-else :records="items" caption="준비 중인 사업 목록" />
       </SectionCard>
 
       <div class="grid-12">
@@ -92,6 +88,5 @@ const itemCount = computed(() => (items.value.length > 0 ? `${items.value.length
           </DisabledReason>
         </SectionCard>
       </div>
-    </div>
   </div>
 </template>

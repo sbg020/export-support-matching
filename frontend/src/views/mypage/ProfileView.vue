@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { IconForms, IconTrash, IconUserCircle } from '@tabler/icons-vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import SectionCard from '@/components/common/SectionCard.vue'
@@ -9,7 +10,6 @@ import EmptyState from '@/components/common/EmptyState.vue'
 import NoticeBanner from '@/components/common/NoticeBanner.vue'
 import AppModal from '@/components/common/AppModal.vue'
 import LocalModeNotice from '@/components/mypage/LocalModeNotice.vue'
-import ProfileEditModal from '@/components/mypage/ProfileEditModal.vue'
 import ProfileSummary from '@/components/diagnose/ProfileSummary.vue'
 import ProfileStatusBadge from '@/components/diagnose/ProfileStatusBadge.vue'
 import { useProfileStore } from '@/stores/profileStore'
@@ -21,13 +21,12 @@ const store = useProfileStore()
 const toast = useToast()
 const assessment = computed(() => store.assessment.value)
 
-const editOpen = ref(false)
-const editStep = ref<ProfileStepId>(1)
+const router = useRouter()
 const deleteOpen = ref(false)
 
+/** 기업정보 수정은 입력 화면 한 곳에서 한다. 입력 화면이 지원하는 ?step= 으로 해당 단계에 바로 들어간다. */
 function openEdit(step: ProfileStepId) {
-  editStep.value = step
-  editOpen.value = true
+  void router.push({ name: 'diagnose-input', query: { step: String(step) } })
 }
 
 function deleteProfile() {
@@ -39,11 +38,11 @@ function deleteProfile() {
 
 <template>
   <div class="page">
-    <PageHeader title="기업 프로필" description="입력한 기업정보를 확인하고 단계별로 고칠 수 있습니다. 입력하지 않은 항목은 '-'로 표시됩니다.">
+    <PageHeader title="기업 프로필" description="입력한 기업정보를 확인합니다. 입력하지 않은 항목은 '-'로 표시됩니다.">
       <template #actions>
         <RouterLink :to="{ name: 'diagnose-input' }" class="btn btn-secondary">
           <IconForms :size="18" stroke-width="2" aria-hidden="true" />
-          입력 화면에서 수정
+          기업정보 수정
         </RouterLink>
         <button
           v-if="assessment.status !== 'empty'"
@@ -116,7 +115,6 @@ function deleteProfile() {
       </div>
     </div>
 
-    <ProfileEditModal v-model:open="editOpen" :step="editStep" />
 
     <AppModal v-model:open="deleteOpen" title="기업정보를 삭제할까요?" size="sm">
       <p>이 브라우저에 저장된 기업정보를 모두 삭제합니다. 삭제한 정보는 되돌릴 수 없습니다.</p>
