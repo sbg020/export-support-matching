@@ -20,11 +20,7 @@ import type {
   SupportMethod,
   SupportStage,
 } from '@/types/program'
-import type {
-  CalendarEventType,
-  DocumentType,
-  HistoryStatus,
-} from '@/types/tracking'
+import type { CalendarEventType, DocumentType } from '@/types/tracking'
 import type { ConditionStatus, EligibilityStatus } from '@/types/results'
 
 export const COMPANY_TYPE_OPTIONS: Option<CompanyType>[] = [
@@ -158,22 +154,12 @@ export const CONDITION_STATUS_OPTIONS: Option<ConditionStatus>[] = [
   { value: 'needs-check', label: '확인 필요' },
 ]
 
-export const HISTORY_STATUS_OPTIONS: Option<HistoryStatus>[] = [
-  { value: 'interested', label: '관심' },
-  { value: 'preparing', label: '준비 중' },
-  { value: 'applied', label: '신청 완료' },
-  { value: 'reviewing', label: '심사 중' },
-  { value: 'selected', label: '선정' },
-  { value: 'rejected', label: '미선정' },
-  { value: 'in-progress', label: '수행 중' },
-  { value: 'completed', label: '완료' },
-]
-
 export const CALENDAR_EVENT_TYPE_OPTIONS: Option<CalendarEventType>[] = [
   { value: 'apply-start', label: '접수 시작', description: '공고 접수가 시작되는 날' },
   { value: 'apply-end', label: '접수 마감', description: '공고 접수가 끝나는 날' },
+  { value: 'announcement', label: '발표일', description: '선정 결과를 발표하는 날' },
+  { value: 'agreement', label: '협약일', description: '선정 후 협약을 맺는 날' },
   { value: 'personal-goal', label: '개인 준비 목표', description: '직접 정한 서류 준비 목표일' },
-  { value: 'announcement', label: '발표·협약일', description: '선정 발표나 협약 체결일' },
 ]
 
 export const DOCUMENT_TYPE_OPTIONS: Option<DocumentType>[] = [

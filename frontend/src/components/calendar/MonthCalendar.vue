@@ -273,6 +273,11 @@ th.is-sat {
   color: var(--color-accent-strong);
 }
 
+.month-calendar__event.is-agreement {
+  background: var(--color-success-soft);
+  color: var(--color-success-strong);
+}
+
 .month-calendar__event.is-announcement {
   background: var(--color-secondary-soft);
   color: var(--color-secondary-strong);

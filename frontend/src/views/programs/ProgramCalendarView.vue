@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { IconCalendarEvent, IconChevronLeft, IconChevronRight, IconPlus } from '@tabler/icons-vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import SectionCard from '@/components/common/SectionCard.vue'
@@ -9,13 +9,25 @@ import ActionButton from '@/components/common/ActionButton.vue'
 import DisabledReason from '@/components/common/DisabledReason.vue'
 import MonthCalendar from '@/components/calendar/MonthCalendar.vue'
 import { CALENDAR_EVENT_TYPE_OPTIONS } from '@/constants/options'
-import { useTrackingStore } from '@/stores/trackingStore'
 import { addMonths, formatKoreanDate, parseIso, todayIso } from '@/lib/calendar'
+import { buildProgramEvents } from '@/lib/calendarEvents'
+import { formatDate } from '@/lib/display'
+import { createEmptyQuery, programRepository } from '@/repositories'
+import type { Program } from '@/types/program'
 import type { CalendarEventType } from '@/types/tracking'
 
-const tracking = useTrackingStore()
-/** 공고·준비 기록에서 만든 실제 일정. 공고 날짜가 없으면 빈 배열이다. */
-const events = computed(() => tracking.calendarEvents())
+/** 공고 저장소의 실제 날짜 필드로 만든 일정. 공고 날짜가 없으면 빈 배열이다. */
+const programs = ref<Program[]>([])
+const loadFailed = ref(false)
+const events = computed(() => buildProgramEvents(programs.value))
+
+onMounted(async () => {
+  try {
+    programs.value = (await programRepository.list(createEmptyQuery())).items
+  } catch {
+    loadFailed.value = true
+  }
+})
 
 // 달력 이동용 오늘 날짜 (공고 기준일로 사용하지 않음)
 const today = todayIso()
@@ -67,13 +79,13 @@ const selectedEvents = computed(() =>
 
 <template>
   <div class="page">
-    <PageHeader
-      title="일정"
-      description="공고 접수 시작·마감, 발표·협약일과 개인 준비 목표를 달력으로 확인합니다."
-    />
+    <PageHeader title="공고 달력" description="공고의 접수 시작·마감, 발표·협약일을 달력으로 확인합니다." />
 
     <div class="stack">
-      <NoticeBanner tone="neutral">
+      <NoticeBanner v-if="loadFailed" tone="danger" title="공고를 불러오지 못했습니다" alert>
+        공고 API에 연결할 수 없어 일정을 표시하지 못했습니다. 잠시 후 다시 시도해 주세요.
+      </NoticeBanner>
+      <NoticeBanner v-else-if="events.length === 0" tone="neutral">
         공고와 연동된 일정이 없습니다. 공고 날짜가 확인되지 않으면 달력에 일정을 만들지 않습니다.
       </NoticeBanner>
 
@@ -131,20 +143,37 @@ const selectedEvents = computed(() =>
           <SectionCard title="선택한 날짜" heading-id="selected-date-title" :icon="IconCalendarEvent">
             <p class="selected-date">{{ formatKoreanDate(selectedDate) }}</p>
             <ul v-if="selectedEvents.length > 0" class="list-plain">
-              <li v-for="event in selectedEvents" :key="event.id">{{ event.title }}</li>
+              <li v-for="event in selectedEvents" :key="event.id">
+                <RouterLink
+                  v-if="event.programId"
+                  :to="{ name: 'program-detail', params: { id: event.programId }, query: { from: 'calendar' } }"
+                >
+                  {{ event.title }}
+                </RouterLink>
+                <span v-else>{{ event.title }}</span>
+              </li>
             </ul>
             <p v-else class="fs-sm text-muted-strong mb-0">이 날짜에는 일정이 없습니다.</p>
           </SectionCard>
 
           <SectionCard title="이달의 일정" heading-id="month-events-title">
             <ul v-if="monthEvents.length > 0" class="list-plain">
-              <li v-for="event in monthEvents" :key="event.id">{{ event.date }} {{ event.title }}</li>
+              <li v-for="event in monthEvents" :key="event.id">
+                <span class="fs-sm text-muted-strong">{{ formatDate(event.date) }}</span>
+                <RouterLink
+                  v-if="event.programId"
+                  :to="{ name: 'program-detail', params: { id: event.programId }, query: { from: 'calendar' } }"
+                >
+                  {{ event.title }}
+                </RouterLink>
+                <span v-else>{{ event.title }}</span>
+              </li>
             </ul>
             <EmptyState
               v-else
               :icon="IconCalendarEvent"
               title="공고와 연동된 일정이 없습니다"
-              description="관심·준비 중 사업이 생기면 접수 시작·마감, 발표·협약일이 자동으로 표시됩니다."
+              description="공고가 등록되면 접수 시작·마감, 발표일, 협약일이 공고의 날짜 그대로 표시됩니다."
               compact
               :level="3"
             />
@@ -249,6 +278,11 @@ const selectedEvents = computed(() =>
 .type-toggle--personal-goal .type-toggle__swatch,
 .swatch--personal-goal {
   background: var(--color-accent);
+}
+
+.type-toggle--agreement .type-toggle__swatch,
+.swatch--agreement {
+  background: var(--color-success);
 }
 
 .type-toggle--announcement .type-toggle__swatch,
