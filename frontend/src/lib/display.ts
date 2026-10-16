@@ -81,6 +81,15 @@ export function formatDate(value: IsoDate | null | undefined): string {
   return `${year}. ${String(month).padStart(2, '0')}. ${String(day).padStart(2, '0')}.`
 }
 
+/** 짧은 날짜. 예: 2025.03.01 (값이 있을 때만) */
+export function formatDateCompact(value: string | null | undefined): string {
+  if (isMissing(value)) return MISSING
+  const parts = parseIsoDateParts(value)
+  if (!parts) return MISSING
+  const [year, month, day] = parts
+  return `${year}.${String(month).padStart(2, '0')}.${String(day).padStart(2, '0')}`
+}
+
 export function formatYearMonth(value: YearMonth | null | undefined): string {
   if (isMissing(value)) return MISSING
   const match = /^(\d{4})-(\d{2})$/.exec(value)
