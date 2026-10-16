@@ -41,7 +41,7 @@ git push -u origin main
    | `VITE_API_BASE_URL` | (공고 API가 생기면) | 지금은 넣지 않음 |
 
    서버 전용 값에는 `VITE_` 접두사를 붙이지 않습니다. 환경변수는 추가·변경한 뒤 **다시 배포해야** 적용됩니다. CLI로 넣을 때는 `frontend` 폴더에서 `npx vercel env add <이름> production` / `preview`를 실행합니다.
-4. **Deploy**를 누르면 배포 URL이 생깁니다. 이후 `main`에 푸시하면 운영 배포, 다른 브랜치·PR은 미리보기 URL이 자동으로 생깁니다.
+4. **Deploy**를 누르면 배포 URL이 생깁니다. Vercel 프로젝트를 GitHub 저장소와 연결(Git Integration)하면 이후 `main` 푸시는 운영 배포, 다른 브랜치·PR은 미리보기 URL이 자동으로 생깁니다. 현재 프로젝트는 Git 자동 배포가 연결되어 있지 않아 아래 CLI 방식으로 배포합니다.
 
 하위 경로를 직접 열거나 새로고침해도 앱이 열리도록 `frontend/vercel.json`에 다음 rewrite가 들어 있습니다. `/api/`는 서버 함수가 처리하도록 제외합니다. Vercel은 실제 파일(`/assets/*` 등)을 먼저 제공하고, 없는 경로만 `index.html`로 보냅니다.
 
@@ -49,7 +49,15 @@ git push -u origin main
 { "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }] }
 ```
 
-CLI로 배포하려면 `frontend` 폴더에서 `npx vercel`(미리보기) 또는 `npx vercel --prod`(운영)를 실행합니다. 처음 실행하면 Vercel 로그인이 필요합니다.
+CLI로 배포할 때는 프로젝트의 Root Directory가 `frontend`이므로 **저장소 루트**에서 실행합니다. 루트의 `.vercelignore`가 비밀값·로컬 파일(`.env.local`, 원본 `revision_01.md`)과 `backend/`·`node_modules/` 등을 업로드에서 뺍니다.
+
+```bash
+npx vercel link --project export_support_matching   # 처음 한 번 (루트에 .vercel/ 생성, Git 제외)
+npx vercel deploy           # 미리보기 (배포 보호가 켜져 있으면 Vercel 로그인 필요)
+npx vercel deploy --prod    # 운영 (exportsupportmatching.vercel.app)
+```
+
+미리보기 배포는 Vercel 배포 보호(Vercel Authentication)로 막혀 있으므로, 브라우저 대신 `npx vercel curl <경로> --deployment <미리보기 URL>`로 확인할 수 있습니다.
 
 ## 3. 배포 후 확인할 것
 

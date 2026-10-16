@@ -1,0 +1,17 @@
+# Vercel CLI로 배포할 때 올리지 않을 파일 (프로젝트 Root Directory: frontend)
+# 비밀값·로컬 전용 파일
+revision_01.md
+**/.env
+**/.env.*
+!**/.env.example
+**/*.local
+**/.vercel
+
+# 빌드에 필요 없는 폴더
+.git
+backend
+docs
+**/node_modules
+**/dist
+**/.venv
+**/__pycache__
