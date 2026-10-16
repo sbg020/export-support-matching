@@ -1,6 +1,8 @@
 # CLAUDE.md — 중소·중견기업 수출지원사업 매칭 시스템
 
 > 이 파일의 내용을 프로젝트 루트의 `CLAUDE.md`로 사용한다. Claude Code는 작업을 시작하기 전에 전체를 읽고, 현재 저장소의 구조를 확인한 뒤 이 지침에 따라 구현한다.
+>
+> **개정 반영:** 메뉴 구조·마이페이지·비교·달력·로그인에 관한 조항은 [docs/revisions/revision_01.md](docs/revisions/revision_01.md)가 대체한다(충돌 시 개정 문서 우선). 반영 현황은 [docs/revisions/revision_01_inventory.md](docs/revisions/revision_01_inventory.md) 참고.
 
 ## 1. 이번 작업의 목표와 완료 기준
 

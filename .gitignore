@@ -41,3 +41,6 @@ Thumbs.db
 
 # ── 배포 도구 ──
 .vercel/
+
+# ── 비밀번호가 들어 있는 개정 지시 원본 (가린 사본: docs/revisions/) ──
+/revision_01.md
