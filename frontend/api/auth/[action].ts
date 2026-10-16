@@ -1,3 +1,5 @@
+/// <reference types="node" />
+// Vercel이 함수를 빌드할 때 쓰는 tsconfig에는 Node 타입이 기본 포함되지 않아(TypeScript 6) 직접 참조한다.
 /*
  * Vercel 서버 함수: /api/auth/login · logout · me · signup
  * Vercel 권장 방식대로 관련 경로를 하나의 fetch 핸들러에서 처리하고, 공유 코드는 api/ 밖(server/)에 둔다.

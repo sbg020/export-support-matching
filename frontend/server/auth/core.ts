@@ -1,3 +1,5 @@
+/// <reference types="node" />
+// Vercel이 함수를 빌드할 때 쓰는 tsconfig에는 Node 타입이 기본 포함되지 않아(TypeScript 6) 직접 참조한다.
 /*
  * 데모 계정 인증 — 서버 전용 순수 함수.
  *
