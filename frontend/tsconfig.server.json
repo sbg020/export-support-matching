@@ -1,0 +1,14 @@
+// 서버 코드(Vercel 서버 함수 api/, 공유 서버 모듈 server/)용 TSConfig. 브라우저 앱과 분리해 Node 타입으로 검사한다.
+{
+  "extends": "@tsconfig/node24/tsconfig.json",
+  "include": ["api/**/*.ts", "server/**/*.ts"],
+  "compilerOptions": {
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "types": ["node"],
+    "noEmit": true,
+    "noUncheckedIndexedAccess": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.server.tsbuildinfo"
+  }
+}
