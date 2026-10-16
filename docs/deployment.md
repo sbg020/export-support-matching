@@ -1,10 +1,13 @@
 # 배포 안내
 
-현재 배포 대상은 **프론트엔드(정적 SPA)**입니다. 공고 데이터가 연결되지 않은 상태이므로 백엔드와 DB 없이 배포해 모든 화면을 확인할 수 있습니다.
+현재 배포 대상은 **프론트엔드(정적 SPA) + 로그인용 Vercel 서버 함수(`frontend/api/`)**입니다. 공고 데이터가 연결되지 않은 상태이므로 Django 백엔드와 DB 없이 배포해 모든 화면을 확인할 수 있습니다.
+
+- Production: `https://exportsupportmatching.vercel.app/` (Vercel 프로젝트 `exportsupportmatching`, 팀 `sbg020`)
+- GitHub: `https://github.com/sbg020/export-support-matching`
 
 ## 1. GitHub 저장소 연결
 
-로컬 Git 저장소는 이미 만들어져 있습니다(기본 브랜치 `main`). GitHub에서 빈 저장소를 만든 뒤 아래 명령으로 연결합니다.
+원격 저장소가 연결되어 있습니다(기본 브랜치 `main`). 다른 PC에서 새로 연결할 때는 아래 명령을 씁니다.
 
 ```bash
 git remote add origin https://github.com/<계정>/<저장소>.git
@@ -28,13 +31,22 @@ git push -u origin main
    | Output Directory | `dist` |
    | Node.js Version | 22.x 이상 |
 
-3. 환경변수: 공고 API가 없으면 **아무것도 넣지 않습니다.** API를 연결할 때만 `VITE_API_BASE_URL`을 추가합니다.
+3. 환경변수 (Project → Settings → Environment Variables, **Production·Preview 모두**):
+
+   | 이름 | 값 | 비고 |
+   |---|---|---|
+   | `DEMO_LOGIN_ID` | 데모 아이디 | 대소문자 구분 |
+   | `DEMO_LOGIN_PASSWORD` | 데모 비밀번호 | 문서·커밋에 적지 않음 |
+   | `AUTH_SESSION_SECRET` | `openssl rand -base64 32` 결과 | Production과 Preview에 **서로 다른 값** |
+   | `VITE_API_BASE_URL` | (공고 API가 생기면) | 지금은 넣지 않음 |
+
+   서버 전용 값에는 `VITE_` 접두사를 붙이지 않습니다. 환경변수는 추가·변경한 뒤 **다시 배포해야** 적용됩니다. CLI로 넣을 때는 `frontend` 폴더에서 `npx vercel env add <이름> production` / `preview`를 실행합니다.
 4. **Deploy**를 누르면 배포 URL이 생깁니다. 이후 `main`에 푸시하면 운영 배포, 다른 브랜치·PR은 미리보기 URL이 자동으로 생깁니다.
 
-하위 경로를 직접 열거나 새로고침해도 앱이 열리도록 `frontend/vercel.json`에 다음 rewrite가 들어 있습니다. Vercel은 실제 파일(`/assets/*` 등)을 먼저 제공하고, 없는 경로만 `index.html`로 보냅니다.
+하위 경로를 직접 열거나 새로고침해도 앱이 열리도록 `frontend/vercel.json`에 다음 rewrite가 들어 있습니다. `/api/`는 서버 함수가 처리하도록 제외합니다. Vercel은 실제 파일(`/assets/*` 등)을 먼저 제공하고, 없는 경로만 `index.html`로 보냅니다.
 
 ```json
-{ "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
+{ "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }] }
 ```
 
 CLI로 배포하려면 `frontend` 폴더에서 `npx vercel`(미리보기) 또는 `npx vercel --prod`(운영)를 실행합니다. 처음 실행하면 Vercel 로그인이 필요합니다.
@@ -43,13 +55,13 @@ CLI로 배포하려면 `frontend` 폴더에서 `npx vercel`(미리보기) 또는
 
 아래 주소를 **새 탭에서 직접 열고, 새로고침**해 404 없이 열리는지 확인합니다.
 
-- `/` — 접수 공고 수·추천 공고 수가 `-`인지
-- `/diagnose/input` — 6단계 폼 이동·검증
-- `/programs`, `/programs/recommended` — "현재 등록된 지원사업 공고가 없습니다." 빈 상태, 정렬·비교 비활성 이유
-- `/programs/compare` — 열 제목부터 값까지 `-`
-- `/programs/아무-ID` — "해당 공고를 찾을 수 없습니다."와 상세 틀
-- `/mypage`, `/mypage/calendar`, `/mypage/documents` — 빈 상태, 가상 일정·서류 없음
-- 모바일(폭 360px)에서 메뉴 서랍·필터 시트·비교 표·캘린더 사용 가능 여부
+- `/` — 한 줄 소개 → 이용 방법 3단계 → `추천받기`, 사이드바 주 메뉴 3개
+- `/login` — 데모 계정 로그인, 틀린 비밀번호·소문자 아이디 실패, 회원가입 탭은 비활성과 이유 표시
+- `/diagnose/input`, `/programs/recommended`, `/programs`(하단 `#compare`), `/programs/calendar`, `/programs/아무-ID`, `/roadmap`
+- 로그인 후 `/mypage/profile`, `/mypage/programs?tab=applied`, `/mypage/documents` (로그아웃 상태에서는 로그인 화면으로 이동)
+- 기존 주소 `/programs/compare`, `/mypage`, `/mypage/saved`, `/mypage/preparation`, `/mypage/history`, `/mypage/calendar`가 새 위치로 이동하는지
+- 세션 쿠키 `esm_session`이 `HttpOnly`, `Secure`, `SameSite=Lax`인지 (브라우저 개발자 도구 → Application → Cookies)
+- 모바일(폭 360px)에서 서랍 메뉴, 하위 메뉴 가로 스크롤, 비교 영역, 달력, 탭 사용 가능 여부
 
 ## 4. 백엔드·DB 배포 (공고 데이터 연결 시)
 
