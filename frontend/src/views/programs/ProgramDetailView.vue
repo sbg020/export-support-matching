@@ -4,7 +4,9 @@
  * 공고가 필요한 동작(신청·원문 보기·서류 체크·저장·비교)은 이유와 함께 비활성화한다.
  */
 import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter, type RouteLocationRaw } from 'vue-router'
 import {
+  IconArrowLeft,
   IconBookmark,
   IconChecklist,
   IconCircleCheck,
@@ -32,6 +34,10 @@ import EligibilityBadge from '@/components/programs/EligibilityBadge.vue'
 import ConditionBadge from '@/components/programs/ConditionBadge.vue'
 import { programRepository } from '@/repositories'
 import { useProfileStore } from '@/stores/profileStore'
+import { useApplicationStore } from '@/stores/applicationStore'
+import { useAuth } from '@/stores/authStore'
+import { useToast } from '@/stores/toastStore'
+import { COMPARE_FULL_MESSAGE, useCompareSelection } from '@/composables/useCompareSelection'
 import { evaluateEligibility } from '@/lib/engine/eligibility'
 import { evaluateFit } from '@/lib/engine/fit'
 import { evaluateOpportunityCost } from '@/lib/engine/opportunityCost'
@@ -50,6 +56,20 @@ import type { Program } from '@/types/program'
 import type { LoadStatus } from '@/composables/useProgramList'
 
 const props = defineProps<{ id: string }>()
+
+const route = useRoute()
+const router = useRouter()
+const selection = useCompareSelection()
+const applications = useApplicationStore()
+const auth = useAuth()
+const toast = useToast()
+
+/** 들어온 화면(from)으로 돌아가는 '목록으로' 링크. 없으면 전체 공고 */
+const backLink = computed<{ to: RouteLocationRaw; label: string }>(() => {
+  if (route.query.from === 'recommended') return { to: { name: 'programs-recommended' }, label: '맞춤 추천' }
+  if (route.query.from === 'calendar') return { to: { name: 'programs-calendar' }, label: '공고 달력' }
+  return { to: { name: 'programs' }, label: '전체 공고' }
+})
 
 const store = useProfileStore()
 const program = ref<Program | null>(null)
@@ -94,6 +114,26 @@ const SECTIONS = [
   { id: 'section-source', label: '원문·출처' },
 ]
 
+const savedRecord = computed(() =>
+  p.value ? applications.records.value.find((r) => r.programId === p.value?.id) : undefined,
+)
+
+function addToCompare() {
+  if (!p.value) return
+  if (selection.add(p.value.id) === 'full') toast.show(COMPARE_FULL_MESSAGE, 'warning')
+  void router.push(selection.compareLocation())
+}
+
+async function saveInterested() {
+  if (!p.value) return
+  if (auth.state.status !== 'authenticated') {
+    await router.push({ name: 'login', query: { redirect: route.fullPath } })
+    return
+  }
+  const result = applications.saveInterested(p.value.id)
+  toast.show(result === 'added' ? '관심 사업으로 저장했습니다.' : '이미 관리 기록에 있는 사업입니다.', 'info')
+}
+
 const formatHours = (value: { value: number; basis: string }) => `약 ${value.value}시간 (근거: ${value.basis})`
 const formatDays = (days: number) => (days >= 0 ? `마감까지 ${days}일` : '접수 마감')
 const formatCountDocs = (n: number) => `${n}건`
@@ -108,6 +148,12 @@ const formatPercent = (n: number) => `${n}%`
         <strong class="text-heading"><DataValue :value="receptionStatusText(p)" /></strong>
         <span class="fs-sm text-muted-strong ms-2">신청 자격</span>
         <EligibilityBadge :status="eligibility?.status ?? null" size="sm" />
+      </template>
+      <template #actions>
+        <RouterLink :to="backLink.to" class="btn btn-secondary">
+          <IconArrowLeft :size="18" stroke-width="2" aria-hidden="true" />
+          목록으로<span class="visually-hidden"> ({{ backLink.label }})</span>
+        </RouterLink>
       </template>
     </PageHeader>
 
@@ -190,14 +236,19 @@ const formatPercent = (n: number) => `${n}%`
             >
               원문 보기
             </ActionButton>
-            <ActionButton :icon="IconBookmark" disabled :describedby="p ? 'detail-save-reason' : 'detail-action-reason'">
+            <ActionButton
+              :icon="IconBookmark"
+              :disabled="!p || Boolean(savedRecord)"
+              :describedby="!p ? 'detail-action-reason' : savedRecord ? 'detail-save-reason' : undefined"
+              @click="saveInterested"
+            >
               관심사업 저장
             </ActionButton>
             <ActionButton
               :icon="IconLayoutColumns"
               :disabled="!p"
-              :to="p ? { name: 'programs-compare', query: { ids: p.id } } : undefined"
               :describedby="p ? undefined : 'detail-action-reason'"
+              @click="addToCompare"
             >
               비교에 추가
             </ActionButton>
@@ -212,7 +263,9 @@ const formatPercent = (n: number) => `${n}%`
             <p v-else class="fs-sm text-muted-strong mt-2 mb-0">
               신청은 공고 원문에 안내된 방법으로 진행합니다. 버튼을 누르면 원문이 새 창에서 열립니다.
             </p>
-            <DisabledReason id="detail-save-reason">관심사업 저장 기능은 아직 연결되지 않았습니다.</DisabledReason>
+            <DisabledReason v-if="savedRecord" id="detail-save-reason">
+              이미 마이페이지 관리 기록에 있는 사업입니다.
+            </DisabledReason>
           </template>
         </template>
       </SectionCard>

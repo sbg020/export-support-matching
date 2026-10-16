@@ -1,41 +1,39 @@
 <script setup lang="ts">
 /**
- * 공고 목록 본체: 검색, 필터, 정렬, 결과, 비교 선택.
- * 공고가 없으면 가짜 카드 대신 빈 상태를 보여 주고, 정렬·비교는 이유와 함께 비활성화한다.
+ * 공고 목록 본체: 검색, 필터, 정렬, 결과.
+ * 공고가 없으면 가짜 카드 대신 빈 상태를 보여 주고, 정렬은 이유와 함께 비활성화한다.
+ * 비교 선택은 모든 화면이 공유하는 useCompareSelection으로 관리한다 (비교 영역은 전체 공고 하단).
  */
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import {
-  IconAdjustmentsHorizontal,
-  IconLayoutColumns,
-  IconRefresh,
-  IconSearch,
-  IconX,
-} from '@tabler/icons-vue'
+import { IconAdjustmentsHorizontal, IconRefresh, IconSearch, IconX } from '@tabler/icons-vue'
 import type { ProgramSort } from '@/types/program'
 import type { EligibilityStatus } from '@/types/results'
 import { SORT_OPTIONS, ELIGIBILITY_STATUS_OPTIONS } from '@/constants/options'
 import { useProgramFilters } from '@/composables/useProgramFilters'
 import { useProgramList } from '@/composables/useProgramList'
+import { COMPARE_FULL_MESSAGE, useCompareSelection } from '@/composables/useCompareSelection'
 import { evaluateEligibility } from '@/lib/engine/eligibility'
 import { useProfileStore } from '@/stores/profileStore'
+import { useToast } from '@/stores/toastStore'
 import DataValue from '@/components/common/DataValue.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import NoticeBanner from '@/components/common/NoticeBanner.vue'
 import AppModal from '@/components/common/AppModal.vue'
 import TabNav from '@/components/common/TabNav.vue'
-import ActionButton from '@/components/common/ActionButton.vue'
 import DisabledReason from '@/components/common/DisabledReason.vue'
 import type { TabItem } from '@/components/common/types'
 import ProgramFilters from './ProgramFilters.vue'
 import ProgramCard from './ProgramCard.vue'
+import RecommendationCard from './RecommendationCard.vue'
 import ProgramCardFieldGuide from './ProgramCardFieldGuide.vue'
 
 const props = defineProps<{ mode: 'all' | 'recommended' }>()
 
-const MAX_COMPARE = 4
 const router = useRouter()
 const store = useProfileStore()
+const toast = useToast()
+const selection = useCompareSelection()
 const idPrefix = computed(() => `browser-${props.mode}`)
 
 const defaultSort: ProgramSort = props.mode === 'recommended' ? 'recommended' : 'deadline'
@@ -80,26 +78,32 @@ const eligibilityTabs = computed<TabItem<EligibilityTab>[]>(() => [
 ])
 
 const visibleItems = computed(() => {
-  if (props.mode !== 'recommended' || eligibilityTab.value === 'all') return items.value
-  return items.value.filter((p) => eligibilityById.value.get(p.id) === eligibilityTab.value)
+  if (props.mode !== 'recommended') return items.value
+  const filtered =
+    eligibilityTab.value === 'all'
+      ? items.value
+      : items.value.filter((p) => eligibilityById.value.get(p.id) === eligibilityTab.value)
+  // 신청 불가 공고는 다른 공고 뒤에 둔다 (순서는 그대로 유지).
+  const ineligible = (id: string) => (eligibilityById.value.get(id) === 'ineligible' ? 1 : 0)
+  return [...filtered].sort((a, b) => ineligible(a.id) - ineligible(b.id))
 })
 
-/* 비교 선택 */
-const selectedIds = ref<string[]>([])
-function toggleCompare(id: string) {
-  selectedIds.value = selectedIds.value.includes(id)
-    ? selectedIds.value.filter((item) => item !== id)
-    : [...selectedIds.value, id].slice(0, MAX_COMPARE)
+/* 비교 선택 (공통) */
+function toggleCompare(id: string, checked: boolean): boolean {
+  if (!checked) {
+    selection.remove(id)
+    return true
+  }
+  if (selection.add(id) === 'full') {
+    toast.show(COMPARE_FULL_MESSAGE, 'warning')
+    return false
+  }
+  return true
 }
-const compareReady = computed(() => selectedIds.value.length >= 2)
-const compareReason = computed(() => {
-  if (!hasPrograms.value) return '비교할 공고가 없습니다. 공고가 등록되면 2~4개를 골라 비교할 수 있습니다.'
-  if (!compareReady.value) return '비교하려면 공고를 2개 이상 선택해 주세요. (최대 4개)'
-  return null
-})
-function goCompare() {
-  if (!compareReady.value) return
-  void router.push({ name: 'programs-compare', query: { ids: selectedIds.value.join(',') } })
+
+function addToCompareAndGo(id: string) {
+  if (selection.add(id) === 'full') toast.show(COMPARE_FULL_MESSAGE, 'warning')
+  void router.push(selection.compareLocation())
 }
 
 function onSortChange(event: Event) {
@@ -268,45 +272,23 @@ const resultCountFormat = (n: number) => `${n}건`
 
             <ul v-else class="program-list">
               <li v-for="program in visibleItems" :key="program.id">
-                <ProgramCard
+                <RecommendationCard
+                  v-if="mode === 'recommended'"
                   :program="program"
-                  :selected="selectedIds.includes(program.id)"
-                  :selection-disabled="selectedIds.length >= MAX_COMPARE"
-                  @toggle-compare="toggleCompare"
+                  :in-compare="selection.has(program.id)"
+                  @compare="addToCompareAndGo"
+                />
+                <ProgramCard
+                  v-else
+                  :program="program"
+                  :selected="selection.has(program.id)"
+                  :toggle-compare="toggleCompare"
                 />
               </li>
             </ul>
           </template>
         </div>
 
-        <div class="compare-bar surface-card">
-          <div class="compare-bar__text">
-            <p class="compare-bar__title">
-              <IconLayoutColumns :size="18" stroke-width="2" aria-hidden="true" />
-              공고 비교
-            </p>
-            <p class="fs-sm mb-0">
-              선택한 공고
-              <strong><DataValue :value="hasPrograms ? selectedIds.length : null" /></strong>
-              / 최대 {{ MAX_COMPARE }}개
-            </p>
-          </div>
-          <div class="compare-bar__actions">
-            <RouterLink :to="{ name: 'programs-compare' }" class="btn btn-ghost btn-sm">비교 화면 보기</RouterLink>
-            <ActionButton
-              variant="primary"
-              size="sm"
-              :disabled="!compareReady"
-              :describedby="compareReason ? `${idPrefix}-compare-reason` : undefined"
-              @click="goCompare"
-            >
-              선택한 공고 비교하기
-            </ActionButton>
-          </div>
-          <DisabledReason v-if="compareReason" :id="`${idPrefix}-compare-reason`" class="compare-bar__reason">
-            {{ compareReason }}
-          </DisabledReason>
-        </div>
       </section>
     </div>
 
@@ -492,35 +474,6 @@ const resultCountFormat = (n: number) => `${n}건`
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-.compare-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding: var(--space-4) var(--space-5);
-}
-
-.compare-bar__title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 2px;
-  font-weight: var(--fw-bold);
-  color: var(--color-heading);
-}
-
-.compare-bar__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.compare-bar__reason {
-  flex-basis: 100%;
-  margin-top: 0;
 }
 
 @media (max-width: 991.98px) {

@@ -4,7 +4,7 @@
  * 순서: 신청 자격 → 적합도 → 추천 이유. 신청 불가인 공고는 적합도보다 자격 상태를 먼저 보여 준다.
  */
 import { computed } from 'vue'
-import { IconBookmark, IconLayoutColumns } from '@tabler/icons-vue'
+import { IconBookmark } from '@tabler/icons-vue'
 import type { Program } from '@/types/program'
 import { evaluateEligibility } from '@/lib/engine/eligibility'
 import { evaluateFit } from '@/lib/engine/fit'
@@ -23,11 +23,16 @@ import EligibilityBadge from './EligibilityBadge.vue'
 
 const props = defineProps<{
   program: Program
+  /** 공통 비교 선택에 들어 있는지 */
   selected: boolean
-  selectionDisabled: boolean
+  /** 비교 선택을 바꾼다. 최대 개수 초과 등으로 거절되면 false */
+  toggleCompare: (id: string, checked: boolean) => boolean
 }>()
 
-const emit = defineEmits<{ toggleCompare: [id: string] }>()
+function onCompareChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  if (!props.toggleCompare(props.program.id, input.checked)) input.checked = props.selected
+}
 
 const store = useProfileStore()
 const eligibility = computed(() => evaluateEligibility(store.state.profile, props.program))
@@ -71,16 +76,15 @@ const titleId = computed(() => `program-card-${props.program.id}`)
       <RouterLink :to="{ name: 'program-detail', params: { id: program.id } }" class="btn btn-primary btn-sm">
         상세보기
       </RouterLink>
-      <button
-        type="button"
-        class="btn btn-secondary btn-sm"
-        :aria-pressed="selected"
-        :aria-disabled="selectionDisabled && !selected ? 'true' : undefined"
-        @click="(!selectionDisabled || selected) && emit('toggleCompare', program.id)"
-      >
-        <IconLayoutColumns :size="16" stroke-width="2" aria-hidden="true" />
-        {{ selected ? '비교에서 빼기' : '비교하기' }}
-      </button>
+      <label class="compare-check">
+        <input
+          type="checkbox"
+          class="form-check-input"
+          :checked="selected"
+          @change="onCompareChange"
+        />
+        비교에 추가
+      </label>
       <button type="button" class="btn btn-ghost btn-sm" aria-disabled="true" :aria-describedby="`${titleId}-save`">
         <IconBookmark :size="16" stroke-width="2" aria-hidden="true" />
         관심사업 저장
@@ -153,6 +157,25 @@ const titleId = computed(() => `program-card-${props.program.id}`)
 .program-card__actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-2);
+}
+
+.compare-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--color-heading);
+  cursor: pointer;
+}
+
+.compare-check .form-check-input {
+  margin: 0;
 }
 </style>
