@@ -98,3 +98,11 @@
   - 하위 메뉴 패널: 마우스를 올리면 5열(항목 9개)이 각 주 메뉴 왼쪽 끝에 맞춰 펼쳐지고 본문 위에 겹친다. 992px에서도 열끼리 겹치지 않는다. 키보드 Tab 순서는 주 메뉴 → 그 하위 항목 → 다음 주 메뉴이고, `Esc`로 닫히며 포커스가 그 주 메뉴로 간다.
   - 360px: 헤더 높이 56px 한 줄(메뉴 버튼 · 로고 · 로그인/프로필). 서랍 메뉴에 주 메뉴 5개가 새 순서·이름으로 아이콘 없이 보이고, 프로필 팝업이 화면 안에 들어온다.
   - 로그인 흐름은 실제 데모 비밀번호를 쓰지 않고, 이 확인에서만 쓴 임시 계정을 프로세스 환경변수로 넣은 별도 개발 서버(포트 5174, 확인 후 종료)에서 확인했다. 비로그인 `/manage/programs` → `/login?redirect=/manage/programs` → 로그인 후 `/manage/programs`. 헤더 `로그인`(redirect 없음) → 로그인 후 `/roadmap`. 로그인 상태 `/` → `/roadmap`. 프로필 팝업은 `기업 프로필`·`로그아웃` 2개이고 `기업 프로필` → `/profile`(프로필 버튼 선택 고리, 주 메뉴 선택 없음). 로그아웃 → `/`, 안내 토스트, 서버 세션 종료, 저장 키 4개 값이 로그인 전과 같다. `/mypage/profile`·`/mypage` → `/profile`, `/diagnose/input?step=2` → `/profile?step=2`, `/mypage/programs?tab=applied` → `/manage/programs?tab=applied`(신청완료 탭), `/mypage/documents` → `/manage/documents`. 기업 진단의 `기업정보 수정하기`·`기업 프로필에서 수정` → `/profile`, 요약의 `수출 현황 수정` → `/profile?step=3`.
+
+### 7.3 배포 (2026-11-01)
+
+- `revision-03`의 커밋 6개(`45f8092`~`e063cdc`)를 `origin/revision-03`에 푸시했다. `main` 병합·브랜치 삭제는 하지 않았고 다른 브랜치는 건드리지 않았다. 환경변수·Vercel 설정은 바꾸지 않았다.
+- 미리보기: CLI로 배포했다(`https://exportsupportmatching-rnr0j7e4y-sbg020.vercel.app`, Vercel 인증 보호). `vercel curl`로 `/profile`, `/manage/programs`, `/manage/documents`, `/roadmap`, `/mypage/profile`, `/diagnose/input?step=2`가 앱 화면(index.html)을 돌려주고 `/api/auth/me`가 응답하는 것, 번들에 새 메뉴 이름이 있고 없앨 이름(`지원사업 찾기`·`나의 로드맵`·`mypage-profile`)이 없는 것을 확인했다.
+- 운영: `vercel deploy --prod` → `https://exportsupportmatching.vercel.app` (배포 `exportsupportmatching-2ai9cnq88-sbg020.vercel.app`).
+- 운영 사이트 확인(로그인하지 않음): `/`, `/profile`, `/manage/programs`, `/manage/documents`, `/roadmap`, `/mypage`, `/mypage/profile`, `/diagnose/input?step=2`, `/community/reviews`를 직접 열면 200이다. 브라우저에서 `/mypage/profile` → `/profile`(제목 `기업 프로필`), `/diagnose/input?step=2` → `/profile?step=2`, 비로그인 `/manage/programs` → `/login?redirect=/manage/programs`, `/mypage/programs?tab=applied` → `/login?redirect=/manage/programs?tab=applied`. 1280px에서 주 메뉴 5개(아이콘 없음)와 하위 메뉴 패널 5열, 헤더 안쪽과 본문 안쪽이 같다(32~1233px). 360px에서 헤더가 한 줄이다. 없앨 문구가 화면에 없다.
+- 로그인이 필요한 운영 화면(로그인 후 첫 화면, 프로필 팝업, 지원사업 관리 내용)은 실제 데모 비밀번호를 쓰지 않으려고 운영에서 로그인하지 않았다. 같은 코드를 로컬 임시 계정으로 확인했다(§7.2). 운영에서 데모 계정으로 볼 항목: 로그인 후 `/roadmap`, 프로필 팝업, 로그아웃 후 홈과 기업정보 유지.
