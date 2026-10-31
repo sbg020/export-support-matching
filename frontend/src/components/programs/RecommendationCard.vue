@@ -3,24 +3,26 @@
  * 맞춤 추천 카드. 실제 공고(Program)가 있을 때만 렌더링한다.
  * 기본 정보는 공고명·신청자격·마감일·추천 이유 네 가지이며, 그 밖의 지표는 상세 화면에서 본다.
  * 근거가 없으면 숫자를 만들지 않고 '-'와 안내를 보여 준다.
+ * '비교에 추가'는 화면을 이동하지 않고 선택만 바꾼다 (하단 비교 바에서 비교 영역으로 간다).
  */
 import { computed, ref, useId } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { IconBookmark, IconChevronDown, IconExternalLink, IconLayoutColumns } from '@tabler/icons-vue'
+import { IconBookmark, IconChevronDown, IconLayoutColumns } from '@tabler/icons-vue'
 import type { Program } from '@/types/program'
-import { evaluateEligibility } from '@/lib/engine/eligibility'
-import { evaluateFit } from '@/lib/engine/fit'
-import { formatDate, formatDateCompact } from '@/lib/display'
-import { useProfileStore } from '@/stores/profileStore'
+import type { ProgramEvaluation } from '@/lib/engine/evaluateAll'
+import { formatDateCompact } from '@/lib/display'
+import { programTitleText } from '@/lib/programDisplay'
 import { useApplicationStore } from '@/stores/applicationStore'
 import { useAuth } from '@/stores/authStore'
 import { useToast } from '@/stores/toastStore'
 import { statusLabel } from '@/constants/applicationStatus'
 import DataValue from '@/components/common/DataValue.vue'
 import EligibilityBadge from './EligibilityBadge.vue'
+import FitBreakdownTable from './FitBreakdownTable.vue'
 
 const props = defineProps<{
   program: Program
+  evaluation: ProgramEvaluation | undefined
   /** 이미 비교 선택에 들어 있는지 */
   inCompare: boolean
 }>()
@@ -29,15 +31,13 @@ const emit = defineEmits<{ compare: [id: string] }>()
 
 const route = useRoute()
 const router = useRouter()
-const profileStore = useProfileStore()
 const applications = useApplicationStore()
 const auth = useAuth()
 const toast = useToast()
 
-const eligibility = computed(() => evaluateEligibility(profileStore.state.profile, props.program))
-const fit = computed(() => evaluateFit(profileStore.state.profile, props.program))
+const eligibility = computed(() => props.evaluation?.eligibility ?? null)
+const fit = computed(() => props.evaluation?.fit ?? null)
 const firstReason = computed(() => fit.value?.reasons[0] ?? null)
-const hasBasis = computed(() => fit.value !== null && fit.value.factors.length > 0)
 const record = computed(() => applications.records.value.find((r) => r.programId === props.program.id))
 
 const basisOpen = ref(false)
@@ -56,22 +56,27 @@ async function saveInterested() {
     result === 'added' ? 'success' : 'info',
   )
 }
-
-const formatPercent = (value: number) => `${Math.round(value * 1000) / 10}%`
 </script>
 
 <template>
   <article class="rec-card surface-card" :aria-labelledby="titleId">
     <h3 :id="titleId" class="rec-card__title">
       <RouterLink :to="{ name: 'program-detail', params: { id: program.id }, query: { from: 'recommended' } }">
-        <DataValue :value="program.title" missing-label="공고명 없음" />
+        <DataValue :value="programTitleText(program)" missing-label="공고명 없음" />
       </RouterLink>
     </h3>
 
     <dl class="rec-card__facts">
       <div class="rec-card__fact">
         <dt>신청자격</dt>
-        <dd><EligibilityBadge :status="eligibility?.status ?? null" size="sm" /></dd>
+        <dd>
+          <EligibilityBadge
+            :status="eligibility?.status ?? null"
+            size="sm"
+            :self-checked-count="eligibility?.selfCheckedCount ?? 0"
+            :data-state="eligibility?.dataState ?? null"
+          />
+        </dd>
       </div>
       <div class="rec-card__fact">
         <dt>마감일</dt>
@@ -95,54 +100,25 @@ const formatPercent = (value: number) => `${Math.round(value * 1000) / 10}%`
         <IconChevronDown :size="16" stroke-width="2" aria-hidden="true" :class="{ 'is-open': basisOpen }" />
       </button>
       <div v-show="basisOpen" :id="basisId" class="rec-card__basis-body">
-        <p v-if="!fit || !hasBasis" class="rec-card__basis-empty">
-          아직 계산 근거가 없습니다. 공고 규칙과 적합도 기준이 연결되면 항목별 근거가 표시됩니다.
-        </p>
-        <template v-else>
-          <p class="rec-card__score">적합도 {{ fit.score }}점 / 100점</p>
-          <div class="scroll-x">
-            <table class="data-table">
-              <caption class="visually-hidden">적합도 계산 근거</caption>
-              <thead>
-                <tr>
-                  <th scope="col">항목</th>
-                  <th scope="col">반영값</th>
-                  <th scope="col">가중치</th>
-                  <th scope="col">근거</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="factor in fit.factors" :key="factor.key">
-                  <th scope="row">{{ factor.label }}</th>
-                  <td>{{ formatPercent(factor.value) }}</td>
-                  <td>{{ factor.weight }}</td>
-                  <td>{{ factor.reason }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="rec-card__reasons">
-            <li v-for="reason in fit.reasons" :key="reason">{{ reason }}</li>
-          </ul>
-          <p class="fs-sm mb-0">
-            원문 출처:
-            <a v-if="program.sourceUrl" :href="program.sourceUrl" target="_blank" rel="noopener noreferrer">
-              {{ program.sourceTitle ?? '공고 원문' }}
-              <IconExternalLink :size="14" stroke-width="2" aria-hidden="true" />
-              <span class="visually-hidden">(새 창)</span>
-            </a>
-            <DataValue v-else :value="null" />
-            · 계산 기준일 {{ formatDate(fit.basisDate) }} · 기준 버전 {{ fit.criteriaVersion }} · 엔진
-            {{ fit.engineVersion }}
-          </p>
-        </template>
+        <FitBreakdownTable
+          :fit="fit"
+          :factors="evaluation?.fitFactors ?? []"
+          :eligibility-status="eligibility?.status ?? null"
+          :basis-date="fit?.basisDate ?? eligibility?.basisDate ?? null"
+          :id-prefix="basisId"
+        />
       </div>
     </div>
 
     <footer class="rec-card__actions">
-      <button type="button" class="btn btn-ghost btn-sm" @click="emit('compare', program.id)">
+      <button
+        type="button"
+        class="btn btn-ghost btn-sm"
+        :aria-pressed="inCompare"
+        @click="emit('compare', program.id)"
+      >
         <IconLayoutColumns :size="16" stroke-width="2" aria-hidden="true" />
-        {{ inCompare ? '비교 영역 보기' : '비교에 추가' }}
+        {{ inCompare ? '비교에서 빼기' : '비교에 추가' }}
       </button>
       <span v-if="record" class="rec-card__status">관리 상태: {{ statusLabel(record.status) }}</span>
       <button v-else type="button" class="btn btn-ghost btn-sm" @click="saveInterested">
@@ -238,20 +214,6 @@ const formatPercent = (value: number) => `${Math.round(value * 1000) / 10}%`
   border-radius: var(--radius-sm);
   background: var(--color-surface-muted);
   font-size: var(--fs-sm);
-}
-
-.rec-card__basis-empty {
-  color: var(--color-text-muted);
-}
-
-.rec-card__score {
-  font-weight: var(--fw-bold);
-  color: var(--color-heading);
-}
-
-.rec-card__reasons {
-  margin: 0;
-  padding-left: var(--space-5);
 }
 
 .rec-card__actions {

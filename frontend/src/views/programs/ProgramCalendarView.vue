@@ -5,6 +5,7 @@ import PageHeader from '@/components/layout/PageHeader.vue'
 import SectionCard from '@/components/common/SectionCard.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import NoticeBanner from '@/components/common/NoticeBanner.vue'
+import DataSourceNotice from '@/components/common/DataSourceNotice.vue'
 import ActionButton from '@/components/common/ActionButton.vue'
 import DisabledReason from '@/components/common/DisabledReason.vue'
 import MonthCalendar from '@/components/calendar/MonthCalendar.vue'
@@ -82,8 +83,9 @@ const selectedEvents = computed(() =>
     <PageHeader title="공고 달력" description="공고의 접수 시작·마감, 발표·협약일을 달력으로 확인합니다." />
 
     <div class="stack">
+      <DataSourceNotice />
       <NoticeBanner v-if="loadFailed" tone="danger" title="공고를 불러오지 못했습니다" alert>
-        공고 API에 연결할 수 없어 일정을 표시하지 못했습니다. 잠시 후 다시 시도해 주세요.
+        공고 데이터를 불러올 수 없어 일정을 표시하지 못했습니다. 잠시 후 다시 시도해 주세요.
       </NoticeBanner>
       <NoticeBanner v-else-if="events.length === 0" tone="neutral">
         공고와 연동된 일정이 없습니다. 공고 날짜가 확인되지 않으면 달력에 일정을 만들지 않습니다.

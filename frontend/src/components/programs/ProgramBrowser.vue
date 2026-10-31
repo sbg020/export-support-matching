@@ -3,18 +3,23 @@
  * 공고 목록 본체: 검색, 필터, 정렬, 결과.
  * 공고가 없으면 가짜 카드 대신 빈 상태를 보여 주고, 정렬은 이유와 함께 비활성화한다.
  * 비교 선택은 모든 화면이 공유하는 useCompareSelection으로 관리한다 (비교 영역은 전체 공고 하단).
+ * 추천순은 자격 상태 → 적합도 → 마감일 → ID 순서다 (REVISION_02 §7.1).
  */
 import { computed, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import { IconAdjustmentsHorizontal, IconRefresh, IconSearch, IconX } from '@tabler/icons-vue'
 import type { ProgramSort } from '@/types/program'
 import type { EligibilityStatus } from '@/types/results'
 import { SORT_OPTIONS, ELIGIBILITY_STATUS_OPTIONS } from '@/constants/options'
 import { useProgramFilters } from '@/composables/useProgramFilters'
 import { useProgramList } from '@/composables/useProgramList'
-import { COMPARE_FULL_MESSAGE, useCompareSelection } from '@/composables/useCompareSelection'
-import { evaluateEligibility } from '@/lib/engine/eligibility'
-import { useProfileStore } from '@/stores/profileStore'
+import { useProgramEvaluations } from '@/composables/useProgramEvaluations'
+import {
+  COMPARE_FULL_MESSAGE,
+  compareToggleMessage,
+  useCompareSelection,
+} from '@/composables/useCompareSelection'
+import { compareRecommended } from '@/lib/engine/evaluateAll'
+import { compareProgramIds } from '@/repositories/staticProgramRepository'
 import { useToast } from '@/stores/toastStore'
 import DataValue from '@/components/common/DataValue.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
@@ -30,15 +35,15 @@ import ProgramCardFieldGuide from './ProgramCardFieldGuide.vue'
 
 const props = defineProps<{ mode: 'all' | 'recommended' }>()
 
-const router = useRouter()
-const store = useProfileStore()
 const toast = useToast()
 const selection = useCompareSelection()
+const evaluation = useProgramEvaluations()
 const idPrefix = computed(() => `browser-${props.mode}`)
 
 const defaultSort: ProgramSort = props.mode === 'recommended' ? 'recommended' : 'deadline'
 const filters = useProgramFilters(defaultSort)
 const { status, items, total, showLoading, reload, sourceConnected } = useProgramList(filters.query)
+const regionFilterActive = computed(() => filters.query.value.regions.length > 0)
 
 const keywordDraft = ref(filters.query.value.keyword ?? '')
 watch(
@@ -57,9 +62,16 @@ const eligibilityTab = ref<EligibilityTab>('all')
 const eligibilityById = computed(() => {
   const map = new Map<string, EligibilityStatus | null>()
   for (const program of items.value) {
-    map.set(program.id, evaluateEligibility(store.state.profile, program)?.status ?? null)
+    map.set(program.id, evaluation.get(program.id)?.eligibility?.status ?? null)
   }
   return map
+})
+
+/** 추천순: 저장소는 ID순으로 주고, 여기서 자격·적합도·마감일로 다시 정렬한다 */
+const sortedItems = computed(() => {
+  if (filters.query.value.sort !== 'recommended') return items.value
+  const evaluations = evaluation.evaluations.value
+  return [...items.value].sort((a, b) => compareRecommended(a, b, evaluations, compareProgramIds))
 })
 
 function countFor(tab: EligibilityTab): number | null {
@@ -78,12 +90,12 @@ const eligibilityTabs = computed<TabItem<EligibilityTab>[]>(() => [
 ])
 
 const visibleItems = computed(() => {
-  if (props.mode !== 'recommended') return items.value
+  if (props.mode !== 'recommended') return sortedItems.value
   const filtered =
     eligibilityTab.value === 'all'
-      ? items.value
-      : items.value.filter((p) => eligibilityById.value.get(p.id) === eligibilityTab.value)
-  // 신청 불가 공고는 다른 공고 뒤에 둔다 (순서는 그대로 유지).
+      ? sortedItems.value
+      : sortedItems.value.filter((p) => eligibilityById.value.get(p.id) === eligibilityTab.value)
+  // 추천순이 아니어도 신청 불가 공고는 다른 공고 뒤에 둔다 (순서는 그대로 유지).
   const ineligible = (id: string) => (eligibilityById.value.get(id) === 'ineligible' ? 1 : 0)
   return [...filtered].sort((a, b) => ineligible(a.id) - ineligible(b.id))
 })
@@ -101,9 +113,10 @@ function toggleCompare(id: string, checked: boolean): boolean {
   return true
 }
 
-function addToCompareAndGo(id: string) {
-  if (selection.add(id) === 'full') toast.show(COMPARE_FULL_MESSAGE, 'warning')
-  void router.push(selection.compareLocation())
+/** 맞춤 추천 카드의 '비교에 추가': 화면을 이동하지 않고 선택만 바꾼다 */
+function toggleCompareFromCard(id: string) {
+  const result = selection.toggle(id)
+  toast.show(compareToggleMessage(result, selection.count.value), result === 'full' ? 'warning' : 'success')
 }
 
 function onSortChange(event: Event) {
@@ -199,6 +212,9 @@ const resultCountFormat = (n: number) => `${n}건`
               필터 초기화
             </button>
           </div>
+          <p v-if="regionFilterActive && sourceConnected" class="results-bar__note">
+            전국 대상 공고도 함께 표시됩니다.
+          </p>
         </div>
 
         <TabNav
@@ -275,12 +291,15 @@ const resultCountFormat = (n: number) => `${n}건`
                 <RecommendationCard
                   v-if="mode === 'recommended'"
                   :program="program"
+                  :evaluation="evaluation.get(program.id)"
                   :in-compare="selection.has(program.id)"
-                  @compare="addToCompareAndGo"
+                  @compare="toggleCompareFromCard"
                 />
                 <ProgramCard
                   v-else
                   :program="program"
+                  :evaluation="evaluation.get(program.id)"
+                  :as-of="evaluation.asOf"
                   :selected="selection.has(program.id)"
                   :toggle-compare="toggleCompare"
                 />
@@ -410,6 +429,12 @@ const resultCountFormat = (n: number) => `${n}건`
 
 .results-bar :deep(.disabled-reason) {
   margin-top: 0;
+}
+
+.results-bar__note {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
 }
 
 .chips {

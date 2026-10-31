@@ -4,15 +4,22 @@ import { IconCircleCheck, IconCircleX, IconHelpCircle, IconScale, IconTargetArro
 import PageHeader from '@/components/layout/PageHeader.vue'
 import DataValue from '@/components/common/DataValue.vue'
 import StatusBadge from '@/components/common/StatusBadge.vue'
+import DataSourceNotice from '@/components/common/DataSourceNotice.vue'
 import ProgramBrowser from '@/components/programs/ProgramBrowser.vue'
+import CommonChecksPanel from '@/components/programs/CommonChecksPanel.vue'
+import CompareDock from '@/components/programs/CompareDock.vue'
 import ProfileStatusBadge from '@/components/diagnose/ProfileStatusBadge.vue'
 import { useProfileStore } from '@/stores/profileStore'
 import { ACTIVE_FIT_CRITERIA } from '@/lib/engine/fit'
+import { CATEGORY_PHASE_VERSION, STAGE_PHASE_VERSION } from '@/constants/categories'
+import { isSourceConnected, programRepository } from '@/repositories'
 
 const store = useProfileStore()
 const status = computed(() => store.assessment.value.status)
 const companyName = computed(() => store.state.profile.companyName)
-const fitCriteriaVersion = ACTIVE_FIT_CRITERIA?.version ?? null
+const criteria = ACTIVE_FIT_CRITERIA
+const weightText = `관심분야 ${criteria.weights.interest.toFixed(2)} · 단계 ${criteria.weights.stage.toFixed(2)} · 내용 유사도 ${criteria.weights.text.toFixed(2)}`
+const connected = isSourceConnected(programRepository.source)
 </script>
 
 <template>
@@ -29,6 +36,8 @@ const fitCriteriaVersion = ACTIVE_FIT_CRITERIA?.version ?? null
     </PageHeader>
 
     <div class="stack">
+      <DataSourceNotice />
+      <CommonChecksPanel v-if="connected" />
       <!-- 추천 결과(또는 빈 상태)를 설명보다 먼저 보여 준다 -->
       <ProgramBrowser mode="recommended" />
 
@@ -37,7 +46,8 @@ const fitCriteriaVersion = ACTIVE_FIT_CRITERIA?.version ?? null
         <div class="criteria__body">
           <p class="criteria__lead">
             신청할 수 있는지와 얼마나 잘 맞는지는 서로 다른 질문입니다. <strong>신청 자격 → 적합도 → 준비 부담</strong>
-            순서로 봅니다. 근거가 확인되지 않은 선정 가능성, 확률, 점수는 표시하지 않습니다.
+            순서로 봅니다. 목록은 신청 가능 → 확인 필요 → 신청 불가 순서이고, 같은 상태 안에서는 적합도 높은 순 → 마감
+            빠른 순입니다. 선정 가능성이나 확률은 표시하지 않습니다.
           </p>
           <div class="split">
             <section class="split__col" aria-labelledby="criteria-eligibility">
@@ -62,13 +72,18 @@ const fitCriteriaVersion = ACTIVE_FIT_CRITERIA?.version ?? null
                 적합도
               </h2>
               <p class="split__text">
-                신청 자격과는 별개로, 관심 분야 등과 얼마나 맞는지를 계산 근거와 함께 보여 드립니다. 카드의 '계산 근거
-                보기'에서 항목별 근거를 확인할 수 있습니다.
+                신청 자격과는 별개로 관심분야 일치도, 단계 일치도(수출단계 × 지원 단계), 내용 유사도(시험용)를 가중
+                평균하고, 공고가 인정한 가점·감점 중 프로필로 확인된 항목만 보정합니다(최대 ±{{ criteria.bonusCap }}점).
+                신청 불가 공고는 계산하지 않고, 반영할 수 있는 항목이 2개 미만이면 점수를 만들지 않습니다. 재무 상태는
+                쓰지 않습니다. 카드의 '계산 근거 보기'에서 항목별 근거를 확인할 수 있습니다.
               </p>
               <p class="split__slot">
-                적합도 산정 기준 <strong><DataValue :value="fitCriteriaVersion" /></strong>
+                적합도 기준 <strong><DataValue :value="criteria.version" /></strong> (시험용 · 검증 전) · 가중치 {{ weightText }}
               </p>
-              <p class="split__note">산정 기준(요소·가중치)이 확정되기 전에는 점수를 표시하지 않습니다.</p>
+              <p class="split__note">
+                단계 매핑 {{ CATEGORY_PHASE_VERSION }}, {{ STAGE_PHASE_VERSION }} (가설). 시험용 기준으로 계산한 점수이며,
+                사람 평가(Precision@5)로 검증한 뒤 확정합니다.
+              </p>
             </section>
             <section class="split__col" aria-labelledby="criteria-cost">
               <p class="split__step">3. 준비 전 확인</p>
@@ -83,12 +98,15 @@ const fitCriteriaVersion = ACTIVE_FIT_CRITERIA?.version ?? null
             </section>
           </div>
           <ul class="notes">
-            <li>모든 판정에는 공고 원문과 확인한 날짜, 판정 기준 버전을 함께 표시합니다.</li>
+            <li>모든 판정에는 데이터 상태(검수 전 초안 등), 기준일, 판정 기준 버전을 함께 표시합니다.</li>
+            <li>휴·폐업·체납·신용·제재·재무 상태는 위의 '공통 확인 사항'에서 직접 답할 수 있습니다.</li>
             <li>실제 신청 전에는 반드시 공고 원문으로 자격 조건을 다시 확인해 주세요.</li>
           </ul>
         </div>
       </details>
     </div>
+
+    <CompareDock />
   </div>
 </template>
 

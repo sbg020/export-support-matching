@@ -155,6 +155,18 @@ function setMemo(programId: string, memo: string | null) {
   persist()
 }
 
+/** 필요서류 체크 상태. 관리 기록이 있는 공고에만 저장한다. */
+function setChecklistItem(programId: string, requiredDocumentId: string, checked: boolean): boolean {
+  if (!find(programId)) return false
+  state.records = state.records.map((record) => {
+    if (record.programId !== programId) return record
+    const others = record.checklist.filter((item) => item.requiredDocumentId !== requiredDocumentId)
+    return { ...record, checklist: checked ? [...others, { requiredDocumentId, checked: true }] : others }
+  })
+  persist()
+  return true
+}
+
 export function useApplicationStore() {
   ensureLoaded()
   return {
@@ -164,5 +176,6 @@ export function useApplicationStore() {
     saveInterested,
     changeStatus,
     setMemo,
+    setChecklistItem,
   }
 }

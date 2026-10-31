@@ -5,24 +5,32 @@
  */
 import { computed } from 'vue'
 import { IconBookmark } from '@tabler/icons-vue'
+import type { IsoDate } from '@/types/common'
 import type { Program } from '@/types/program'
-import { evaluateEligibility } from '@/lib/engine/eligibility'
-import { evaluateFit } from '@/lib/engine/fit'
-import { useProfileStore } from '@/stores/profileStore'
+import type { ProgramEvaluation } from '@/lib/engine/evaluateAll'
 import {
   agencyText,
   applyPeriodText,
+  deadlineText,
   maxAmountText,
-  receptionStatusText,
+  programTitleText,
+  receptionStatusWithBasisText,
+  regionsText,
+  supportPhasesText,
   supportTypesText,
 } from '@/lib/programDisplay'
 import InfoList from '@/components/common/InfoList.vue'
 import InfoRow from '@/components/common/InfoRow.vue'
 import DataValue from '@/components/common/DataValue.vue'
+import DraftTag from '@/components/common/DraftTag.vue'
 import EligibilityBadge from './EligibilityBadge.vue'
+import CategoryChips from './CategoryChips.vue'
 
 const props = defineProps<{
   program: Program
+  evaluation: ProgramEvaluation | undefined
+  /** 데이터 기준일 (마감까지 계산) */
+  asOf: IsoDate | null
   /** 공통 비교 선택에 들어 있는지 */
   selected: boolean
   /** 비교 선택을 바꾼다. 최대 개수 초과 등으로 거절되면 false */
@@ -34,10 +42,10 @@ function onCompareChange(event: Event) {
   if (!props.toggleCompare(props.program.id, input.checked)) input.checked = props.selected
 }
 
-const store = useProfileStore()
-const eligibility = computed(() => evaluateEligibility(store.state.profile, props.program))
-const fit = computed(() => evaluateFit(store.state.profile, props.program))
+const eligibility = computed(() => props.evaluation?.eligibility ?? null)
+const fit = computed(() => props.evaluation?.fit ?? null)
 const titleId = computed(() => `program-card-${props.program.id}`)
+const periodText = computed(() => applyPeriodText(props.program) ?? props.program.applyPeriodNote)
 </script>
 
 <template>
@@ -47,29 +55,41 @@ const titleId = computed(() => `program-card-${props.program.id}`)
         <p class="program-card__agency"><DataValue :value="agencyText(program)" /></p>
         <h3 :id="titleId" class="program-card__title">
           <RouterLink :to="{ name: 'program-detail', params: { id: program.id } }">
-            <DataValue :value="program.title" missing-label="공고명 없음" />
+            <DataValue :value="programTitleText(program)" missing-label="공고명 없음" />
           </RouterLink>
         </h3>
       </div>
-      <span class="program-card__reception"><DataValue :value="receptionStatusText(program)" /></span>
+      <span class="program-card__reception"><DataValue :value="receptionStatusWithBasisText(program)" /></span>
     </header>
+
+    <CategoryChips :program="program" />
 
     <div class="program-card__judgement">
       <div>
         <p class="program-card__label">신청 자격</p>
-        <EligibilityBadge :status="eligibility?.status ?? null" />
+        <EligibilityBadge
+          :status="eligibility?.status ?? null"
+          :self-checked-count="eligibility?.selfCheckedCount ?? 0"
+          :data-state="eligibility?.dataState ?? null"
+        />
       </div>
       <div :class="{ 'is-muted': eligibility?.status === 'ineligible' }">
-        <p class="program-card__label">적합도</p>
-        <DataValue :value="fit?.score ?? null" :format="(score: number) => `${score}점`" />
+        <p class="program-card__label">적합도 <span class="program-card__hint">시험용 v0</span></p>
+        <span class="program-card__fit">
+          <DataValue :value="fit?.score ?? null" :format="(score: number) => `${score}점`" />
+          <DraftTag v-if="fit" :state="eligibility?.dataState ?? program.dataState" />
+        </span>
       </div>
     </div>
 
     <InfoList :columns="2" compact>
-      <InfoRow label="접수기간" :value="applyPeriodText(program)" />
+      <InfoRow label="접수기간" :value="periodText" />
+      <InfoRow label="마감까지" :value="deadlineText(program, asOf)" />
+      <InfoRow label="지원 단계" :value="supportPhasesText(program)" />
+      <InfoRow label="대상 지역" :value="regionsText(program)" />
       <InfoRow label="지원방식" :value="supportTypesText(program)" />
-      <InfoRow label="지원규모" :value="maxAmountText(program)" />
-      <InfoRow label="추천 이유" :value="fit ? fit.reasons.join(' / ') : null" />
+      <InfoRow label="지원금 한도" :value="maxAmountText(program)" />
+      <InfoRow label="추천 이유" :value="fit?.reasons[0] ?? null" />
     </InfoList>
 
     <footer class="program-card__actions">
@@ -89,7 +109,7 @@ const titleId = computed(() => `program-card-${props.program.id}`)
         <IconBookmark :size="16" stroke-width="2" aria-hidden="true" />
         관심사업 저장
       </button>
-      <span :id="`${titleId}-save`" class="visually-hidden">관심사업 저장 기능은 아직 연결되지 않았습니다.</span>
+      <span :id="`${titleId}-save`" class="visually-hidden">관심사업 저장은 공고 상세 화면에서 할 수 있습니다.</span>
     </footer>
   </article>
 </template>
@@ -130,8 +150,10 @@ const titleId = computed(() => `program-card-${props.program.id}`)
 
 .program-card__reception {
   flex-shrink: 0;
+  max-width: 45%;
   font-size: var(--fs-sm);
   font-weight: var(--fw-semibold);
+  text-align: right;
 }
 
 .program-card__judgement {
@@ -148,6 +170,16 @@ const titleId = computed(() => `program-card-${props.program.id}`)
   font-size: var(--fs-xs);
   font-weight: var(--fw-semibold);
   color: var(--color-text-muted);
+}
+
+.program-card__hint {
+  font-weight: var(--fw-regular, 400);
+}
+
+.program-card__fit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .is-muted {
@@ -177,5 +209,15 @@ const titleId = computed(() => `program-card-${props.program.id}`)
 
 .compare-check .form-check-input {
   margin: 0;
+}
+
+@media (max-width: 575.98px) {
+  .program-card__header {
+    flex-direction: column;
+  }
+  .program-card__reception {
+    max-width: none;
+    text-align: left;
+  }
 }
 </style>

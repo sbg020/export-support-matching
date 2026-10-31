@@ -4,6 +4,7 @@
  */
 import type { Program } from '@/types/program'
 import type { CalendarEvent, CalendarEventType } from '@/types/tracking'
+import { programTitleText } from './programDisplay'
 
 const DATE_FIELDS: { field: 'applyStart' | 'applyEnd' | 'announcementDate' | 'agreementDate'; type: CalendarEventType }[] = [
   { field: 'applyStart', type: 'apply-start' },
@@ -29,7 +30,7 @@ export function buildProgramEvents(programs: readonly Program[]): CalendarEvent[
         id: `${program.id}:${type}`,
         type,
         date,
-        title: program.title ?? program.id,
+        title: programTitleText(program) ?? program.id,
         programId: program.id,
       })
     }
