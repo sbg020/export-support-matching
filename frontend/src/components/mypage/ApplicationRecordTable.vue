@@ -89,7 +89,7 @@ function onMemoChange(programId: string, event: Event) {
       <tbody>
         <tr v-for="row in rows" :key="row.record.programId">
           <th scope="row">
-            <RouterLink :to="{ name: 'program-detail', params: { id: row.record.programId }, query: { from: 'mypage' } }">
+            <RouterLink :to="{ name: 'program-detail', params: { id: row.record.programId }, query: { from: 'manage' } }">
               {{ row.title ?? (loaded ? `찾을 수 없는 공고 (${row.record.programId})` : row.record.programId) }}
             </RouterLink>
           </th>

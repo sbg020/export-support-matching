@@ -15,7 +15,7 @@ import EmptyState from '@/components/common/EmptyState.vue'
       <template #actions>
         <RouterLink :to="{ name: 'home' }" class="btn btn-primary">홈으로</RouterLink>
         <RouterLink :to="{ name: 'programs' }" class="btn btn-secondary">전체 지원사업</RouterLink>
-        <RouterLink :to="{ name: 'mypage-profile' }" class="btn btn-secondary">마이페이지</RouterLink>
+        <RouterLink :to="{ name: 'manage-programs' }" class="btn btn-secondary">지원사업 관리</RouterLink>
       </template>
     </EmptyState>
   </div>

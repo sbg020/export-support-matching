@@ -52,7 +52,7 @@ async function saveInterested() {
   }
   const result = applications.saveInterested(props.program.id)
   toast.show(
-    result === 'added' ? '관심 사업으로 저장했습니다. 마이페이지에서 관리할 수 있습니다.' : '이미 관리 기록에 있는 사업입니다.',
+    result === 'added' ? '관심 사업으로 저장했습니다. 지원사업 관리에서 관리할 수 있습니다.' : '이미 관리 기록에 있는 사업입니다.',
     result === 'added' ? 'success' : 'info',
   )
 }

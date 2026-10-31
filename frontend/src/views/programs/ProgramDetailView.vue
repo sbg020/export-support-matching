@@ -84,7 +84,10 @@ const evaluation = useProgramEvaluations()
 const backLink = computed<{ to: RouteLocationRaw; label: string }>(() => {
   if (route.query.from === 'recommended') return { to: { name: 'programs-recommended' }, label: '맞춤 추천' }
   if (route.query.from === 'calendar') return { to: { name: 'programs-calendar' }, label: '공고 달력' }
-  if (route.query.from === 'mypage') return { to: { name: 'mypage-programs' }, label: '관심·준비 중·신청완료 사업' }
+  // 지원사업 관리 목록에서 연 상세 (이전 링크의 from=mypage도 받는다)
+  if (route.query.from === 'manage' || route.query.from === 'mypage') {
+    return { to: { name: 'manage-programs' }, label: '관심·준비 중·신청완료 사업' }
+  }
   return { to: { name: 'programs' }, label: '전체 공고' }
 })
 
@@ -332,7 +335,7 @@ const formatConditionCount = (n: number) => `${n}개`
               신청은 공고 원문에 안내된 방법으로 진행합니다. 버튼을 누르면 원문이 새 창에서 열립니다.
             </p>
             <DisabledReason v-if="savedRecord" id="detail-save-reason">
-              이미 마이페이지 관리 기록에 있는 사업입니다.
+              이미 지원사업 관리 기록에 있는 사업입니다.
             </DisabledReason>
           </template>
         </template>

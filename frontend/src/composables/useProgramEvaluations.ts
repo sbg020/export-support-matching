@@ -2,7 +2,7 @@
  * 공고 전체의 자격·적합도·기회비용 (화면 공통).
  *
  * 전체 공고를 한 번 읽어 두고(화면 필터와 무관), 프로필·직접 확인 답이 바뀌면 다시 계산한다.
- * 맞춤 추천·전체 공고·상세·비교·둘러보기·로드맵·마이페이지가 같은 결과를 쓴다.
+ * 맞춤 추천·전체 공고·상세·비교·둘러보기·로드맵·지원사업 관리가 같은 결과를 쓴다.
  */
 import { computed, shallowRef } from 'vue'
 import { createEmptyQuery, dataBasisDate, programRepository } from '@/repositories'
