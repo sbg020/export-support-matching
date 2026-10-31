@@ -37,6 +37,7 @@ export class HttpProgramRepository implements ProgramRepository {
     const multi: [string, string[]][] = [
       ['receptionStatus', query.receptionStatuses],
       ['stage', query.stages],
+      ['category', query.categories],
       ['agencyType', query.agencyTypes],
       ['region', query.regions],
       ['supportType', query.supportTypes],

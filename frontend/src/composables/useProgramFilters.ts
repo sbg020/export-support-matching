@@ -14,12 +14,20 @@ import {
   STAGE_OPTIONS,
   SUPPORT_METHOD_OPTIONS,
 } from '@/constants/options'
+import { SUPPORT_CATEGORIES } from '@/constants/categories'
 
-export type FilterKey = 'receptionStatuses' | 'stages' | 'agencyTypes' | 'regions' | 'supportTypes'
+export type FilterKey = 'receptionStatuses' | 'stages' | 'categories' | 'agencyTypes' | 'regions' | 'supportTypes'
+
+/** 세부 분야 선택지 (예: 'C01 전시회/행사/해외영업지원') */
+export const CATEGORY_OPTIONS: Option<string>[] = SUPPORT_CATEGORIES.map((c) => ({
+  value: c.code,
+  label: `${c.code} ${c.name}`,
+}))
 
 export const FILTER_GROUPS: { key: FilterKey; param: string; label: string; options: Option<string>[] }[] = [
   { key: 'receptionStatuses', param: 'status', label: '접수상태', options: RECEPTION_STATUS_OPTIONS },
   { key: 'stages', param: 'stage', label: '지원분야', options: STAGE_OPTIONS },
+  { key: 'categories', param: 'cat', label: '세부 분야', options: CATEGORY_OPTIONS },
   { key: 'agencyTypes', param: 'agency', label: '기관 유형', options: AGENCY_TYPE_OPTIONS },
   { key: 'regions', param: 'region', label: '지역', options: PROGRAM_REGION_OPTIONS },
   { key: 'supportTypes', param: 'method', label: '지원방식', options: SUPPORT_METHOD_OPTIONS },
@@ -87,7 +95,16 @@ export function useProgramFilters(defaultSort: ProgramSort) {
   }
 
   function reset() {
-    write({ ...query.value, keyword: null, receptionStatuses: [], stages: [], agencyTypes: [], regions: [], supportTypes: [] })
+    write({
+      ...query.value,
+      keyword: null,
+      receptionStatuses: [],
+      stages: [],
+      categories: [],
+      agencyTypes: [],
+      regions: [],
+      supportTypes: [],
+    })
   }
 
   interface Chip {

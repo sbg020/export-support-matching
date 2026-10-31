@@ -5,6 +5,7 @@
 import type { Option } from '@/types/common'
 import type {
   CodeInputStatus,
+  CompanySize,
   CompanyType,
   HoldingStatus,
   IndustryInputMode,
@@ -14,18 +15,32 @@ import type {
 } from '@/types/profile'
 import type {
   AgencyType,
+  CommonCheckKey,
+  DataState,
+  DocumentRequirement,
+  ExportStage,
   ProgramRegion,
   ProgramSort,
   ReceptionStatus,
+  SettlementInfo,
   SupportMethod,
   SupportStage,
 } from '@/types/program'
 import type { CalendarEventType, DocumentType } from '@/types/tracking'
-import type { ConditionStatus, EligibilityStatus } from '@/types/results'
+import type { ConditionStatus, EligibilityStatus, NeedsCheckReason } from '@/types/results'
+import type { CommonCheckAnswer } from '@/types/selfCheck'
 
 export const COMPANY_TYPE_OPTIONS: Option<CompanyType>[] = [
   { value: 'corporation', label: '법인사업자' },
   { value: 'sole-proprietor', label: '개인사업자' },
+]
+
+export const COMPANY_SIZE_OPTIONS: Option<CompanySize>[] = [
+  { value: 'small-business', label: '소상공인' },
+  { value: 'sme', label: '중소기업' },
+  { value: 'mid-sized', label: '중견기업' },
+  { value: 'large', label: '대기업' },
+  { value: 'unknown', label: '잘 모르겠어요' },
 ]
 
 export const REGION_OPTIONS: Option<RegionCode>[] = [
@@ -97,6 +112,20 @@ export const INTEREST_AREA_OPTIONS: Option<InterestArea>[] = [
   { value: 'logistics', label: '국제물류', description: '해외 운송·통관을 준비해요' },
   { value: 'translation', label: '통번역', description: '계약서·카탈로그 번역, 상담 통역' },
   { value: 'export-finance', label: '수출 자금', description: '수출에 필요한 자금·보증·보험' },
+  { value: 'legal-tax', label: '법무·세무·회계', description: '해외 계약 검토, 현지 세무·회계 자문을 받아요' },
+  { value: 'ip', label: '특허·지식재산권', description: '해외 특허·상표 출원이나 분쟁 대응을 준비해요' },
+  { value: 'local-registration', label: '현지 등록·서류 대행', description: '해외 제품 등록, 현지 법인·지사 서류를 준비해요' },
+  { value: 'export-training', label: '수출 교육', description: '무역 실무·수출 역량 교육을 받아요' },
+  { value: 'customs-fta', label: '통관·원산지·FTA', description: '원산지 증명, 통관·관세 대응을 준비해요' },
+]
+
+/** 기업의 수출단계 (직전 연도 수출액 기준) */
+export const EXPORT_STAGE_OPTIONS: Option<ExportStage>[] = [
+  { value: 'domestic', label: '내수' },
+  { value: 'beginner', label: '초보' },
+  { value: 'promising', label: '유망' },
+  { value: 'growth', label: '성장' },
+  { value: 'strong', label: '강소' },
 ]
 
 export const RECEPTION_STATUS_OPTIONS: Option<ReceptionStatus>[] = [
@@ -154,6 +183,70 @@ export const CONDITION_STATUS_OPTIONS: Option<ConditionStatus>[] = [
   { value: 'needs-check', label: '확인 필요' },
 ]
 
+/** 제외 조건의 상태 표시: 회사가 제외 대상에 해당하면 '제외 대상 해당' */
+export const EXCLUSION_STATUS_OPTIONS: Option<ConditionStatus>[] = [
+  { value: 'met', label: '해당 없음' },
+  { value: 'unmet', label: '제외 대상 해당' },
+  { value: 'needs-check', label: '확인 필요' },
+]
+
+export const NEEDS_CHECK_REASON_OPTIONS: Option<NeedsCheckReason>[] = [
+  { value: 'missing-input', label: '입력 없음' },
+  { value: 'not-automatable', label: '직접 확인 대상' },
+  { value: 'period-mismatch', label: '기준 기간 다름' },
+  { value: 'ambiguous', label: '해석 확인 필요' },
+  { value: 'exception', label: '예외 있음' },
+]
+
+/** 공통 확인 5가지 (맞춤 추천 상단 `공통 확인 사항`) */
+export const COMMON_CHECK_OPTIONS: Option<CommonCheckKey>[] = [
+  { value: 'closure', label: '휴·폐업 상태가 아닙니다' },
+  { value: 'tax-arrears', label: '국세·지방세 체납이 없습니다' },
+  {
+    value: 'credit',
+    label: '금융기관 연체·불량거래, 부도·회생·파산·법정관리 등 신용 문제가 없습니다',
+  },
+  { value: 'sanction', label: '정부지원사업 참여제한·제재 중이 아닙니다' },
+  {
+    value: 'financial-health',
+    label: '최근 결산 기준 자본잠식, 부채비율 1,000% 이상, 감사의견 거절·부적정에 해당하지 않습니다',
+    description:
+      "최근 결산 재무제표 기준입니다. 외부감사 대상이 아니면 감사의견은 '해당 없음'으로 답하세요. 공고마다 기준이 달라(완전자본잠식만 제외하는 공고 등) '해당 있음'을 고르면 공고마다 다시 확인합니다.",
+  },
+]
+
+/** 공통 확인 키 이름 (조건 목록·보고서 표시용) */
+export const COMMON_CHECK_KEY_LABEL: Record<CommonCheckKey, string> = {
+  closure: '휴·폐업',
+  'tax-arrears': '국세·지방세 체납',
+  credit: '금융 연체·신용',
+  sanction: '참여제한·제재',
+  'financial-health': '재무 상태 (결산 기준)',
+}
+
+export const COMMON_CHECK_ANSWER_OPTIONS: Option<CommonCheckAnswer>[] = [
+  { value: 'no', label: '해당 없음' },
+  { value: 'yes', label: '해당 있음' },
+  { value: 'unknown', label: '모르겠음' },
+]
+
+export const DOCUMENT_REQUIREMENT_OPTIONS: Option<DocumentRequirement>[] = [
+  { value: 'required', label: '필수' },
+  { value: 'conditional', label: '해당 시' },
+  { value: 'optional', label: '선택' },
+]
+
+export const SETTLEMENT_LABEL: Record<SettlementInfo['type'], string> = {
+  reimbursement: '먼저 집행 후 지급 (사후 정산)',
+  mixed: '수행기관 이용 또는 사후 정산',
+}
+
+export const DATA_STATE_LABEL: Record<DataState, string> = {
+  draft: '검수 전 초안',
+  reviewed: '사람 검수 완료',
+  verified: '검수 완료·원문 확인',
+}
+
 export const CALENDAR_EVENT_TYPE_OPTIONS: Option<CalendarEventType>[] = [
   { value: 'apply-start', label: '접수 시작', description: '공고 접수가 시작되는 날' },
   { value: 'apply-end', label: '접수 마감', description: '공고 접수가 끝나는 날' },
@@ -171,6 +264,11 @@ export const DOCUMENT_TYPE_OPTIONS: Option<DocumentType>[] = [
   { value: 'tax-certificate', label: '납세증명서', description: '국세·지방세 납부 사실을 증명하는 서류' },
   { value: 'certification-copy', label: '기업 인증서 사본', description: '벤처·이노비즈 등 인증 증빙' },
   { value: 'ip-evidence', label: '지식재산권 증빙', description: '특허·상표 등 등록 증빙' },
+  { value: 'bank-account-copy', label: '통장 사본', description: '지원금을 받을 계좌 확인용' },
+  { value: 'insurance-certificate', label: '4대보험 관련 증명', description: '가입자 명부·완납 증명 등' },
+  { value: 'factory-registration', label: '공장등록증', description: '공장 등록 사실을 증명하는 서류' },
+  { value: 'vat-base-certificate', label: '부가가치세 과세표준증명', description: '매출 규모를 확인하는 서류' },
+  { value: 'product-brochure', label: '제품 소개 자료', description: '카탈로그·제품 설명서 등' },
   { value: 'other', label: '기타 서류', description: '위에 없는 서류' },
 ]
 

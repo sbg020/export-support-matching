@@ -14,6 +14,11 @@ export type DocumentType =
   | 'tax-certificate'
   | 'certification-copy'
   | 'ip-evidence'
+  | 'bank-account-copy'
+  | 'insurance-certificate'
+  | 'factory-registration'
+  | 'vat-base-certificate'
+  | 'product-brochure'
   | 'other'
 
 export interface ChecklistItemState {

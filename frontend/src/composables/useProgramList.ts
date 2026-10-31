@@ -1,5 +1,5 @@
 import { onBeforeUnmount, ref, watch, type Ref } from 'vue'
-import { programRepository } from '@/repositories'
+import { isSourceConnected, programRepository } from '@/repositories'
 import type { Program, ProgramQuery } from '@/types/program'
 
 export type LoadStatus = 'loading' | 'ready' | 'error'
@@ -52,6 +52,6 @@ export function useProgramList(query: Ref<ProgramQuery>) {
     total,
     showLoading,
     reload: load,
-    sourceConnected: programRepository.source.kind === 'api',
+    sourceConnected: isSourceConnected(programRepository.source),
   }
 }
