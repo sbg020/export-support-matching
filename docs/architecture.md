@@ -11,36 +11,50 @@
 
 ## 2. 메뉴와 경로
 
-사이드바에는 주 메뉴 4개만 두고, 각 화면 제목 아래 `SectionNav`에 현재 섹션의 하위 메뉴를 보여 준다. 메뉴 정의는 `frontend/src/constants/navigation.ts` 한 곳에 있고, 선택 상태는 라우트의 `meta.section`으로 정한다.
+화면은 상단 한 줄 헤더(로고 · 주 메뉴 5개 · 로그인/프로필)와 본문으로 구성한다(REVISION_03, 왼쪽 사이드바 없음). 헤더의 로고와 프로필은 본문과 같은 최대 너비(`--content-max`)·좌우 여백(`--page-gutter`)에 맞춘다. 메뉴 정의는 `frontend/src/constants/navigation.ts`의 `NAV_SECTIONS` 한 곳에 있고, 선택 상태는 라우트의 `meta.section`으로 정한다. 주 메뉴를 누르면 그 섹션의 첫 하위 화면이 열린다.
 
-| 섹션 | 하위 메뉴 | 경로 | 이름 | 로그인 |
+- 데스크톱(992px 이상, 마우스): 주 메뉴에 마우스를 올리거나 키보드 포커스가 들어오면 다섯 섹션의 하위 메뉴가 각 주 메뉴 아래에 한꺼번에 펼쳐진다(`TopNav`). `Esc`(포커스는 그 주 메뉴로), 헤더·패널을 벗어나고 150ms 뒤, 화면 이동 시 닫힌다. 프로필 팝업과 동시에 열리지 않는다.
+- 991px 이하와 터치 기기: 헤더의 메뉴 버튼으로 여는 서랍 메뉴(`MobileNavDrawer` + `SidebarNav`, 아이콘 없음).
+- 각 화면 제목 아래 `SectionNav`에 현재 섹션의 하위 메뉴를 보여 준다.
+
+| 주 메뉴 (순서) | 하위 메뉴 | 경로 | 이름 | 로그인 |
 |---|---|---|---|---|
-| (홈) | - | `/` | `home` | 불필요 |
+| (홈) | - | `/` (로그인 상태면 `/roadmap`으로 이동) | `home` | 불필요 |
 | (로그인) | 로그인 / 회원가입 탭 | `/login` (`?mode=signup`, `?redirect=`) | `login` | - |
-| 지원사업 찾기 | 기업정보 입력·저장 | `/diagnose/input` (`?step=1~6`) | `diagnose-input` | 불필요 |
-| | 기업 진단 | `/diagnose/result` | `diagnose-result` | 불필요 |
+| (프로필 팝업, 섹션 없음) | 기업 프로필 (기업정보 6단계 입력·저장) | `/profile` (`?step=1~6`) | `company-profile` | 불필요 |
+| 1. 수출 로드맵 | 수출 로드맵 | `/roadmap` | `roadmap` | 불필요 |
+| 2. 기업 맞춤 지원사업 | 기업 진단 | `/diagnose/result` | `diagnose-result` | 불필요 |
 | | 맞춤 추천 | `/programs/recommended` | `programs-recommended` | 불필요 |
-| 전체 지원사업 | 전체 공고 (둘러보기, 하단 비교 영역 `#compare`) | `/programs` (필터 `q`, `status`, `stage`, `cat`, `agency`, `region`, `method`, `sort`, 비교 `compare`) | `programs` | 불필요 |
+| 3. 전체 지원사업 | 전체 공고 (둘러보기, 하단 비교 영역 `#compare`) | `/programs` (필터 `q`, `status`, `stage`, `cat`, `agency`, `region`, `method`, `sort`, 비교 `compare`) | `programs` | 불필요 |
 | | 공고 달력 | `/programs/calendar` | `programs-calendar` | 불필요 |
-| | (하위 메뉴 아님) 공고 상세 | `/programs/:id` (`?from=recommended\|calendar\|mypage`) | `program-detail` | 불필요 |
-| 나의 로드맵 | 수출 로드맵 | `/roadmap` | `roadmap` | 불필요 |
-| 커뮤니티 | 지원사업 후기 | `/community/reviews` (`q`, `scope`, `sort`, `cat`, `program`, `page`) | `community-reviews` | 읽기 불필요 |
+| | (하위 메뉴 아님) 공고 상세 | `/programs/:id` (`?from=recommended\|calendar\|manage`, 예전 `mypage`도 받음) | `program-detail` | 불필요 |
+| 4. 지원사업 관리 | 관심·준비 중·신청완료 사업 | `/manage/programs` (`?tab=interested\|preparing\|applied`) | `manage-programs` | 필요 |
+| | 서류함 | `/manage/documents` | `manage-documents` | 필요 |
+| 5. 커뮤니티 | 지원사업 후기 | `/community/reviews` (`q`, `scope`, `sort`, `cat`, `program`, `page`) | `community-reviews` | 읽기 불필요 |
 | | 지원사업 정보방 | `/community/info` (같은 쿼리) | `community-info` | 읽기 불필요 |
 | | (하위 메뉴 아님) 글쓰기 | `/community/:board(reviews\|info)/write` | `community-write` | 필요 |
 | | (하위 메뉴 아님) 글 보기 | `/community/:board(reviews\|info)/:postId` | `community-post` | 불필요 |
-| 마이페이지 (헤더 프로필) | 기업 프로필 | `/mypage/profile` | `mypage-profile` | 필요 |
-| | 관심·준비 중·신청완료 사업 | `/mypage/programs` (`?tab=interested\|preparing\|applied`) | `mypage-programs` | 필요 |
-| | 서류함 | `/mypage/documents` | `mypage-documents` | 필요 |
 
-기존 주소는 query·hash를 유지한 채 새 위치로 보낸다(`router/index.ts`의 `redirect` 함수).
+내부 섹션 키는 `roadmap`·`find`·`programs`·`manage`·`community`이다(`find`는 화면 이름만 `기업 맞춤 지원사업`으로 바뀌었다).
+
+로그인·로그아웃 이동 규칙은 `router/index.ts`의 순수 함수 `authNavigationTarget`과 `lib/redirect.ts`의 `afterLoginPath`에 있다.
+
+- 로그인이 필요한 화면을 비로그인으로 열면 `/login?redirect=<그 화면>`으로 보낸다. 로그인하면 안전한 redirect(같은 사이트의 앱 경로, 로그인 화면 제외)로, 없거나 거부되면 `/roadmap`으로 간다.
+- 헤더 `로그인` 버튼과 홈의 `추천받기`(비로그인)는 redirect를 붙이지 않는다. 로그인 상태에서 `/`를 열면 `/roadmap`, `/login`을 열면 redirect 또는 `/roadmap`으로 간다.
+- 로그아웃(프로필 팝업)은 서버 세션만 끝내고 `/`로 간다. 이 기기에 저장한 값은 지우지 않는다.
+
+기존 주소는 query·hash를 유지한 채 새 위치로 보낸다(`router/index.ts`의 `moved` 함수).
 
 | 기존 주소 | 새 주소 |
 |---|---|
 | `/programs/compare?ids=…` | `/programs?compare=…#compare` |
+| `/diagnose` · `/diagnose/input` | `/profile` (`?step=` 유지) |
+| `/mypage` · `/mypage/profile` | `/profile` |
+| `/mypage/programs` | `/manage/programs` |
+| `/mypage/documents` | `/manage/documents` |
+| `/mypage/saved` · `/mypage/preparation` · `/mypage/history` | `/manage/programs?tab=interested` · `preparing` · `applied` |
 | `/mypage/calendar` | `/programs/calendar` |
-| `/mypage` | `/mypage/profile` |
-| `/mypage/saved` · `/mypage/preparation` · `/mypage/history` | `/mypage/programs?tab=interested` · `preparing` · `applied` |
-| `/diagnose` | `/diagnose/input` |
+| `/manage` | `/manage/programs` |
 | `/community` | `/community/reviews` |
 
 Vue Router history 모드이므로 배포 환경에서는 `/api/`를 제외한 모든 경로를 `index.html`로 되돌리는 SPA fallback이 필요하다(`frontend/vercel.json`).
@@ -141,10 +155,10 @@ interface ProgramRepository {
 
 `frontend/src/components/`
 
-- 레이아웃: `AppSidebar`·`SidebarNav`(주 메뉴 4개), `SectionNav`(화면 내 하위 메뉴, 마이페이지 로그아웃), `AppHeader`(로그인 버튼·프로필 원형), `MobileNavDrawer`, `PageHeader`(제목·한 줄 설명·하위 메뉴), `BrandLink`
+- 레이아웃: `AppHeader`(로고 · `TopNav` · `ProfileMenu`, 하위 메뉴 패널과 프로필 팝업 중 하나만 열림), `TopNav`(데스크톱 주 메뉴 5개와 하위 메뉴 패널), `ProfileMenu`(비로그인 `로그인` 버튼 / 로그인 프로필 버튼 → `기업 프로필`·`로그아웃` 팝업), `MobileNavDrawer` + `SidebarNav`(991px 이하 서랍 메뉴), `SectionNav`(화면 내 하위 메뉴), `PageHeader`(제목·한 줄 설명·하위 메뉴), `BrandLink`
 - 표시: `DataValue`(결측 → `-`), `InfoList`/`InfoRow`, `StatTile`, `StatusBadge`(색 + 글자 + 아이콘), `EmptyState`, `NoticeBanner`
 - 동작: `ActionButton`(비활성 시 `aria-disabled` + 이유 연결), `DisabledReason`, `TabNav`(방향키 이동), `SegmentedControl`, `AppModal`(포커스 가두기·Esc 닫기)
-- 도메인: 단계 폼(`diagnose/steps/*`, `StepProgress`), 필터(`ProgramFilters`), 공고 카드(`ProgramCard`)·추천 카드(`RecommendationCard`) — 실제 공고가 있을 때만 렌더링, 비교 영역(`CompareSection` + `CompareTable`, 선택은 `useCompareSelection`), 캘린더(`MonthCalendar`, 일정은 `lib/calendarEvents.ts`), 관리 기록(`mypage/*Panel`, `ApplicationRecordTable`, 상태 정의는 `constants/applicationStatus.ts`)
+- 도메인: 단계 폼(`diagnose/steps/*`, `StepProgress`), 필터(`ProgramFilters`), 공고 카드(`ProgramCard`)·추천 카드(`RecommendationCard`) — 실제 공고가 있을 때만 렌더링, 비교 영역(`CompareSection` + `CompareTable`, 선택은 `useCompareSelection`), 캘린더(`MonthCalendar`, 일정은 `lib/calendarEvents.ts`), 관리 기록(`mypage/*Panel`, `ApplicationRecordTable`, 상태 정의는 `constants/applicationStatus.ts`. 폴더 이름 `views/mypage`·`components/mypage`는 그대로 두고 화면 이름만 `지원사업 관리`)
 - revision_02: `DataSourceNotice`(테스트 데이터 출처·기준일), `DraftTag`(초안 기준), `CategoryChips`, `ProgramHighlights`(둘러보기), `CommonChecksPanel`(공통 확인 사항), `EligibilityConditions`·`ConditionItem`·`SelfCheckControl`(조건별 판정·직접 확인), `FitBreakdownTable`(적합도 계산 근거), `DocumentChecklist`, `OpportunityCostGrid`, `ProgramReviewsSection`(참여 후기), `CompareDock`(하단 비교 바), `diagnose/ExportStageCriteriaNote`, `community/CommunityPostList`
 - 디자인 토큰: `frontend/src/styles/tokens.css` (색·간격·반경·그림자·타이포). 브랜드 색은 채움·아이콘에 쓰고, 작은 글자·흰 글자 버튼에는 대비 4.5:1 이상인 `*-strong` 색을 쓴다.
 

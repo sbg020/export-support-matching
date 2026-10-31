@@ -65,15 +65,15 @@ npx vercel deploy --prod    # 운영 (exportsupportmatching.vercel.app)
 
 아래 주소를 **새 탭에서 직접 열고, 새로고침**해 404 없이 열리는지 확인합니다.
 
-- `/` — 한 줄 소개 → 이용 방법 3단계 → `추천받기`, 사이드바 주 메뉴 4개(지원사업 찾기 · 전체 지원사업 · 나의 로드맵 · 커뮤니티)
-- `/login` — 데모 계정 로그인, 틀린 비밀번호·소문자 아이디 실패, 회원가입 탭은 비활성과 이유 표시
-- `/diagnose/input`, `/programs/recommended`, `/programs`(하단 `#compare`), `/programs/calendar`, `/programs/아무-ID`, `/roadmap`
-- 로그인 후 `/mypage/profile`, `/mypage/programs?tab=applied`, `/mypage/documents` (로그아웃 상태에서는 로그인 화면으로 이동)
+- `/` — 한 줄 소개 → 이용 방법 3단계 → `추천받기`, 상단 한 줄 헤더의 주 메뉴 5개(수출 로드맵 · 기업 맞춤 지원사업 · 전체 지원사업 · 지원사업 관리 · 커뮤니티, 아이콘 없음)와 마우스를 올렸을 때 펼쳐지는 하위 메뉴. 왼쪽 사이드바가 없는지
+- `/login` — 데모 계정 로그인 후 `/roadmap`이 첫 화면인지, 틀린 비밀번호·소문자 아이디 실패, 회원가입 탭은 비활성과 이유 표시. 로그인 상태에서 `/`를 열면 `/roadmap`, 프로필 버튼 팝업(`기업 프로필`·`로그아웃`), 로그아웃 후 홈
+- `/profile`(기업 프로필, 로그인 불필요), `/diagnose/result`, `/programs/recommended`, `/programs`(하단 `#compare`), `/programs/calendar`, `/programs/아무-ID`, `/roadmap`
+- 로그인 후 `/manage/programs?tab=applied`, `/manage/documents` (로그아웃 상태에서는 로그인 화면으로 이동하고, 로그인하면 그 화면으로 돌아옴)
 - 테스트 데이터: `/programs` 상단에 `테스트 데이터 · 기업마당 수출지원 공고 60건(검수 전 초안) · 기준일 2026-10-30`, 검색 결과 `68건`, 둘러보기의 새로 올라온 공고. `/programs/P001`, `/programs/P004-01`(세부사업)이 직접 열리는지
 - 커뮤니티: `/community` → `/community/reviews`, 두 게시판의 빈 상태, 비로그인 `글쓰기` → 로그인 후 같은 게시판으로 복귀, `/community/free/1`은 `페이지를 찾을 수 없음`
-- 기존 주소 `/programs/compare`, `/mypage`, `/mypage/saved`, `/mypage/preparation`, `/mypage/history`, `/mypage/calendar`가 새 위치로 이동하는지
+- 기존 주소 `/programs/compare`, `/diagnose/input?step=2`, `/mypage`, `/mypage/profile`, `/mypage/programs`, `/mypage/documents`, `/mypage/saved`, `/mypage/preparation`, `/mypage/history`, `/mypage/calendar`가 새 위치(`/profile`, `/manage/*`, `/programs/calendar`)로 이동하는지
 - 세션 쿠키 `esm_session`이 `HttpOnly`, `Secure`, `SameSite=Lax`인지 (브라우저 개발자 도구 → Application → Cookies)
-- 모바일(폭 360px)에서 서랍 메뉴, 하위 메뉴 가로 스크롤, 비교 영역·하단 비교 바, 달력, 탭, 세부 분야 필터, 조건 목록 사용 가능 여부
+- 모바일(폭 360px)에서 한 줄 헤더와 서랍 메뉴(새 순서·이름), 하위 메뉴 가로 스크롤, 비교 영역·하단 비교 바, 달력, 탭, 세부 분야 필터, 조건 목록 사용 가능 여부
 
 ## 4. 백엔드·DB 배포 (공고 데이터 연결 시)
 
