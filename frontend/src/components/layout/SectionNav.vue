@@ -25,7 +25,9 @@ function currentValue(item: NavItem): 'page' | 'true' | undefined {
     const fromCalendar = route.query.from === 'calendar'
     if (fromCalendar) return item.routeName === 'programs-calendar' ? 'true' : undefined
   }
-  return item.activeFor?.includes(name) ? 'true' : undefined
+  if (!item.activeFor?.includes(name)) return undefined
+  const params = item.activeParams ?? {}
+  return Object.entries(params).every(([key, value]) => route.params[key] === value) ? 'true' : undefined
 }
 
 async function logout() {

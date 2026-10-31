@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** 주 메뉴 3개. 각 메뉴는 그 섹션의 첫 번째 하위 메뉴로 이동한다. 홈에서는 아무것도 선택하지 않는다. */
+/** 주 메뉴 4개. 각 메뉴는 그 섹션의 첫 번째 하위 메뉴로 이동한다. 홈에서는 아무것도 선택하지 않는다. */
 import { useRoute } from 'vue-router'
 import { SIDEBAR_SECTIONS, type NavSection } from '@/constants/navigation'
 

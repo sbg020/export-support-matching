@@ -106,6 +106,37 @@ export const routes: RouteRecordRaw[] = [
     meta: { title: '수출 로드맵', section: 'roadmap' },
   },
 
+  // 커뮤니티 (읽기는 로그인 없이, 글쓰기는 로그인 필요). 글쓰기 경로가 :postId로 해석되지 않게 먼저 둔다.
+  { path: '/community', redirect: moved('community-reviews') },
+  {
+    path: '/community/reviews',
+    name: 'community-reviews',
+    component: () => import('@/views/community/CommunityBoardView.vue'),
+    props: { board: 'reviews' },
+    meta: { title: '지원사업 후기', section: 'community' },
+  },
+  {
+    path: '/community/info',
+    name: 'community-info',
+    component: () => import('@/views/community/CommunityBoardView.vue'),
+    props: { board: 'info' },
+    meta: { title: '지원사업 정보방', section: 'community' },
+  },
+  {
+    path: '/community/:board(reviews|info)/write',
+    name: 'community-write',
+    component: () => import('@/views/community/CommunityWriteView.vue'),
+    props: true,
+    meta: { title: '글쓰기', section: 'community', requiresAuth: true },
+  },
+  {
+    path: '/community/:board(reviews|info)/:postId',
+    name: 'community-post',
+    component: () => import('@/views/community/CommunityPostView.vue'),
+    props: true,
+    meta: { title: '글 보기', section: 'community' },
+  },
+
   // 마이페이지 (로그인 필요)
   { path: '/mypage', redirect: moved('mypage-profile') },
   {
