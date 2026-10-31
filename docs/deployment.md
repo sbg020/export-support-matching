@@ -1,9 +1,10 @@
 # 배포 안내
 
-현재 배포 대상은 **프론트엔드(정적 SPA) + 로그인용 Vercel 서버 함수(`frontend/api/`)**입니다. 공고 데이터가 연결되지 않은 상태이므로 Django 백엔드와 DB 없이 배포해 모든 화면을 확인할 수 있습니다.
+현재 배포 대상은 **프론트엔드(정적 SPA) + 로그인용 Vercel 서버 함수(`frontend/api/`)**입니다. 공고 데이터는 정답 세트 초안으로 만든 테스트 데이터셋(`frontend/src/data/test-dataset.json`, 사람 검수 전)을 빌드에 함께 넣으므로 Django 백엔드와 DB 없이 배포해 모든 화면을 확인할 수 있습니다 (REVISION_02).
 
 - Production: `https://exportsupportmatching.vercel.app/` (Vercel 프로젝트 `exportsupportmatching`, 팀 `sbg020`)
 - GitHub: `https://github.com/sbg020/export-support-matching`
+- 최근 운영 배포: 2026-10-31, `revision-02` 브랜치 (테스트 데이터셋 `test-2026-10-30`)
 
 ## 1. GitHub 저장소 연결
 
@@ -38,9 +39,10 @@ git push -u origin main
    | `DEMO_LOGIN_ID` | 데모 아이디 | 대소문자 구분 |
    | `DEMO_LOGIN_PASSWORD` | 데모 비밀번호 | 문서·커밋에 적지 않음 |
    | `AUTH_SESSION_SECRET` | `openssl rand -base64 32` 결과 | Production과 Preview에 **서로 다른 값** |
-   | `VITE_API_BASE_URL` | (공고 API가 생기면) | 지금은 넣지 않음 |
+   | `VITE_DATA_SOURCE` | `test-dataset` | 테스트 데이터셋 사용. 비우면 공고 없음 상태로 빌드 |
+   | `VITE_API_BASE_URL` | (공고 API가 생기면) | 지금은 넣지 않음. 넣으면 테스트 데이터보다 우선 |
 
-   서버 전용 값에는 `VITE_` 접두사를 붙이지 않습니다. 환경변수는 추가·변경한 뒤 **다시 배포해야** 적용됩니다. CLI로 넣을 때는 `frontend` 폴더에서 `npx vercel env add <이름> production` / `preview`를 실행합니다.
+   서버 전용 값에는 `VITE_` 접두사를 붙이지 않습니다. `VITE_` 값은 빌드 시점에 번들에 들어가므로, 환경변수는 추가·변경한 뒤 **다시 배포해야** 적용됩니다. CLI로 넣을 때는 연결(`.vercel/`)이 있는 **저장소 루트**에서 `npx vercel env add <이름> production` / `preview`를 실행합니다. Vercel 빌드에서는 Python 변환을 실행하지 않으므로 테스트 데이터셋 JSON은 커밋된 파일을 그대로 씁니다.
 4. **Deploy**를 누르면 배포 URL이 생깁니다. Vercel 프로젝트를 GitHub 저장소와 연결(Git Integration)하면 이후 `main` 푸시는 운영 배포, 다른 브랜치·PR은 미리보기 URL이 자동으로 생깁니다. 현재 프로젝트는 Git 자동 배포가 연결되어 있지 않아 아래 CLI 방식으로 배포합니다.
 
 하위 경로를 직접 열거나 새로고침해도 앱이 열리도록 `frontend/vercel.json`에 다음 rewrite가 들어 있습니다. `/api/`는 서버 함수가 처리하도록 제외합니다. Vercel은 실제 파일(`/assets/*` 등)을 먼저 제공하고, 없는 경로만 `index.html`로 보냅니다.
@@ -63,13 +65,15 @@ npx vercel deploy --prod    # 운영 (exportsupportmatching.vercel.app)
 
 아래 주소를 **새 탭에서 직접 열고, 새로고침**해 404 없이 열리는지 확인합니다.
 
-- `/` — 한 줄 소개 → 이용 방법 3단계 → `추천받기`, 사이드바 주 메뉴 3개
+- `/` — 한 줄 소개 → 이용 방법 3단계 → `추천받기`, 사이드바 주 메뉴 4개(지원사업 찾기 · 전체 지원사업 · 나의 로드맵 · 커뮤니티)
 - `/login` — 데모 계정 로그인, 틀린 비밀번호·소문자 아이디 실패, 회원가입 탭은 비활성과 이유 표시
 - `/diagnose/input`, `/programs/recommended`, `/programs`(하단 `#compare`), `/programs/calendar`, `/programs/아무-ID`, `/roadmap`
 - 로그인 후 `/mypage/profile`, `/mypage/programs?tab=applied`, `/mypage/documents` (로그아웃 상태에서는 로그인 화면으로 이동)
+- 테스트 데이터: `/programs` 상단에 `테스트 데이터 · 기업마당 수출지원 공고 60건(검수 전 초안) · 기준일 2026-10-30`, 검색 결과 `68건`, 둘러보기의 새로 올라온 공고. `/programs/P001`, `/programs/P004-01`(세부사업)이 직접 열리는지
+- 커뮤니티: `/community` → `/community/reviews`, 두 게시판의 빈 상태, 비로그인 `글쓰기` → 로그인 후 같은 게시판으로 복귀, `/community/free/1`은 `페이지를 찾을 수 없음`
 - 기존 주소 `/programs/compare`, `/mypage`, `/mypage/saved`, `/mypage/preparation`, `/mypage/history`, `/mypage/calendar`가 새 위치로 이동하는지
 - 세션 쿠키 `esm_session`이 `HttpOnly`, `Secure`, `SameSite=Lax`인지 (브라우저 개발자 도구 → Application → Cookies)
-- 모바일(폭 360px)에서 서랍 메뉴, 하위 메뉴 가로 스크롤, 비교 영역, 달력, 탭 사용 가능 여부
+- 모바일(폭 360px)에서 서랍 메뉴, 하위 메뉴 가로 스크롤, 비교 영역·하단 비교 바, 달력, 탭, 세부 분야 필터, 조건 목록 사용 가능 여부
 
 ## 4. 백엔드·DB 배포 (공고 데이터 연결 시)
 

@@ -110,4 +110,4 @@
 | P2 | §12 백엔드 계약 | 일부. 공유 판정 사례 `docs/contracts/engine-cases.json`(33개)을 만들고 Vitest로 검사한다. Django 모델 새 필드·마이그레이션 `0002`·`import_test_dataset` 명령·`matching/engine.py` v2와 같은 사례를 읽는 Django 테스트는 아직 없다 |
 
 - 입력 페이지 변경(§4.4): `StepBasicInfo.vue`에 기업 규모 구분 1문항, `StepExportStatus.vue`의 측정 기간 안내에 1문장, 관심 분야 선택지 5개(`constants/options.ts`), 직렬화 기본값(`lib/profile.ts`의 `createEmptyProfile`·`FIELD_STEP`·`deserializeProfile`)만 바뀌었다. 기존 항목·키·검증·저장 로직은 그대로다. 표시 전용으로 `ProfileSummary`에 `기업 규모 구분` 줄을 더했다.
-- 배포: 로컬 `frontend/.env.local`에는 `VITE_DATA_SOURCE=test-dataset`이 있다. 현황 조사 때 Vercel 프로젝트 환경변수에는 이 변수가 없었으므로(위 7항), Production·Preview에 추가한 뒤 다시 배포해야 테스트 데이터가 보인다.
+- 배포 (2026-10-31): `revision-02`를 GitHub에 푸시하고, Vercel Production·Preview에 `VITE_DATA_SOURCE=test-dataset`을 추가했다. CLI로 미리보기 배포 후 `vercel curl`로 하위 경로·데이터 청크를 확인하고 운영(`https://exportsupportmatching.vercel.app/`)에 배포했다. 운영 사이트에서 데이터 출처 안내·68건·`/programs/P001`·`/programs/P004-01`·`/community` 이동을 확인했다. `main`에는 아직 병합하지 않았다.
