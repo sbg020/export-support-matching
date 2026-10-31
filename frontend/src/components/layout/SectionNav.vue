@@ -1,40 +1,14 @@
 <script setup lang="ts">
 /**
  * 화면 안의 하위 메뉴. 현재 섹션의 하위 메뉴만 탭 모양 링크로 보여 준다.
- * 마이페이지에서는 오른쪽 끝에 로그아웃 버튼을 둔다.
+ * 로그아웃은 헤더의 프로필 팝업에서 한다 (REVISION_03 §3.4).
  */
 import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { IconLogout } from '@tabler/icons-vue'
-import { sectionByKey, type NavItem } from '@/constants/navigation'
-import { useAuth } from '@/stores/authStore'
-import { useToast } from '@/stores/toastStore'
+import { useRoute } from 'vue-router'
+import { navItemCurrent, sectionByKey } from '@/constants/navigation'
 
 const route = useRoute()
-const router = useRouter()
-const auth = useAuth()
-const toast = useToast()
-
 const section = computed(() => sectionByKey(route.meta.section))
-
-/** 정확히 이 화면이면 'page', 상세처럼 이 메뉴에 속한 화면이면 'true' */
-function currentValue(item: NavItem): 'page' | 'true' | undefined {
-  const name = typeof route.name === 'string' ? route.name : ''
-  if (name === item.routeName) return 'page'
-  if (name === 'program-detail') {
-    const fromCalendar = route.query.from === 'calendar'
-    if (fromCalendar) return item.routeName === 'programs-calendar' ? 'true' : undefined
-  }
-  if (!item.activeFor?.includes(name)) return undefined
-  const params = item.activeParams ?? {}
-  return Object.entries(params).every(([key, value]) => route.params[key] === value) ? 'true' : undefined
-}
-
-async function logout() {
-  await auth.logout()
-  toast.show('로그아웃했습니다. 이 기기에 저장한 기업정보는 그대로 남아 있습니다.', 'info')
-  await router.push({ name: 'home' })
-}
 </script>
 
 <template>
@@ -45,8 +19,8 @@ async function logout() {
           <a
             :href="href"
             class="section-nav__link"
-            :class="{ 'is-current': currentValue(item) }"
-            :aria-current="currentValue(item)"
+            :class="{ 'is-current': navItemCurrent(item, route) }"
+            :aria-current="navItemCurrent(item, route)"
             @click="navigate"
           >
             {{ item.label }}
@@ -54,15 +28,6 @@ async function logout() {
         </RouterLink>
       </li>
     </ul>
-    <button
-      v-if="section.key === 'mypage' && auth.state.status === 'authenticated'"
-      type="button"
-      class="btn btn-secondary btn-sm section-nav__logout"
-      @click="logout"
-    >
-      <IconLogout :size="16" stroke-width="2" aria-hidden="true" />
-      로그아웃
-    </button>
   </nav>
 </template>
 
@@ -112,10 +77,5 @@ async function logout() {
 
 .section-nav__link:focus-visible {
   outline-offset: -2px;
-}
-
-.section-nav__logout {
-  flex-shrink: 0;
-  margin-bottom: 6px;
 }
 </style>

@@ -3,7 +3,7 @@ import { useId } from 'vue'
 
 withDefaults(defineProps<{ size?: number }>(), { size: 32 })
 
-// 로고가 여러 곳(숨겨진 사이드바 포함)에 있으므로 그라데이션 id를 인스턴스마다 다르게 한다.
+// 로고가 여러 곳(헤더·모바일 서랍)에 있으므로 그라데이션 id를 인스턴스마다 다르게 한다.
 const gradientId = `brand-gradient-${useId()}`
 </script>
 

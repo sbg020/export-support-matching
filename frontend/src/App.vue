@@ -2,7 +2,6 @@
 import { nextTick, ref } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import AppHeader from '@/components/layout/AppHeader.vue'
-import AppSidebar from '@/components/layout/AppSidebar.vue'
 import MobileNavDrawer from '@/components/layout/MobileNavDrawer.vue'
 import SiteFooter from '@/components/layout/SiteFooter.vue'
 import ToastRegion from '@/components/common/ToastRegion.vue'
@@ -26,15 +25,13 @@ router.afterEach((to, from) => {
 
 <template>
   <a class="skip-link" href="#main-content" @click.prevent="skipToMain">본문 바로가기</a>
+  <!-- 헤더 · 본문 · 바닥글을 위에서 아래로 쌓는다 (REVISION_03 §3.5). 주 메뉴는 헤더 한 줄에 있다 -->
   <div class="app-shell">
-    <AppSidebar class="d-none d-lg-block" />
-    <div class="app-column">
-      <AppHeader :menu-open="menuOpen" @open-menu="menuOpen = true" />
-      <main id="main-content" ref="mainRef" class="app-main" tabindex="-1">
-        <RouterView />
-      </main>
-      <SiteFooter />
-    </div>
+    <AppHeader :menu-open="menuOpen" @open-menu="menuOpen = true" />
+    <main id="main-content" ref="mainRef" class="app-main" tabindex="-1">
+      <RouterView />
+    </main>
+    <SiteFooter />
   </div>
   <MobileNavDrawer v-model:open="menuOpen" />
   <ToastRegion />
@@ -43,14 +40,8 @@ router.afterEach((to, from) => {
 <style scoped>
 .app-shell {
   display: flex;
-  min-height: 100vh;
-}
-
-.app-column {
-  display: flex;
   flex-direction: column;
-  flex: 1;
-  min-width: 0;
+  min-height: 100vh;
 }
 
 .app-main {

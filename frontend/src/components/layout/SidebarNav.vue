@@ -1,13 +1,13 @@
 <script setup lang="ts">
-/** 주 메뉴 4개. 각 메뉴는 그 섹션의 첫 번째 하위 메뉴로 이동한다. 홈에서는 아무것도 선택하지 않는다. */
+/**
+ * 모바일 서랍의 주 메뉴 5개 (REVISION_03 §3.3). 아이콘 없이 글자만 둔다.
+ * 각 메뉴는 그 섹션의 첫 번째 하위 메뉴로 이동한다. 홈·로그인·기업 프로필에서는 아무것도 선택하지 않는다.
+ * 하위 화면은 각 화면 제목 아래의 하위 메뉴 탭으로 이동한다.
+ */
 import { useRoute } from 'vue-router'
-import { SIDEBAR_SECTIONS, type NavSection } from '@/constants/navigation'
+import { NAV_SECTIONS, firstRouteName, type NavSection } from '@/constants/navigation'
 
 const route = useRoute()
-
-function firstRouteName(section: NavSection): string {
-  return section.items[0]?.routeName ?? 'home'
-}
 
 function isCurrent(section: NavSection): boolean {
   return route.meta.section === section.key
@@ -17,7 +17,7 @@ function isCurrent(section: NavSection): boolean {
 <template>
   <nav class="side-nav" aria-label="주 메뉴">
     <ul class="side-nav__list">
-      <li v-for="section in SIDEBAR_SECTIONS" :key="section.key">
+      <li v-for="section in NAV_SECTIONS" :key="section.key">
         <RouterLink v-slot="{ href, navigate }" :to="{ name: firstRouteName(section) }" custom>
           <a
             :href="href"
@@ -26,8 +26,7 @@ function isCurrent(section: NavSection): boolean {
             :aria-current="isCurrent(section) ? 'page' : undefined"
             @click="navigate"
           >
-            <component :is="section.icon" :size="20" stroke-width="1.8" aria-hidden="true" />
-            <span>{{ section.label }}</span>
+            {{ section.label }}
           </a>
         </RouterLink>
       </li>
@@ -49,7 +48,6 @@ function isCurrent(section: NavSection): boolean {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
   min-height: 44px;
   padding: 0 var(--space-3) 0 var(--space-4);
   border-radius: var(--radius-sm);

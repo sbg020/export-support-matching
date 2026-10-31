@@ -1,27 +1,62 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute, type RouteLocationRaw } from 'vue-router'
+/**
+ * 상단 헤더 한 줄 (REVISION_03 §3).
+ * 데스크톱: [로고] [주 메뉴 5개 + 하위 메뉴 패널] ……… [로그인 또는 프로필]
+ * 모바일(991px 이하): [메뉴 버튼] [로고] ……… [로그인 또는 프로필], 메뉴 버튼은 왼쪽 서랍을 연다.
+ * 하위 메뉴 패널과 프로필 팝업은 동시에 열리지 않는다.
+ */
+import { onBeforeUnmount, ref, watch } from 'vue'
 import { IconMenu2 } from '@tabler/icons-vue'
-import { useAuth } from '@/stores/authStore'
 import BrandLink from './BrandLink.vue'
+import TopNav from './TopNav.vue'
+import ProfileMenu from './ProfileMenu.vue'
 
 defineProps<{ menuOpen: boolean }>()
 const emit = defineEmits<{ openMenu: [] }>()
 
-const route = useRoute()
-const auth = useAuth()
+/** 마우스가 헤더와 패널을 모두 벗어난 뒤 패널을 닫기까지의 시간 */
+const PANEL_CLOSE_DELAY_MS = 150
 
-const user = computed(() => auth.state.user)
-/** 계정 아이디의 첫 글자 (예: ADMIN → A) */
-const initial = computed(() => Array.from(user.value?.id ?? '')[0] ?? '')
-const inMypage = computed(() => route.meta.section === 'mypage')
+const headerRef = ref<HTMLElement | null>(null)
+const panelOpen = ref(false)
+const profileOpen = ref(false)
+let closeTimer: ReturnType<typeof setTimeout> | undefined
 
-/** 로그인 후 지금 보던 화면으로 돌아온다 */
-const loginTarget = computed<RouteLocationRaw>(() => ({ name: 'login', query: { redirect: route.fullPath } }))
+watch(panelOpen, (value) => {
+  if (value) profileOpen.value = false
+})
+watch(profileOpen, (value) => {
+  if (value) panelOpen.value = false
+})
+
+function cancelClose() {
+  clearTimeout(closeTimer)
+}
+
+function scheduleClose() {
+  clearTimeout(closeTimer)
+  closeTimer = setTimeout(() => {
+    panelOpen.value = false
+  }, PANEL_CLOSE_DELAY_MS)
+}
+
+/** 포커스가 헤더 밖으로 나가면 패널을 닫는다 */
+function onFocusOut(event: FocusEvent) {
+  const next = event.relatedTarget
+  if (!(next instanceof Node) || !headerRef.value?.contains(next)) panelOpen.value = false
+}
+
+onBeforeUnmount(() => clearTimeout(closeTimer))
 </script>
 
 <template>
-  <header class="app-header">
+  <header
+    ref="headerRef"
+    class="app-header"
+    @mouseenter="cancelClose"
+    @mouseleave="scheduleClose"
+    @focusout="onFocusOut"
+  >
     <div class="app-header__inner">
       <button
         type="button"
@@ -33,27 +68,11 @@ const loginTarget = computed<RouteLocationRaw>(() => ({ name: 'login', query: { 
       >
         <IconMenu2 :size="22" stroke-width="2" aria-hidden="true" />
       </button>
-      <BrandLink class="d-lg-none" />
+      <BrandLink />
+      <TopNav v-model:open="panelOpen" class="d-none d-lg-flex" />
 
       <div class="app-header__auth">
-        <!-- 확인 중에는 자리만 비워 둔다 (가짜 아바타·스켈레톤 없음) -->
-        <RouterLink
-          v-if="auth.state.status === 'authenticated' && user"
-          :to="{ name: 'mypage-profile' }"
-          class="profile-avatar"
-          :class="{ 'is-current': inMypage }"
-          :aria-label="`마이페이지로 이동 (${user.id} 계정)`"
-          :aria-current="inMypage ? 'true' : undefined"
-        >
-          <span aria-hidden="true">{{ initial }}</span>
-        </RouterLink>
-        <RouterLink
-          v-else-if="auth.state.status === 'anonymous' && route.name !== 'login'"
-          :to="loginTarget"
-          class="btn btn-primary btn-sm"
-        >
-          로그인
-        </RouterLink>
+        <ProfileMenu v-model:open="profileOpen" />
       </div>
     </div>
   </header>
@@ -70,11 +89,15 @@ const loginTarget = computed<RouteLocationRaw>(() => ({ name: 'login', query: { 
   border-bottom: 1px solid var(--color-border);
 }
 
+/* 본문(.page)과 같은 최대 너비·좌우 여백: 로고와 프로필이 본문 좌우 끝에 맞는다 */
 .app-header__inner {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-5);
+  width: 100%;
+  max-width: var(--content-max);
   height: 100%;
+  margin: 0 auto;
   padding: 0 var(--page-gutter);
 }
 
@@ -91,30 +114,9 @@ const loginTarget = computed<RouteLocationRaw>(() => ({ name: 'login', query: { 
   margin-left: auto;
 }
 
-.profile-avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--color-heading);
-  color: #fff;
-  font-size: var(--fs-md);
-  font-weight: var(--fw-bold);
-  text-decoration: none;
-}
-
-.profile-avatar:hover {
-  color: #fff;
-  background: var(--color-primary-strong);
-}
-
-/* 마이페이지 안에서는 선택 상태 (테두리 고리로 색 외 표시) */
-.profile-avatar.is-current {
-  background: var(--color-primary-strong);
-  box-shadow:
-    0 0 0 3px var(--color-surface),
-    0 0 0 5px var(--color-primary-strong);
+@media (max-width: 991.98px) {
+  .app-header__inner {
+    gap: var(--space-3);
+  }
 }
 </style>
