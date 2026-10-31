@@ -123,7 +123,7 @@ describe('추천 카드', () => {
     await router.push('/programs/recommended')
     await router.isReady()
     const wrapper = mount(RecommendationCard, {
-      props: { program: blankProgram({ id: 't2', title: '테스트 전용 공고' }), inCompare: false },
+      props: { program: blankProgram({ id: 't2', title: '테스트 전용 공고' }), evaluation: undefined, inCompare: false },
       global: { plugins: [router] },
     })
     const text = wrapper.text()

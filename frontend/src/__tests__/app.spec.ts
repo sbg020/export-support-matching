@@ -27,6 +27,12 @@ describe('경로', () => {
       '/mypage/profile': 'mypage-profile',
       '/mypage/programs': 'mypage-programs',
       '/mypage/documents': 'mypage-documents',
+      '/community/reviews': 'community-reviews',
+      '/community/info': 'community-info',
+      '/community/reviews/write': 'community-write',
+      '/community/info/write': 'community-write',
+      '/community/reviews/p1': 'community-post',
+      '/community/info/p1': 'community-post',
     }
     for (const [path, name] of Object.entries(expected)) {
       const resolved = router.resolve(path)
@@ -34,16 +40,33 @@ describe('경로', () => {
       expect(resolved.meta.title).toBeTruthy()
     }
     expect(router.resolve('/없는-주소').name).toBe('not-found')
+    // 게시판은 reviews·info만 허용한다
+    expect(router.resolve('/community/free/p1').name).toBe('not-found')
+    expect(router.resolve('/community/free/write').name).toBe('not-found')
   })
 
-  it('마이페이지만 로그인이 필요하다', () => {
+  it('마이페이지와 커뮤니티 글쓰기만 로그인이 필요하다', () => {
     const router = makeRouter()
-    for (const path of ['/mypage/profile', '/mypage/programs', '/mypage/documents']) {
+    for (const path of ['/mypage/profile', '/mypage/programs', '/mypage/documents', '/community/reviews/write']) {
       expect(router.resolve(path).meta.requiresAuth).toBe(true)
     }
-    for (const path of ['/', '/diagnose/input', '/programs', '/programs/calendar', '/roadmap']) {
+    for (const path of [
+      '/',
+      '/diagnose/input',
+      '/programs',
+      '/programs/calendar',
+      '/roadmap',
+      '/community/reviews',
+      '/community/info',
+      '/community/info/p1',
+    ]) {
       expect(router.resolve(path).meta.requiresAuth).toBeFalsy()
     }
+  })
+
+  it('글쓰기 경로는 게시판 이름을 파라미터로 받는다', () => {
+    const resolved = makeRouter().resolve('/community/info/write')
+    expect(resolved.params).toEqual({ board: 'info' })
   })
 
   it('사이드바 섹션 값이 화면마다 정해져 있다', () => {
@@ -53,6 +76,7 @@ describe('경로', () => {
     expect(router.resolve('/programs/calendar').meta.section).toBe('programs')
     expect(router.resolve('/programs/abc').meta.section).toBe('programs')
     expect(router.resolve('/mypage/programs').meta.section).toBe('mypage')
+    expect(router.resolve('/community/info/p1').meta.section).toBe('community')
   })
 })
 
@@ -75,6 +99,12 @@ describe('기존 주소 리다이렉트 (쿼리·해시 유지)', () => {
     expect(route.name).toBe('programs-calendar')
     expect(route.query).toEqual({ month: '2026-10' })
     expect(route.hash).toBe('#top')
+  })
+
+  it('커뮤니티 → 지원사업 후기 (쿼리 유지)', async () => {
+    const route = await landing('/community?program=P001')
+    expect(route.name).toBe('community-reviews')
+    expect(route.query).toEqual({ program: 'P001' })
   })
 
   it('마이페이지 홈·관심·준비·이력 → 새 위치', async () => {
