@@ -11,6 +11,9 @@ revision_01.md
 .git
 backend
 docs
+tools
+수출 지원사업 공고문
+REVISION_02.md
 **/node_modules
 **/dist
 **/.venv
