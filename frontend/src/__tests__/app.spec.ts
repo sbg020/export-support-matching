@@ -17,16 +17,15 @@ describe('경로', () => {
     const expected: Record<string, string> = {
       '/': 'home',
       '/login': 'login',
-      '/diagnose/input': 'diagnose-input',
+      '/profile': 'company-profile',
       '/diagnose/result': 'diagnose-result',
       '/programs/recommended': 'programs-recommended',
       '/programs': 'programs',
       '/programs/calendar': 'programs-calendar',
       '/programs/any-id': 'program-detail',
       '/roadmap': 'roadmap',
-      '/mypage/profile': 'mypage-profile',
-      '/mypage/programs': 'mypage-programs',
-      '/mypage/documents': 'mypage-documents',
+      '/manage/programs': 'manage-programs',
+      '/manage/documents': 'manage-documents',
       '/community/reviews': 'community-reviews',
       '/community/info': 'community-info',
       '/community/reviews/write': 'community-write',
@@ -43,16 +42,22 @@ describe('경로', () => {
     // 게시판은 reviews·info만 허용한다
     expect(router.resolve('/community/free/p1').name).toBe('not-found')
     expect(router.resolve('/community/free/write').name).toBe('not-found')
+    // 기존 기업 프로필·기업정보 입력·마이페이지 경로 이름은 없다 (주소는 리다이렉트로 남는다)
+    for (const name of ['mypage-profile', 'diagnose-input', 'mypage-programs', 'mypage-documents']) {
+      expect(router.hasRoute(name)).toBe(false)
+    }
   })
 
-  it('마이페이지와 커뮤니티 글쓰기만 로그인이 필요하다', () => {
+  it('지원사업 관리와 커뮤니티 글쓰기만 로그인이 필요하다', () => {
     const router = makeRouter()
-    for (const path of ['/mypage/profile', '/mypage/programs', '/mypage/documents', '/community/reviews/write']) {
+    for (const path of ['/manage/programs', '/manage/documents', '/community/reviews/write']) {
       expect(router.resolve(path).meta.requiresAuth).toBe(true)
     }
     for (const path of [
       '/',
-      '/diagnose/input',
+      '/profile',
+      '/diagnose/result',
+      '/programs/recommended',
       '/programs',
       '/programs/calendar',
       '/roadmap',
@@ -69,13 +74,17 @@ describe('경로', () => {
     expect(resolved.params).toEqual({ board: 'info' })
   })
 
-  it('사이드바 섹션 값이 화면마다 정해져 있다', () => {
+  it('주 메뉴 섹션 값이 화면마다 정해져 있다 (홈·기업 프로필은 없음)', () => {
     const router = makeRouter()
     expect(router.resolve('/').meta.section).toBeUndefined()
+    expect(router.resolve('/profile').meta.section).toBeUndefined()
+    expect(router.resolve('/roadmap').meta.section).toBe('roadmap')
+    expect(router.resolve('/diagnose/result').meta.section).toBe('find')
     expect(router.resolve('/programs/recommended').meta.section).toBe('find')
     expect(router.resolve('/programs/calendar').meta.section).toBe('programs')
     expect(router.resolve('/programs/abc').meta.section).toBe('programs')
-    expect(router.resolve('/mypage/programs').meta.section).toBe('mypage')
+    expect(router.resolve('/manage/programs').meta.section).toBe('manage')
+    expect(router.resolve('/manage/documents').meta.section).toBe('manage')
     expect(router.resolve('/community/info/p1').meta.section).toBe('community')
   })
 })
@@ -107,13 +116,24 @@ describe('기존 주소 리다이렉트 (쿼리·해시 유지)', () => {
     expect(route.query).toEqual({ program: 'P001' })
   })
 
-  it('마이페이지 홈·관심·준비·이력 → 새 위치', async () => {
-    expect((await landing('/mypage')).name).toBe('mypage-profile')
+  it('기업정보 입력·기존 기업 프로필 → 기업 프로필 (단계 유지)', async () => {
+    const input = await landing('/diagnose/input?step=3')
+    expect(input.name).toBe('company-profile')
+    expect(input.fullPath).toBe('/profile?step=3')
+    expect((await landing('/diagnose')).fullPath).toBe('/profile')
+    expect((await landing('/mypage/profile')).fullPath).toBe('/profile')
+    expect((await landing('/mypage')).fullPath).toBe('/profile')
+  })
+
+  it('마이페이지 관심·준비·이력·서류함 → 지원사업 관리', async () => {
+    expect((await landing('/mypage/programs?tab=applied')).fullPath).toBe('/manage/programs?tab=applied')
+    expect((await landing('/mypage/documents')).fullPath).toBe('/manage/documents')
     expect((await landing('/mypage/saved')).query).toEqual({ tab: 'interested' })
     expect((await landing('/mypage/preparation')).query).toEqual({ tab: 'preparing' })
     const history = await landing('/mypage/history?x=1')
-    expect(history.name).toBe('mypage-programs')
+    expect(history.name).toBe('manage-programs')
     expect(history.query).toEqual({ x: '1', tab: 'applied' })
+    expect((await landing('/manage')).fullPath).toBe('/manage/programs')
   })
 })
 

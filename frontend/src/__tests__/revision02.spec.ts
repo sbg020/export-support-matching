@@ -247,9 +247,9 @@ describe('공고 비교 개선', () => {
     expect(compareCellText('checksLeft', slot(same), ctx)).toBeNull()
   })
 
-  it('마이페이지 기록에서 찾을 수 없는 공고는 비교에 넣을 수 없다', async () => {
+  it('지원사업 관리 기록에서 찾을 수 없는 공고는 비교에 넣을 수 없다', async () => {
     const router = makeRouter()
-    await router.push('/mypage/programs')
+    await router.push('/manage/programs')
     const record: ApplicationRecord = {
       programId: 'GONE',
       status: 'interested',

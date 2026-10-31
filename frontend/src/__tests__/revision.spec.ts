@@ -24,8 +24,8 @@ describe('로그인 후 이동 주소 검사', () => {
   const router = makeRouter()
 
   it('등록된 내부 경로만 허용한다', () => {
-    expect(safeRedirect('/diagnose/input', router)).toBe('/diagnose/input')
-    expect(safeRedirect('/mypage/programs?tab=applied', router)).toBe('/mypage/programs?tab=applied')
+    expect(safeRedirect('/profile', router)).toBe('/profile')
+    expect(safeRedirect('/manage/programs?tab=applied', router)).toBe('/manage/programs?tab=applied')
     expect(safeRedirect(['/roadmap'], router)).toBe('/roadmap')
   })
 
