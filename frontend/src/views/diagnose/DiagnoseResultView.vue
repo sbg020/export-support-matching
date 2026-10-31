@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   IconArrowRight,
   IconForms,
@@ -27,8 +28,15 @@ import { exportStageText, phaseListText } from '@/lib/programDisplay'
 import { isSourceConnected, programRepository } from '@/repositories'
 import { PROFILE_STEPS } from '@/constants/options'
 import { PROFILE_STATUS_LABEL } from '@/lib/profile'
+import type { ProfileStepId } from '@/types/profile'
 
+const router = useRouter()
 const store = useProfileStore()
+
+/** 입력 요약의 단계별 '수정': 기업 프로필의 그 단계(?step=n)를 연다 */
+function openEdit(step: ProfileStepId) {
+  void router.push({ name: 'company-profile', query: { step: String(step) } })
+}
 const assessment = computed(() => store.assessment.value)
 const profile = computed(() => store.state.profile)
 const evaluation = useProgramEvaluations()
@@ -67,7 +75,7 @@ const stepTitle = (step: number) => PROFILE_STEPS.find((s) => s.id === step)?.ti
         <ProfileStatusBadge :status="assessment.status" />
       </template>
       <template #actions>
-        <RouterLink :to="{ name: 'diagnose-input' }" class="btn btn-secondary">
+        <RouterLink :to="{ name: 'company-profile' }" class="btn btn-secondary">
           <IconPencil :size="18" stroke-width="2" aria-hidden="true" />
           기업정보 수정하기
         </RouterLink>
@@ -130,7 +138,7 @@ const stepTitle = (step: number) => PROFILE_STEPS.find((s) => s.id === step)?.ti
             <NoticeBanner v-if="!diagnosis" class="mt-4" tone="neutral" title="수출단계를 진단하지 않았습니다">
               기업정보 3단계의 최근 1년 수출액을 입력하면 진단합니다. 수출 실적이 없으면 0을 입력해 주세요.
               <template #actions>
-                <RouterLink :to="{ name: 'diagnose-input', query: { step: 3 } }" class="btn btn-secondary btn-sm">
+                <RouterLink :to="{ name: 'company-profile', query: { step: 3 } }" class="btn btn-secondary btn-sm">
                   수출액 입력하기
                 </RouterLink>
               </template>
@@ -144,8 +152,8 @@ const stepTitle = (step: number) => PROFILE_STEPS.find((s) => s.id === step)?.ti
 
           <SectionCard title="입력한 기업정보" heading-id="summary-title" :icon="IconForms">
             <template #actions>
-              <RouterLink :to="{ name: 'mypage-profile' }" class="btn btn-ghost btn-sm">
-                프로필에서 보기
+              <RouterLink :to="{ name: 'company-profile' }" class="btn btn-ghost btn-sm">
+                기업 프로필에서 수정
               </RouterLink>
             </template>
             <EmptyState
@@ -156,10 +164,10 @@ const stepTitle = (step: number) => PROFILE_STEPS.find((s) => s.id === step)?.ti
               compact
             >
               <template #actions>
-                <RouterLink :to="{ name: 'diagnose-input' }" class="btn btn-primary">기업정보 입력하기</RouterLink>
+                <RouterLink :to="{ name: 'company-profile' }" class="btn btn-primary">기업정보 입력하기</RouterLink>
               </template>
             </EmptyState>
-            <ProfileSummary v-else :profile="profile" />
+            <ProfileSummary v-else :profile="profile" editable @edit="openEdit" />
           </SectionCard>
         </div>
 
@@ -186,7 +194,7 @@ const stepTitle = (step: number) => PROFILE_STEPS.find((s) => s.id === step)?.ti
                   <span>{{ issue.message }}</span>
                 </li>
               </ul>
-              <RouterLink :to="{ name: 'diagnose-input' }" class="btn btn-secondary btn-sm mt-3">
+              <RouterLink :to="{ name: 'company-profile' }" class="btn btn-secondary btn-sm mt-3">
                 빠진 항목 입력하기
               </RouterLink>
             </template>

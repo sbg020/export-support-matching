@@ -258,7 +258,7 @@ const resultCountFormat = (n: number) => `${n}건`
               <template #actions>
                 <RouterLink
                   v-if="mode === 'recommended'"
-                  :to="{ name: 'diagnose-input' }"
+                  :to="{ name: 'company-profile' }"
                   class="btn btn-secondary"
                 >
                   기업정보 확인하기

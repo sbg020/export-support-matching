@@ -56,7 +56,7 @@ const reasonTag = computed(() => {
     <SelfCheckControl v-if="selfCheck && condition.selfCheckable" :program-id="programId" :condition="condition" />
     <RouterLink
       v-else-if="condition.reasonCode === 'missing-input' && condition.inputStep"
-      :to="{ name: 'diagnose-input', query: { step: condition.inputStep } }"
+      :to="{ name: 'company-profile', query: { step: condition.inputStep } }"
       class="btn btn-secondary btn-sm cond__input"
     >
       기업정보 입력하기 ({{ condition.inputStep }}단계)

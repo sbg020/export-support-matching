@@ -29,7 +29,7 @@ const connected = isSourceConnected(programRepository.source)
         <span class="fs-sm text-muted-strong">기준 프로필</span>
         <strong class="text-heading"><DataValue :value="companyName" missing-label="기업명 미입력" /></strong>
         <ProfileStatusBadge :status="status" size="sm" />
-        <RouterLink :to="{ name: 'diagnose-input' }" class="fs-sm">
+        <RouterLink :to="{ name: 'company-profile' }" class="fs-sm">
           {{ status === 'empty' ? '기업정보 입력하기' : '기업정보 수정' }}
         </RouterLink>
       </template>

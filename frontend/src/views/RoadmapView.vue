@@ -163,7 +163,7 @@ const countFormat = (n: number) => `${n}건`
         </SectionCard>
         <SectionCard class="col-span-12 lg-span-6" title="지금 할 수 있는 일" heading-id="roadmap-todo-title">
           <div class="action-row">
-            <RouterLink :to="{ name: 'diagnose-input' }" class="btn btn-primary">기업정보 입력·수정</RouterLink>
+            <RouterLink :to="{ name: 'company-profile' }" class="btn btn-primary">기업정보 입력·수정</RouterLink>
             <RouterLink :to="{ name: 'programs' }" class="btn btn-secondary">전체 지원사업 보기</RouterLink>
           </div>
         </SectionCard>

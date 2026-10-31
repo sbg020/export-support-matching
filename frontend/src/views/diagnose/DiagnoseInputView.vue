@@ -207,7 +207,7 @@ function resetAll() {
 <template>
   <div class="page">
     <PageHeader
-      title="기업정보 입력"
+      title="기업 프로필"
       description="기업 정보를 입력하면 공고가 준비된 후 신청자격과 지원내용을 한눈에 확인할 수 있습니다."
     />
 
@@ -216,6 +216,10 @@ function resetAll() {
         <NoticeBanner tone="privacy" title="입력 정보는 이 기기에만 저장됩니다">
           서버로 전송하지 않으며, '다음'·'건너뛰기'·'임시 저장'을 누를 때 이 브라우저에 저장합니다. 사업자등록번호는
           저장하지 않습니다.
+        </NoticeBanner>
+        <!-- 지운 기존 기업 프로필 화면에만 있던 안내 (REVISION_03 §2.5): 저장소가 막혔을 때만 보인다 -->
+        <NoticeBanner v-if="!store.state.storageAvailable" tone="warning" title="브라우저 저장소를 사용할 수 없습니다">
+          사생활 보호 모드 등으로 저장소가 차단되어, 입력한 정보는 이 화면을 떠나면 사라질 수 있습니다.
         </NoticeBanner>
 
         <form class="surface-card step-form" novalidate @submit.prevent="onSubmit">
