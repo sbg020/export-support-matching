@@ -1,7 +1,6 @@
-import type { Component } from 'vue'
-import { IconListDetails, IconMessages, IconRoute, IconSearch, IconUserCircle } from '@tabler/icons-vue'
+import type { RouteLocationNormalizedLoaded } from 'vue-router'
 
-export type NavSectionKey = 'find' | 'programs' | 'roadmap' | 'community' | 'mypage'
+export type NavSectionKey = 'roadmap' | 'find' | 'programs' | 'manage' | 'community'
 
 export interface NavItem {
   label: string
@@ -15,20 +14,29 @@ export interface NavItem {
 export interface NavSection {
   key: NavSectionKey
   label: string
-  icon: Component
   items: NavItem[]
 }
 
 export const APP_NAME = '수출지원사업 매칭'
 
-/** 메뉴 정의. 사이드바에는 주 메뉴만, 각 화면 상단(SectionNav)에는 현재 섹션의 하위 메뉴만 보인다. */
+/** 로그아웃 알림. 로그아웃은 서버 세션만 끝내고 이 기기에 저장한 정보는 지우지 않는다 */
+export const LOGOUT_MESSAGE = '로그아웃했습니다. 이 기기에 저장한 기업정보는 그대로 남아 있습니다.'
+
+/**
+ * 메뉴 정의 (REVISION_03 §3.1). 상단 주 메뉴 5개와 그 아래 하위 메뉴 패널, 모바일 서랍,
+ * 각 화면 제목 아래의 하위 메뉴 탭(SectionNav)이 모두 이 정의를 쓴다.
+ * 주 메뉴를 누르면 그 섹션의 첫 번째 하위 메뉴가 열린다. 메뉴에는 아이콘을 두지 않는다.
+ */
 export const NAV_SECTIONS: NavSection[] = [
   {
+    key: 'roadmap',
+    label: '수출 로드맵',
+    items: [{ label: '수출 로드맵', routeName: 'roadmap' }],
+  },
+  {
     key: 'find',
-    label: '지원사업 찾기',
-    icon: IconSearch,
+    label: '기업 맞춤 지원사업',
     items: [
-      { label: '기업정보 입력·저장', routeName: 'diagnose-input' },
       { label: '기업 진단', routeName: 'diagnose-result' },
       { label: '맞춤 추천', routeName: 'programs-recommended' },
     ],
@@ -36,22 +44,22 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     key: 'programs',
     label: '전체 지원사업',
-    icon: IconListDetails,
     items: [
       { label: '전체 공고', routeName: 'programs', activeFor: ['program-detail'] },
       { label: '공고 달력', routeName: 'programs-calendar' },
     ],
   },
   {
-    key: 'roadmap',
-    label: '나의 로드맵',
-    icon: IconRoute,
-    items: [{ label: '수출 로드맵', routeName: 'roadmap' }],
+    key: 'manage',
+    label: '지원사업 관리',
+    items: [
+      { label: '관심·준비 중·신청완료 사업', routeName: 'manage-programs' },
+      { label: '서류함', routeName: 'manage-documents' },
+    ],
   },
   {
     key: 'community',
     label: '커뮤니티',
-    icon: IconMessages,
     items: [
       {
         label: '지원사업 후기',
@@ -67,21 +75,31 @@ export const NAV_SECTIONS: NavSection[] = [
       },
     ],
   },
-  {
-    key: 'mypage',
-    label: '마이페이지',
-    icon: IconUserCircle,
-    items: [
-      { label: '기업 프로필', routeName: 'mypage-profile' },
-      { label: '관심·준비 중·신청완료 사업', routeName: 'mypage-programs' },
-      { label: '서류함', routeName: 'mypage-documents' },
-    ],
-  },
 ]
-
-/** 사이드바 주 메뉴 4개 (마이페이지는 헤더 프로필로 들어간다) */
-export const SIDEBAR_SECTIONS = NAV_SECTIONS.filter((section) => section.key !== 'mypage')
 
 export function sectionByKey(key: NavSectionKey | undefined): NavSection | undefined {
   return NAV_SECTIONS.find((section) => section.key === key)
+}
+
+/** 주 메뉴를 누르면 여는 화면 (그 섹션의 첫 번째 하위 메뉴) */
+export function firstRouteName(section: NavSection): string {
+  return section.items[0]?.routeName ?? 'home'
+}
+
+/**
+ * 하위 메뉴 선택 상태: 정확히 이 화면이면 'page', 상세처럼 이 메뉴에 속한 화면이면 'true'.
+ * 화면 안의 하위 메뉴 탭(SectionNav)과 상단 하위 메뉴 패널(TopNav)이 함께 쓴다.
+ */
+export function navItemCurrent(
+  item: NavItem,
+  route: Pick<RouteLocationNormalizedLoaded, 'name' | 'params' | 'query'>,
+): 'page' | 'true' | undefined {
+  const name = typeof route.name === 'string' ? route.name : ''
+  if (name === item.routeName) return 'page'
+  if (name === 'program-detail' && route.query.from === 'calendar') {
+    return item.routeName === 'programs-calendar' ? 'true' : undefined
+  }
+  if (!item.activeFor?.includes(name)) return undefined
+  const params = item.activeParams ?? {}
+  return Object.entries(params).every(([key, value]) => route.params[key] === value) ? 'true' : undefined
 }

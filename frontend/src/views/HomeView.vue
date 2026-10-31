@@ -14,16 +14,19 @@ const steps = [
   { title: '비교 및 신청 준비', text: '공고를 비교하고 필요한 서류를 준비합니다.' },
 ]
 
-/** 로그인 상태 확인이 끝난 뒤 이동한다: 로그인 → 기업정보 입력, 비로그인 → 로그인 후 기업정보 입력 */
+/**
+ * 로그인 상태 확인이 끝난 뒤 이동한다: 비로그인 → 로그인 화면(redirect 없음, 로그인 후 수출 로드맵).
+ * 로그인 상태에서는 홈이 보이지 않지만(수출 로드맵으로 보냄), 혹시 눌리면 수출 로드맵으로 간다.
+ */
 async function startRecommendation() {
   if (waiting.value) return
   waiting.value = true
   await auth.ensureChecked()
   waiting.value = false
   if (auth.state.status === 'authenticated') {
-    await router.push({ name: 'diagnose-input' })
+    await router.push({ name: 'roadmap' })
   } else {
-    await router.push({ name: 'login', query: { redirect: '/diagnose/input' } })
+    await router.push({ name: 'login' })
   }
 }
 </script>

@@ -7,7 +7,7 @@ import NoticeBanner from '@/components/common/NoticeBanner.vue'
 import DisabledReason from '@/components/common/DisabledReason.vue'
 import type { TabItem } from '@/components/common/types'
 import { useAuth } from '@/stores/authStore'
-import { safeRedirect } from '@/lib/redirect'
+import { afterLoginPath } from '@/lib/redirect'
 
 type Mode = 'login' | 'signup'
 
@@ -42,8 +42,9 @@ watch(mode, () => {
   fieldError.value = null
 })
 
+/** 로그인이 필요한 화면·동작에서 넘어왔으면 그 화면으로, 아니면 수출 로드맵으로 (REVISION_03 §4) */
 function destination(): string {
-  return safeRedirect(route.query.redirect, router) ?? '/'
+  return afterLoginPath(route.query.redirect, router)
 }
 
 async function submitLogin() {
@@ -73,7 +74,9 @@ async function submitLogin() {
       <h1 id="login-title" class="login-card__title">
         {{ mode === 'signup' ? '회원가입' : '로그인' }}
       </h1>
-      <p class="login-card__lead">로그인하면 마이페이지에서 기업 프로필과 관리 기록을 볼 수 있습니다.</p>
+      <p class="login-card__lead">
+        로그인하면 지원사업 관리에서 관심·준비 중·신청완료 사업과 서류함을 볼 수 있습니다.
+      </p>
 
       <NoticeBanner v-if="auth.state.errorMessage" tone="warning" class="mt-3">
         {{ auth.state.errorMessage }}
@@ -166,7 +169,10 @@ async function submitLogin() {
       </div>
 
       <ul class="login-card__notes">
-        <li>지원사업 찾기·전체 지원사업·나의 로드맵은 로그인하지 않아도 이용할 수 있습니다.</li>
+        <li>
+          수출 로드맵·기업 맞춤 지원사업·전체 지원사업·기업 프로필과 커뮤니티 읽기는 로그인하지 않아도 이용할 수
+          있습니다.
+        </li>
         <li>입력한 기업정보는 로그인과 관계없이 이 기기에만 저장됩니다.</li>
       </ul>
     </section>

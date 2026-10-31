@@ -1,19 +1,22 @@
 import {
   createRouter,
   createWebHistory,
+  type RouteLocationNormalized,
+  type RouteLocationRaw,
+  type Router,
   type RouteRecordRaw,
   type RouteRecordRedirectOption,
 } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import { APP_NAME, type NavSectionKey } from '@/constants/navigation'
 import { useAuth } from '@/stores/authStore'
-import { safeRedirect } from '@/lib/redirect'
+import { afterLoginPath } from '@/lib/redirect'
 
 declare module 'vue-router' {
   interface RouteMeta {
     /** 페이지 제목 (브라우저 탭에 사용) */
     title: string
-    /** 사이드바·화면 내 하위 메뉴에서 선택 상태로 표시할 영역. 홈·로그인은 없음 */
+    /** 상단 주 메뉴·화면 내 하위 메뉴에서 선택 상태로 표시할 영역. 홈·로그인·기업 프로필은 없음 */
     section?: NavSectionKey
     /** 로그인이 필요한 화면 */
     requiresAuth?: boolean
@@ -43,14 +46,17 @@ export const routes: RouteRecordRaw[] = [
     meta: { title: '로그인' },
   },
 
-  // 지원사업 찾기
-  { path: '/diagnose', redirect: moved('diagnose-input') },
+  // 기업 프로필: 기업정보 입력 화면. 로그인 없이 쓰며 어느 주 메뉴에도 속하지 않는다 (REVISION_03 §6)
   {
-    path: '/diagnose/input',
-    name: 'diagnose-input',
+    path: '/profile',
+    name: 'company-profile',
     component: () => import('@/views/diagnose/DiagnoseInputView.vue'),
-    meta: { title: '기업정보 입력·저장', section: 'find' },
+    meta: { title: '기업 프로필' },
   },
+  { path: '/diagnose', redirect: moved('company-profile') },
+  { path: '/diagnose/input', redirect: moved('company-profile') },
+
+  // 기업 맞춤 지원사업
   {
     path: '/diagnose/result',
     name: 'diagnose-result',
@@ -98,7 +104,7 @@ export const routes: RouteRecordRaw[] = [
     meta: { title: '공고 상세', section: 'programs' },
   },
 
-  // 나의 로드맵
+  // 수출 로드맵 (로그인 후 첫 화면)
   {
     path: '/roadmap',
     name: 'roadmap',
@@ -137,29 +143,29 @@ export const routes: RouteRecordRaw[] = [
     meta: { title: '글 보기', section: 'community' },
   },
 
-  // 마이페이지 (로그인 필요)
-  { path: '/mypage', redirect: moved('mypage-profile') },
+  // 지원사업 관리 (로그인 필요)
+  { path: '/manage', redirect: moved('manage-programs') },
   {
-    path: '/mypage/profile',
-    name: 'mypage-profile',
-    component: () => import('@/views/mypage/ProfileView.vue'),
-    meta: { title: '기업 프로필', section: 'mypage', requiresAuth: true },
-  },
-  {
-    path: '/mypage/programs',
-    name: 'mypage-programs',
+    path: '/manage/programs',
+    name: 'manage-programs',
     component: () => import('@/views/mypage/MyProgramsView.vue'),
-    meta: { title: '관심·준비 중·신청완료 사업', section: 'mypage', requiresAuth: true },
+    meta: { title: '관심·준비 중·신청완료 사업', section: 'manage', requiresAuth: true },
   },
   {
-    path: '/mypage/documents',
-    name: 'mypage-documents',
+    path: '/manage/documents',
+    name: 'manage-documents',
     component: () => import('@/views/mypage/DocumentsView.vue'),
-    meta: { title: '서류함', section: 'mypage', requiresAuth: true },
+    meta: { title: '서류함', section: 'manage', requiresAuth: true },
   },
-  { path: '/mypage/saved', redirect: moved('mypage-programs', { tab: 'interested' }) },
-  { path: '/mypage/preparation', redirect: moved('mypage-programs', { tab: 'preparing' }) },
-  { path: '/mypage/history', redirect: moved('mypage-programs', { tab: 'applied' }) },
+
+  // 없어진 마이페이지 주소: 북마크·공유 링크가 계속 열리도록 새 위치로 보낸다 (쿼리·해시 유지)
+  { path: '/mypage', redirect: moved('company-profile') },
+  { path: '/mypage/profile', redirect: moved('company-profile') },
+  { path: '/mypage/programs', redirect: moved('manage-programs') },
+  { path: '/mypage/documents', redirect: moved('manage-documents') },
+  { path: '/mypage/saved', redirect: moved('manage-programs', { tab: 'interested' }) },
+  { path: '/mypage/preparation', redirect: moved('manage-programs', { tab: 'preparing' }) },
+  { path: '/mypage/history', redirect: moved('manage-programs', { tab: 'applied' }) },
   { path: '/mypage/calendar', redirect: moved('programs-calendar') },
 
   {
@@ -211,17 +217,28 @@ const router = createRouter({
   },
 })
 
+/**
+ * 로그인 상태에 따른 이동 (REVISION_03 §4).
+ * - 로그인이 필요한 화면 → 로그인 화면 (로그인 후 그 화면으로 돌아온다)
+ * - 로그인 상태에서 홈 → 수출 로드맵 (로그인 전 첫 화면은 보이지 않는다)
+ * - 로그인 상태에서 로그인 화면 → 안전한 redirect 또는 수출 로드맵
+ */
+export function authNavigationTarget(
+  to: RouteLocationNormalized,
+  authenticated: boolean,
+  router: Router,
+): RouteLocationRaw | true {
+  if (to.meta.requiresAuth && !authenticated) return { name: 'login', query: { redirect: to.fullPath } }
+  if (authenticated && to.name === 'home') return { name: 'roadmap' }
+  if (authenticated && to.name === 'login') return afterLoginPath(to.query.redirect, router)
+  return true
+}
+
 router.beforeEach(async (to) => {
   const auth = useAuth()
+  // 확인 중(unknown)에는 서버 확인이 끝난 뒤 판단한다
   await auth.ensureChecked()
-  const authenticated = auth.state.status === 'authenticated'
-  if (to.meta.requiresAuth && !authenticated) {
-    return { name: 'login', query: { redirect: to.fullPath } }
-  }
-  if (to.name === 'login' && authenticated) {
-    return safeRedirect(to.query.redirect, router) ?? '/'
-  }
-  return true
+  return authNavigationTarget(to, auth.state.status === 'authenticated', router)
 })
 
 router.afterEach((to) => {
