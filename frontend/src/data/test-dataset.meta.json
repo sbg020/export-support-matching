@@ -1,0 +1,44 @@
+{
+ "schemaVersion": 1,
+ "datasetVersion": "test-2026-10-30",
+ "asOf": "2026-10-30",
+ "dataState": "draft",
+ "sources": [
+  {
+   "file": "수출 지원사업 공고문/정답세트/EC_정답세트_초안_30건.xlsx",
+   "sha256": "21b244653a7afba82ebed001a2043fa5306abdaca07af630c433ff8f881c8a04",
+   "rows": {
+    "programs": 35,
+    "rules": 268,
+    "bonuses": 63,
+    "documents": 254
+   }
+  },
+  {
+   "file": "수출 지원사업 공고문/정답세트/EC_정답세트_초안_랜덤30건.xlsx",
+   "sha256": "fb12112288394d1ab42d9bc86529aa9424933b7bb61e573ce08006c1541a0085",
+   "rows": {
+    "programs": 33,
+    "rules": 280,
+    "bonuses": 26,
+    "documents": 258
+   }
+  }
+ ],
+ "inventory": {
+  "file": "수출 지원사업 공고문/정답세트/EC_정답세트_초안_랜덤30건.xlsx",
+  "sha256": "fb12112288394d1ab42d9bc86529aa9424933b7bb61e573ce08006c1541a0085"
+ },
+ "sourceUrls": {
+  "file": "수출 지원사업 공고문/정답세트/source_urls.csv",
+  "sha256": "b8f46daf4b4c104ef64a500c6cb78f0278c4324cec2728e7edff808e71ef7a2a",
+  "rows": 0
+ },
+ "counts": {
+  "announcements": 60,
+  "programs": 68,
+  "rules": 548,
+  "bonuses": 89,
+  "documents": 512
+ }
+}
