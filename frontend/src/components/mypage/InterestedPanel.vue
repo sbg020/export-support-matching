@@ -27,7 +27,7 @@ const savedCount = computed(() => (records.value.length > 0 ? `${records.value.l
         v-if="records.length === 0"
         :icon="IconBookmark"
         title="저장한 관심 사업이 없습니다"
-        description="공고가 등록되면 맞춤 추천이나 공고 상세에서 관심사업으로 저장할 수 있습니다. 저장한 사업은 이곳에서 준비 중·신청완료로 상태를 바꿔 관리합니다."
+        description="맞춤 추천이나 공고 상세에서 관심사업으로 저장할 수 있습니다. 저장한 사업은 이곳에서 준비 중·신청완료로 상태를 바꿔 관리하고 비교에 추가할 수 있습니다."
       >
         <template #actions>
           <RouterLink :to="{ name: 'programs' }" class="btn btn-secondary">

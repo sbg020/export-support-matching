@@ -62,6 +62,7 @@ function sameIds(a: readonly string[], b: readonly string[]): boolean {
 }
 
 export type AddResult = 'added' | 'exists' | 'full'
+export type ToggleResult = 'added' | 'removed' | 'full'
 
 function add(id: string): AddResult {
   if (state.ids.includes(id)) return 'exists'
@@ -69,6 +70,23 @@ function add(id: string): AddResult {
   state.ids = [...state.ids, id]
   persist()
   return 'added'
+}
+
+/** 화면을 이동하지 않고 선택만 바꾼다. 이미 고른 공고는 뺀다. */
+function toggle(id: string): ToggleResult {
+  if (state.ids.includes(id)) {
+    remove(id)
+    return 'removed'
+  }
+  return add(id) === 'full' ? 'full' : 'added'
+}
+
+/** 비교 선택 결과 알림 문구 (n/4) */
+export function compareToggleMessage(result: ToggleResult, count: number): string {
+  if (result === 'full') return COMPARE_FULL_MESSAGE
+  return result === 'added'
+    ? `비교에 추가했습니다 (${count}/${MAX_COMPARE})`
+    : `비교에서 뺐습니다 (${count}/${MAX_COMPARE})`
 }
 
 function remove(id: string) {
@@ -104,6 +122,7 @@ export function useCompareSelection() {
     count: computed(() => state.ids.length),
     has: (id: string) => state.ids.includes(id),
     add,
+    toggle,
     remove,
     clear,
     setAll,

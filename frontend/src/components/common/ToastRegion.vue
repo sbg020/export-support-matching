@@ -30,7 +30,8 @@ const ICONS = {
 .toast-region {
   position: fixed;
   right: var(--space-5);
-  bottom: var(--space-5);
+  /* 하단 비교 바가 보이면 그 높이만큼 올린다 (CompareDock이 --compare-dock-offset을 설정) */
+  bottom: calc(var(--space-5) + var(--compare-dock-offset, 0px));
   z-index: 1100;
   display: flex;
   flex-direction: column;

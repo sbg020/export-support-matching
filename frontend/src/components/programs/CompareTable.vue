@@ -1,9 +1,10 @@
 <script setup lang="ts">
 /**
  * 공고 비교 표. 최대 4개 열이며, 빈 슬롯은 열 제목부터 값까지 '-'로 표시한다.
- * 어떤 공고가 더 좋다고 판단하지 않는다.
+ * 어떤 공고가 더 좋다고 판단하지 않는다. 값의 우열을 강조하거나 값으로 열 순서를 바꾸지 않는다.
  */
 import DataValue from '@/components/common/DataValue.vue'
+import { programTitleText } from '@/lib/programDisplay'
 import EligibilityBadge from './EligibilityBadge.vue'
 import { COMPARE_ROW_GROUPS, type CompareRowKey, type CompareSlot } from './compareRows'
 
@@ -28,7 +29,7 @@ defineProps<{
           <th v-for="slot in slots" :key="slot.index" scope="col" class="compare-table__head">
             <span class="compare-table__slot">공고 {{ slot.index + 1 }}</span>
             <span class="compare-table__title">
-              <DataValue :value="slot.program?.title ?? null" missing-label="선택한 공고 없음" />
+              <DataValue :value="programTitleText(slot.program)" missing-label="선택한 공고 없음" />
             </span>
           </th>
         </tr>
@@ -44,7 +45,13 @@ defineProps<{
               <span v-if="row.note" class="compare-table__note">{{ row.note }}</span>
             </th>
             <td v-for="slot in slots" :key="slot.index">
-              <EligibilityBadge v-if="row.key === 'eligibility'" :status="slot.eligibility?.status ?? null" size="sm" />
+              <EligibilityBadge
+                v-if="row.key === 'eligibility'"
+                :status="slot.eligibility?.status ?? null"
+                size="sm"
+                :self-checked-count="slot.eligibility?.selfCheckedCount ?? 0"
+                :data-state="slot.eligibility?.dataState ?? null"
+              />
               <DataValue v-else :value="valueOf(row.key, slot)" />
             </td>
           </tr>
@@ -57,7 +64,7 @@ defineProps<{
     <li v-for="slot in slots" :key="slot.index" class="compare-card surface-card">
       <p class="compare-table__slot">공고 {{ slot.index + 1 }}</p>
       <h3 class="compare-card__title">
-        <DataValue :value="slot.program?.title ?? null" missing-label="선택한 공고 없음" />
+        <DataValue :value="programTitleText(slot.program)" missing-label="선택한 공고 없음" />
       </h3>
       <div v-for="group in COMPARE_ROW_GROUPS" :key="group.label" class="compare-card__group">
         <p class="compare-card__group-label">{{ group.label }}</p>
@@ -65,7 +72,13 @@ defineProps<{
           <div v-for="row in group.rows" :key="row.key" class="compare-card__row">
             <dt>{{ row.label }}</dt>
             <dd>
-              <EligibilityBadge v-if="row.key === 'eligibility'" :status="slot.eligibility?.status ?? null" size="sm" />
+              <EligibilityBadge
+                v-if="row.key === 'eligibility'"
+                :status="slot.eligibility?.status ?? null"
+                size="sm"
+                :self-checked-count="slot.eligibility?.selfCheckedCount ?? 0"
+                :data-state="slot.eligibility?.dataState ?? null"
+              />
               <DataValue v-else :value="valueOf(row.key, slot)" />
             </dd>
           </div>

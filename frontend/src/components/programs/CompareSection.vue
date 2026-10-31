@@ -3,6 +3,7 @@
  * 전체 공고 하단의 공고 비교 영역 (기존 공고 비교 화면을 옮겨 재사용).
  * 선택은 useCompareSelection 하나로 관리하며, 이 화면에서는 URL 쿼리 compare 와 동기화한다.
  * 선택한 공고가 없으면 열 제목부터 값까지 '-'인 빈 비교 표를 보여 준다. 어떤 공고가 더 좋다고 판단하지 않는다.
+ * 기회비용은 데이터 기준일로, 자격 판정은 직접 확인 답(esm.selfChecks.v1)을 반영해 계산한다 (§8.4.2).
  */
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -15,19 +16,13 @@ import SegmentedControl from '@/components/common/SegmentedControl.vue'
 import ActionButton from '@/components/common/ActionButton.vue'
 import DisabledReason from '@/components/common/DisabledReason.vue'
 import CompareTable from '@/components/programs/CompareTable.vue'
-import type { CompareRowKey, CompareSlot } from '@/components/programs/compareRows'
-import { programRepository } from '@/repositories'
+import CompareDock from '@/components/programs/CompareDock.vue'
+import { compareCellText, type CompareRowKey, type CompareSlot } from '@/components/programs/compareRows'
+import { isSourceConnected, programRepository } from '@/repositories'
 import { useProfileStore } from '@/stores/profileStore'
 import { MAX_COMPARE, parseCompareQuery, useCompareSelection } from '@/composables/useCompareSelection'
-import { evaluateEligibility } from '@/lib/engine/eligibility'
-import { evaluateFit } from '@/lib/engine/fit'
-import { evaluateOpportunityCost } from '@/lib/engine/opportunityCost'
-import {
-  applyPeriodText,
-  requiredDocsText,
-  stageText,
-  supportSummaryText,
-} from '@/lib/programDisplay'
+import { useProgramEvaluations } from '@/composables/useProgramEvaluations'
+import { programTitleText } from '@/lib/programDisplay'
 import type { Program } from '@/types/program'
 import type { LoadStatus } from '@/composables/useProgramList'
 
@@ -35,6 +30,7 @@ const route = useRoute()
 const router = useRouter()
 const store = useProfileStore()
 const selection = useCompareSelection()
+const evaluation = useProgramEvaluations()
 
 /* ── 선택 ↔ URL 쿼리 동기화 (히스토리를 쌓지 않음) ── */
 function sameList(a: readonly string[], b: readonly string[]) {
@@ -86,12 +82,12 @@ const chips = computed(() =>
     const program = programById.value.get(id)
     return {
       id,
-      label: program?.title ?? (status.value === 'ready' ? '찾을 수 없는 공고' : id),
+      label: programTitleText(program ?? null) ?? (status.value === 'ready' ? '찾을 수 없는 공고' : id),
       missing: !program && status.value === 'ready',
     }
   }),
 )
-const noProgramSource = programRepository.source.kind === 'not-connected'
+const noProgramSource = !isSourceConnected(programRepository.source)
 
 /* ── 비교 표 (기존 비교 화면 로직) ── */
 type SlotCount = '2' | '3' | '4'
@@ -107,12 +103,13 @@ watch(
 const slots = computed<CompareSlot[]>(() =>
   Array.from({ length: Number(slotCount.value) }, (_, index) => {
     const program = selectedPrograms.value[index] ?? null
+    const result = program ? evaluation.get(program.id) : undefined
     return {
       index,
       program,
-      eligibility: program ? evaluateEligibility(store.state.profile, program) : null,
-      fit: program ? evaluateFit(store.state.profile, program) : null,
-      opportunity: program ? evaluateOpportunityCost(program, { ownedDocumentTypes: null, today: null }) : null,
+      eligibility: result?.eligibility ?? null,
+      fit: result?.fit ?? null,
+      opportunity: result?.opportunity ?? null,
     }
   }),
 )
@@ -120,41 +117,23 @@ const slots = computed<CompareSlot[]>(() =>
 const view = ref<'table' | 'cards'>('table')
 
 function valueOf(key: CompareRowKey, slot: CompareSlot): string | null {
-  const p = slot.program
-  if (!p) return null
-  switch (key) {
-    case 'fit':
-      return slot.fit ? `${slot.fit.score}점` : null
-    case 'period':
-      return applyPeriodText(p)
-    case 'support':
-      return supportSummaryText(p)
-    case 'stage':
-      return stageText(p)
-    case 'requiredDocs':
-      return requiredDocsText(p)
-    case 'prepHours':
-      return slot.opportunity?.prepHours
-        ? `약 ${slot.opportunity.prepHours.value}시간 (근거: ${slot.opportunity.prepHours.basis})`
-        : null
-    case 'newDocs':
-      return (slot.opportunity?.newDocumentCount ?? null) !== null
-        ? `${slot.opportunity?.newDocumentCount}건`
-        : null
-    case 'selfPayment':
-      return (p.selfPayment?.ratioPercent ?? null) !== null
-        ? `${p.selfPayment?.ratioPercent}%`
-        : (p.selfPayment?.note ?? null)
-    case 'obligations':
-      return p.obligations ? (p.obligations.length > 0 ? p.obligations.join(', ') : '없음') : null
-    case 'duplicate':
-      return p.duplicateSupportNotes ? p.duplicateSupportNotes.map((n) => `“${n.quote}”`).join(' ') : null
-    case 'source':
-      return p.sourceUrl
-    default:
-      return null
-  }
+  return compareCellText(key, slot, { asOf: evaluation.asOf, profile: store.state.profile })
 }
+
+/* 중복수혜·유사사업 요약 (원문 근거만, 판정하지 않음) */
+const duplicateSummary = computed(() => {
+  const withNotes = selectedPrograms.value.filter((p) => p.duplicateSupportNotes && p.duplicateSupportNotes.length > 0)
+  return withNotes.length > 0 ? `${withNotes.length}개 공고에 원문 근거 문장 있음 (표의 '중복수혜·유사사업' 행)` : null
+})
+const relatedSummary = computed(() => {
+  const ids = new Set(selection.ids.value)
+  const pairs = selectedPrograms.value.filter((p) => (p.relatedProgramIds ?? []).some((id) => ids.has(id)))
+  return pairs.length > 0 ? pairs.map((p) => programTitleText(p) ?? p.id).join(', ') : null
+})
+const checksSummary = computed(() => {
+  const counts = slots.value.map((slot) => slot.eligibility?.needsCheckCount ?? null).filter((n): n is number => n !== null)
+  return counts.length > 0 ? `확인 필요 조건 합계 ${counts.reduce((a, b) => a + b, 0)}개` : null
+})
 
 const slotOptions = [
   { value: '2' as const, label: '2개' },
@@ -190,7 +169,9 @@ onMounted(async () => {
 
 onBeforeUnmount(() => observer?.disconnect())
 
+/** 하단 비교 바: 이 화면에서는 이동하지 않고 비교 영역으로 스크롤한다 (2개 이상이면 펼친다) */
 function scrollToCompare() {
+  if (selection.count.value >= 2) expanded.value = true
   void router.replace({ query: route.query, hash: '#compare' })
   sectionRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   sectionRef.value?.querySelector<HTMLElement>('.compare-section__title')?.focus({ preventScroll: true })
@@ -291,9 +272,9 @@ function scrollToCompare() {
           description="같은 기간에 함께 받을 수 없는 지원이 있는지 공고 원문을 근거로 확인합니다."
         >
           <InfoList>
-            <InfoRow label="중복수혜 제한 원문" :value="null" />
-            <InfoRow label="비슷한 목적의 사업" :value="null" />
-            <InfoRow label="직접 확인이 필요한 조건" :value="null" />
+            <InfoRow label="중복수혜 제한 원문" :value="duplicateSummary" />
+            <InfoRow label="선택한 공고 중 같은 그룹" :value="relatedSummary" />
+            <InfoRow label="직접 확인이 필요한 조건" :value="checksSummary" />
           </InfoList>
           <p class="fs-sm text-muted-strong mt-3 mb-0">
             중복수혜나 사업 간 충돌은 시스템이 단정하지 않습니다. 원문의 근거 문구와 출처를 보여 드리고, 직접 확인이
@@ -312,6 +293,7 @@ function scrollToCompare() {
           <ul class="notes">
             <li>값마다 산정 근거와 기준일을 함께 표시하며, 근거가 없는 값은 '-'로 둡니다.</li>
             <li>예상 준비 시간 같은 추정치는 불확실성이 있으므로 참고용으로만 보여 드립니다.</li>
+            <li>정산 방식이 '먼저 집행 후 지급'이면 지원금을 받기 전에 비용을 먼저 내야 합니다.</li>
             <li>
               사업마다 목적과 지원 방식이 다르기 때문에 '더 좋다', '가성비가 높다'고 판단하지 않습니다. 우리 회사의 수출
               계획에 맞는지를 함께 살펴보세요.
@@ -322,11 +304,7 @@ function scrollToCompare() {
     </div>
   </section>
 
-  <div v-if="selection.count.value > 0 && !sectionVisible" class="compare-dock" role="region" aria-label="공고 비교 바로가기">
-    <a href="#compare" class="compare-dock__link" @click.prevent="scrollToCompare">
-      비교 {{ selection.count.value }}/{{ MAX_COMPARE }} · 비교 영역으로 이동
-    </a>
-  </div>
+  <CompareDock mode="scroll" :hidden="sectionVisible" @go="scrollToCompare" />
 </template>
 
 <style scoped>
@@ -480,44 +458,9 @@ function scrollToCompare() {
   font-size: var(--fs-sm);
 }
 
-.compare-dock {
-  position: fixed;
-  right: var(--space-5);
-  bottom: var(--space-5);
-  z-index: 1020;
-}
-
-.compare-dock__link {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0 var(--space-5);
-  border-radius: var(--radius-pill);
-  background: var(--color-heading);
-  color: #fff;
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-semibold);
-  text-decoration: none;
-  box-shadow: var(--shadow-lg);
-}
-
-.compare-dock__link:hover {
-  color: #fff;
-  background: var(--color-primary-strong);
-}
-
 @media (max-width: 767.98px) {
   .compare-controls__actions {
     margin-left: 0;
-  }
-  .compare-dock {
-    right: var(--space-4);
-    left: var(--space-4);
-    bottom: var(--space-4);
-  }
-  .compare-dock__link {
-    justify-content: center;
-    width: 100%;
   }
 }
 </style>

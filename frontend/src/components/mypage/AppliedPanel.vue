@@ -13,9 +13,11 @@ import DisabledReason from '@/components/common/DisabledReason.vue'
 import { APPLICATION_STATUSES, statusLabel } from '@/constants/applicationStatus'
 import { useApplicationStore } from '@/stores/applicationStore'
 import type { ApplicationStatus } from '@/types/tracking'
+import { isSourceConnected, programRepository } from '@/repositories'
 import ApplicationRecordTable from './ApplicationRecordTable.vue'
 
 const applications = useApplicationStore()
+const sourceConnected = isSourceConnected(programRepository.source)
 const records = computed(() => applications.byTab('applied'))
 
 type Filter = 'all' | ApplicationStatus
@@ -54,10 +56,21 @@ const pipeline: { key: string; statuses: ApplicationStatus[] }[] = [
 <template>
   <div class="stack">
     <div>
-      <ActionButton variant="primary" :icon="IconPlus" disabled describedby="history-new-reason">새 기록 등록</ActionButton>
-      <DisabledReason id="history-new-reason">
+      <ActionButton
+        variant="primary"
+        :icon="IconPlus"
+        :to="sourceConnected ? { name: 'programs' } : undefined"
+        :disabled="!sourceConnected"
+        describedby="history-new-reason"
+      >
+        새 기록 등록
+      </ActionButton>
+      <DisabledReason v-if="!sourceConnected" id="history-new-reason">
         등록된 공고가 없어 새 기록을 등록할 수 없습니다. 기록은 실제 공고와 연결해 남깁니다.
       </DisabledReason>
+      <p v-else id="history-new-reason" class="fs-sm text-muted-strong mt-2 mb-0">
+        기록은 실제 공고와 연결해 남깁니다. 공고를 찾아 '관심사업 저장'으로 기록을 만든 뒤 상태를 바꿔 주세요.
+      </p>
     </div>
 
     <SectionCard title="진행 단계" heading-id="history-flow-title" description="지원사업은 보통 아래 순서로 진행됩니다.">

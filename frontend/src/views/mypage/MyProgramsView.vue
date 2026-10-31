@@ -11,6 +11,7 @@ import type { TabItem } from '@/components/common/types'
 import InterestedPanel from '@/components/mypage/InterestedPanel.vue'
 import PreparingPanel from '@/components/mypage/PreparingPanel.vue'
 import AppliedPanel from '@/components/mypage/AppliedPanel.vue'
+import CompareDock from '@/components/programs/CompareDock.vue'
 import { APPLICATION_TABS, isApplicationTab, type ApplicationTab } from '@/constants/applicationStatus'
 import { useApplicationStore } from '@/stores/applicationStore'
 
@@ -50,5 +51,7 @@ const tabs = computed<TabItem<ApplicationTab>[]>(() =>
         <AppliedPanel v-else />
       </div>
     </div>
+
+    <CompareDock />
   </div>
 </template>
