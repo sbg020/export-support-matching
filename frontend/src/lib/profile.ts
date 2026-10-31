@@ -11,6 +11,7 @@ import type {
 } from '@/types/profile'
 import {
   CERTIFICATION_OPTIONS,
+  COMPANY_SIZE_OPTIONS,
   COMPANY_TYPE_OPTIONS,
   HOLDING_STATUS_OPTIONS,
   HS_STATUS_OPTIONS,
@@ -27,6 +28,7 @@ export function createEmptyProfile(): CompanyProfile {
     companyName: null,
     businessNumber: null,
     companyType: null,
+    companySize: null,
     foundedAt: null,
     hqRegion: null,
     hqDistrict: null,
@@ -66,6 +68,7 @@ export const FIELD_STEP: Record<ProfileField, ProfileStepId> = {
   companyName: 1,
   businessNumber: 1,
   companyType: 1,
+  companySize: 1,
   foundedAt: 1,
   hqRegion: 1,
   hqDistrict: 1,
@@ -356,6 +359,7 @@ export function serializeProfile(p: CompanyProfile, meta: ProfileMeta): string {
 
 const OPTION_VALUES = {
   companyType: new Set<string>(COMPANY_TYPE_OPTIONS.map((o) => o.value)),
+  companySize: new Set<string>(COMPANY_SIZE_OPTIONS.map((o) => o.value)),
   region: new Set<string>(REGION_OPTIONS.map((o) => o.value)),
   industryMode: new Set<string>(INDUSTRY_MODE_OPTIONS.map((o) => o.value)),
   hsStatus: new Set<string>(HS_STATUS_OPTIONS.map((o) => o.value)),
@@ -403,6 +407,8 @@ export function deserializeProfile(raw: string | null): { profile: CompanyProfil
     companyName: pickString(s.companyName),
     businessNumber: null,
     companyType: pickEnum(s.companyType, OPTION_VALUES.companyType),
+    // 기업 규모 구분은 revision_02에서 추가했다. 예전에 저장한 프로필에는 없으므로 null로 읽는다.
+    companySize: pickEnum(s.companySize, OPTION_VALUES.companySize),
     foundedAt: pickString(s.foundedAt),
     hqRegion: pickEnum(s.hqRegion, OPTION_VALUES.region),
     hqDistrict: pickString(s.hqDistrict),

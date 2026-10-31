@@ -19,20 +19,39 @@ import InfoList from '@/components/common/InfoList.vue'
 import InfoRow from '@/components/common/InfoRow.vue'
 import ProfileSummary from '@/components/diagnose/ProfileSummary.vue'
 import ProfileStatusBadge from '@/components/diagnose/ProfileStatusBadge.vue'
+import ExportStageCriteriaNote from '@/components/diagnose/ExportStageCriteriaNote.vue'
 import { useProfileStore } from '@/stores/profileStore'
-import { diagnoseExportStage } from '@/lib/engine/diagnosis'
-import { ROADMAP_STAGES, PROFILE_STEPS } from '@/constants/options'
+import { useProgramEvaluations } from '@/composables/useProgramEvaluations'
+import { ACTIVE_EXPORT_STAGE_CRITERIA } from '@/lib/engine/diagnosis'
+import { exportStageText, phaseListText } from '@/lib/programDisplay'
+import { isSourceConnected, programRepository } from '@/repositories'
+import { PROFILE_STEPS } from '@/constants/options'
 import { PROFILE_STATUS_LABEL } from '@/lib/profile'
 
 const store = useProfileStore()
 const assessment = computed(() => store.assessment.value)
 const profile = computed(() => store.state.profile)
+const evaluation = useProgramEvaluations()
+const sourceConnected = isSourceConnected(programRepository.source)
 
-/** 검증된 진단 기준이 없으면 null → 화면 표시 '-' */
-const diagnosis = computed(() => diagnoseExportStage(store.state.profile))
-const stageLabel = computed(() =>
-  diagnosis.value ? (ROADMAP_STAGES.find((s) => s.value === diagnosis.value?.stage)?.label ?? null) : null,
-)
+/** 수출액이 입력되지 않았으면 null → 화면 표시 '-' */
+const diagnosis = computed(() => evaluation.diagnosis.value)
+const stageLabel = computed(() => exportStageText(diagnosis.value?.stage))
+const primaryText = computed(() => (diagnosis.value ? phaseListText(diagnosis.value.primaryPhases) : null))
+const secondaryText = computed(() => (diagnosis.value ? phaseListText(diagnosis.value.secondaryPhases) : null))
+const phaseSummary = computed(() => {
+  if (!diagnosis.value) return null
+  return [primaryText.value ? `◎ 우선: ${primaryText.value}` : null, secondaryText.value ? `○ 함께 보기: ${secondaryText.value}` : null]
+    .filter(Boolean)
+    .join(' · ')
+})
+
+/** 판정 대상 공고 수 (신청 불가 제외). 공고 데이터가 없으면 null */
+const recommendableCount = computed(() => {
+  if (!sourceConnected || !evaluation.ready.value) return null
+  return evaluation.programs.value.filter((p) => evaluation.get(p.id)?.eligibility?.status !== 'ineligible').length
+})
+const countFormat = (n: number) => `${n}건`
 
 const stepTitle = (step: number) => PROFILE_STEPS.find((s) => s.id === step)?.title ?? `${step}단계`
 </script>
@@ -41,7 +60,7 @@ const stepTitle = (step: number) => PROFILE_STEPS.find((s) => s.id === step)?.ti
   <div class="page">
     <PageHeader
       title="기업 진단"
-      description="입력한 기업정보를 요약해 보여 드립니다. 수출단계 진단은 검증된 기준이 마련된 후 제공합니다."
+      description="입력한 기업정보를 요약하고, 직전 연도 수출액으로 수출단계를 진단합니다."
     >
       <template #meta>
         <span class="fs-sm text-muted-strong">프로필 상태</span>
@@ -62,9 +81,28 @@ const stepTitle = (step: number) => PROFILE_STEPS.find((s) => s.id === step)?.ti
     <div class="stack">
       <div class="tile-grid">
         <StatTile label="프로필 상태" :value="PROFILE_STATUS_LABEL[assessment.status]" :icon="IconUserCircle" />
-        <StatTile label="수출단계" :value="stageLabel" :icon="IconStack2" tone="accent" hint="진단 기준 확정 전" />
-        <StatTile label="권장 지원분야" :value="null" :icon="IconTargetArrow" tone="secondary" hint="진단 기준 확정 전" />
-        <StatTile label="추천 공고" :value="null" :icon="IconReportAnalytics" tone="neutral" hint="공고 등록 전" />
+        <StatTile
+          label="수출단계"
+          :value="stageLabel"
+          :icon="IconStack2"
+          tone="accent"
+          :hint="diagnosis ? ACTIVE_EXPORT_STAGE_CRITERIA.version : '수출액 미입력'"
+        />
+        <StatTile
+          label="우선 지원 단계"
+          :value="primaryText"
+          :icon="IconTargetArrow"
+          tone="secondary"
+          :hint="diagnosis ? '단계 가중치 stage-phase-v0 · 검증 전' : '수출단계 진단 후 표시'"
+        />
+        <StatTile
+          label="판정 대상 공고"
+          :value="recommendableCount !== null ? countFormat(recommendableCount) : null"
+          :icon="IconReportAnalytics"
+          tone="neutral"
+          :hint="sourceConnected ? '신청 불가 제외 · 테스트 데이터 기준' : '공고 등록 전'"
+          :to="sourceConnected ? { name: 'programs-recommended' } : undefined"
+        />
       </div>
 
       <div class="grid-12">
@@ -72,23 +110,36 @@ const stepTitle = (step: number) => PROFILE_STEPS.find((s) => s.id === step)?.ti
           <SectionCard
             title="수출단계 진단"
             heading-id="diagnosis-title"
-            description="수출단계, 판단 근거, 권장 분야, 다음 단계 조건을 보여 줄 자리입니다."
+            description="직전 연도 수출액을 기준 구간과 비교합니다. 진단 결과는 지원사업 신청 자격 판정이 아닙니다."
             :icon="IconStack2"
           >
             <InfoList>
               <InfoRow label="현재 수출단계" :value="stageLabel" />
-              <InfoRow label="판단 근거" :value="diagnosis ? diagnosis.reasons.join(' ') : null" />
-              <InfoRow label="현재 권장 지원분야" :value="null" />
               <InfoRow
-                label="다음 단계로 가기 위한 조건"
-                :value="diagnosis ? diagnosis.nextStageConditions.join(', ') : null"
+                label="판단 근거"
+                :value="diagnosis ? diagnosis.reasons.join(' ') : null"
+                :hint="diagnosis?.periodNote ?? undefined"
               />
-              <InfoRow label="진단 기준일·버전" :value="diagnosis ? `${diagnosis.basisDate} · ${diagnosis.criteriaVersion}` : null" />
+              <InfoRow label="권장 지원 단계" :value="phaseSummary" />
+              <InfoRow label="다음 단계 조건" :value="diagnosis ? diagnosis.nextStageConditions.join(' ') : null" />
+              <InfoRow
+                label="진단 기준일·버전"
+                :value="diagnosis ? `${diagnosis.basisDate} · ${diagnosis.criteriaVersion}` : null"
+              />
             </InfoList>
-            <NoticeBanner class="mt-4" tone="neutral" title="수출단계를 판정하지 않았습니다">
-              검증된 수출단계 진단 기준이 아직 확정되지 않았습니다. 기준이 마련되면 판단 근거와 기준일을 함께
-              표시합니다. 이전 기획의 단계 임계치는 검증되지 않은 초안이므로 사용하지 않습니다.
+            <NoticeBanner v-if="!diagnosis" class="mt-4" tone="neutral" title="수출단계를 진단하지 않았습니다">
+              기업정보 3단계의 최근 1년 수출액을 입력하면 진단합니다. 수출 실적이 없으면 0을 입력해 주세요.
+              <template #actions>
+                <RouterLink :to="{ name: 'diagnose-input', query: { step: 3 } }" class="btn btn-secondary btn-sm">
+                  수출액 입력하기
+                </RouterLink>
+              </template>
             </NoticeBanner>
+            <NoticeBanner v-else-if="diagnosis.periodNote" class="mt-4" tone="warning" title="참고용 진단입니다">
+              {{ diagnosis.periodNote }} 직전 연도({{ diagnosis.referenceYear }}년) 1월~12월 수출액으로 입력하면 공고
+              기준과 같은 기간으로 진단합니다.
+            </NoticeBanner>
+            <ExportStageCriteriaNote class="mt-4" />
           </SectionCard>
 
           <SectionCard title="입력한 기업정보" heading-id="summary-title" :icon="IconForms">
@@ -148,7 +199,7 @@ const stepTitle = (step: number) => PROFILE_STEPS.find((s) => s.id === step)?.ti
                   <IconTargetArrow :size="20" stroke-width="1.8" aria-hidden="true" />
                   <span>
                     <strong>맞춤 추천 보기</strong>
-                    <span>공고가 등록되면 신청 자격과 적합도를 나누어 보여 드립니다.</span>
+                    <span>신청 자격과 적합도를 나누어 보여 드립니다.</span>
                   </span>
                 </RouterLink>
               </li>

@@ -2,6 +2,9 @@ import type { IsoDate, IsoDateTime, YearMonth } from './common'
 
 export type CompanyType = 'corporation' | 'sole-proprietor'
 
+/** 기업 규모 구분 (중소기업확인서 기준). 소상공인도 중소기업에 포함된다. */
+export type CompanySize = 'small-business' | 'sme' | 'mid-sized' | 'large' | 'unknown'
+
 export type RegionCode =
   | 'seoul'
   | 'busan'
@@ -39,6 +42,11 @@ export type InterestArea =
   | 'logistics'
   | 'translation'
   | 'export-finance'
+  | 'legal-tax'
+  | 'ip'
+  | 'local-registration'
+  | 'export-training'
+  | 'customs-fta'
 
 /**
  * 사용자가 직접 입력한 기업 프로필.
@@ -50,6 +58,8 @@ export interface CompanyProfile {
   /** 형식 검증만 수행하며, 이 기기에 저장하지 않는다 (현재 화면 세션에서만 보관). */
   businessNumber: string | null
   companyType: CompanyType | null
+  /** 기업 규모 구분 (선택). 예전에 저장한 프로필에는 없으며 null로 읽는다. */
+  companySize: CompanySize | null
   foundedAt: IsoDate | null
   hqRegion: RegionCode | null
   hqDistrict: string | null

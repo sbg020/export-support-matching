@@ -6,20 +6,45 @@ import NoticeBanner from '@/components/common/NoticeBanner.vue'
 import StatTile from '@/components/common/StatTile.vue'
 import SectionCard from '@/components/common/SectionCard.vue'
 import DataValue from '@/components/common/DataValue.vue'
+import DataSourceNotice from '@/components/common/DataSourceNotice.vue'
+import ExportStageCriteriaNote from '@/components/diagnose/ExportStageCriteriaNote.vue'
 import { ROADMAP_STAGES } from '@/constants/options'
-import { diagnoseExportStage } from '@/lib/engine/diagnosis'
-import { useProfileStore } from '@/stores/profileStore'
+import { STAGE_PHASE_VERSION } from '@/constants/categories'
+import { countByPhase } from '@/lib/engine/evaluateAll'
+import { exportStageText, phaseListText } from '@/lib/programDisplay'
+import { useProgramEvaluations } from '@/composables/useProgramEvaluations'
+import { isSourceConnected, programRepository } from '@/repositories'
+import type { SupportStage } from '@/types/program'
 
-const store = useProfileStore()
-/** 검증된 진단 기준이 없으면 null → 현재 위치를 표시하지 않는다. */
-const diagnosis = computed(() => diagnoseExportStage(store.state.profile))
-const currentIndex = computed(() =>
-  diagnosis.value ? ROADMAP_STAGES.findIndex((s) => s.value === diagnosis.value?.stage) : -1,
+const evaluation = useProgramEvaluations()
+const sourceConnected = isSourceConnected(programRepository.source)
+/** 수출액이 입력되지 않았으면 null → 권장 단계를 표시하지 않는다 */
+const diagnosis = computed(() => evaluation.diagnosis.value)
+
+/** 권장 지원 단계: ◎ 우선, ○ 함께 보기 (stage-phase-v0) */
+function recommendation(stage: SupportStage): 'primary' | 'secondary' | null {
+  if (!diagnosis.value) return null
+  if (diagnosis.value.primaryPhases.includes(stage)) return 'primary'
+  if (diagnosis.value.secondaryPhases.includes(stage)) return 'secondary'
+  return null
+}
+
+/** 단계별 공고 수 (신청 불가 제외, 테스트 데이터 기준). 공고 데이터가 없으면 null */
+const phaseCounts = computed(() =>
+  sourceConnected && evaluation.ready.value
+    ? countByPhase(evaluation.programs.value, evaluation.evaluations.value)
+    : null,
 )
-const currentLabel = computed(() => (currentIndex.value >= 0 ? ROADMAP_STAGES[currentIndex.value]?.label ?? null : null))
-const nextLabel = computed(() =>
-  currentIndex.value >= 0 ? (ROADMAP_STAGES[currentIndex.value + 1]?.label ?? null) : null,
-)
+const primaryCount = computed(() => {
+  if (!diagnosis.value || !phaseCounts.value) return null
+  const primary = new Set(diagnosis.value.primaryPhases)
+  return evaluation.programs.value.filter(
+    (p) =>
+      evaluation.get(p.id)?.eligibility?.status !== 'ineligible' &&
+      (p.supportPhases ?? []).some((phase) => primary.has(phase)),
+  ).length
+})
+const countFormat = (n: number) => `${n}건`
 </script>
 
 <template>
@@ -37,26 +62,52 @@ const nextLabel = computed(() =>
     </PageHeader>
 
     <div class="stack">
-      <NoticeBanner tone="neutral" title="기준 확정 전 안내">
-        아래 로드맵은 일반적인 수출 탐색 단계를 보여 주는 틀이며, 귀사의 실제 진단 결과가 아닙니다. 검증된 수출단계
-        진단 기준이 마련되면 현재 위치와 다음 단계 조건을 근거와 함께 표시합니다.
+      <DataSourceNotice />
+
+      <NoticeBanner tone="neutral" title="로드맵을 볼 때">
+        아래 네 단계는 일반적인 수출 탐색 단계 이름입니다. 우선·함께 보기 표시는 수출단계 진단 결과와 단계 가중치({{
+          STAGE_PHASE_VERSION
+        }}, 검증 전 가설)로 정한 참고 정보이며, 신청 자격 판정이 아닙니다.
       </NoticeBanner>
 
       <div class="tile-grid">
-        <StatTile label="현재 단계" :value="currentLabel" :icon="IconMapPin" hint="진단 기준 확정 전" />
-        <StatTile label="다음 단계" :value="nextLabel" :icon="IconFlag" tone="secondary" hint="진단 기준 확정 전" />
-        <StatTile label="현재 단계 추천 사업" :value="null" :icon="IconStack2" tone="accent" hint="공고 등록 전" />
-        <StatTile label="진단 기준 버전" :value="diagnosis?.criteriaVersion ?? null" :icon="IconRoute" tone="neutral" />
+        <StatTile
+          label="현재 수출단계"
+          :value="exportStageText(diagnosis?.stage)"
+          :icon="IconMapPin"
+          :hint="diagnosis ? diagnosis.criteriaVersion : '수출액 미입력'"
+        />
+        <StatTile
+          label="우선 지원 단계"
+          :value="diagnosis ? phaseListText(diagnosis.primaryPhases) : null"
+          :icon="IconFlag"
+          tone="secondary"
+          hint="◎ 표시 단계"
+        />
+        <StatTile
+          label="우선 단계 공고"
+          :value="primaryCount !== null ? countFormat(primaryCount) : null"
+          :icon="IconStack2"
+          tone="accent"
+          :hint="sourceConnected ? '신청 불가 제외 · 테스트 데이터 기준' : '공고 등록 전'"
+        />
+        <StatTile label="단계 가중치 버전" :value="STAGE_PHASE_VERSION" :icon="IconRoute" tone="neutral" hint="검증 전" />
       </div>
 
-      <SectionCard title="수출 단계" heading-id="roadmap-stages-title" description="일반적인 탐색 단계 이름입니다.">
+      <SectionCard
+        title="수출 단계"
+        heading-id="roadmap-stages-title"
+        description="일반적인 탐색 단계 이름입니다. 공고 수는 그 단계에 걸치는 공고(신청 불가 제외)를 셉니다."
+      >
         <ol class="roadmap">
           <li
             v-for="(stage, index) in ROADMAP_STAGES"
             :key="stage.value"
             class="roadmap__stage"
-            :class="{ 'is-current': index === currentIndex }"
-            :aria-current="index === currentIndex ? 'step' : undefined"
+            :class="{
+              'is-current': recommendation(stage.value) === 'primary',
+              'is-secondary': recommendation(stage.value) === 'secondary',
+            }"
           >
             <div class="roadmap__marker" aria-hidden="true">{{ index + 1 }}</div>
             <div class="roadmap__card">
@@ -64,15 +115,22 @@ const nextLabel = computed(() =>
               <h3 class="roadmap__name">{{ stage.label }}</h3>
               <dl class="roadmap__facts">
                 <div>
-                  <dt>현재 위치</dt>
+                  <dt>권장</dt>
                   <dd>
-                    <span v-if="index === currentIndex" class="fw-semibold">현재 단계</span>
-                    <DataValue v-else :value="null" missing-label="판정 전" />
+                    <span v-if="recommendation(stage.value) === 'primary'" class="fw-semibold">◎ 우선</span>
+                    <span v-else-if="recommendation(stage.value) === 'secondary'" class="fw-semibold">○ 함께 보기</span>
+                    <DataValue v-else :value="null" :missing-label="diagnosis ? '권장 단계 아님' : '진단 전'" />
                   </dd>
                 </div>
                 <div>
-                  <dt>추천 사업</dt>
-                  <dd><DataValue :value="null" missing-label="공고 등록 전" /></dd>
+                  <dt>공고 수</dt>
+                  <dd>
+                    <DataValue
+                      :value="phaseCounts ? phaseCounts[stage.value] : null"
+                      :format="countFormat"
+                      missing-label="공고 등록 전"
+                    />
+                  </dd>
                 </div>
               </dl>
               <RouterLink
@@ -96,10 +154,12 @@ const nextLabel = computed(() =>
           title="다음 단계로 가기 위한 조건"
           heading-id="next-conditions-title"
         >
-          <p class="condition-value"><DataValue :value="diagnosis ? diagnosis.nextStageConditions.join(', ') : null" /></p>
-          <p class="fs-sm text-muted-strong mb-0">
-            진단 기준이 확정되면 다음 단계로 넘어가기 위해 필요한 조건과 근거를 보여 드립니다.
+          <p class="condition-value"><DataValue :value="diagnosis ? diagnosis.nextStageConditions.join(' ') : null" /></p>
+          <p v-if="diagnosis?.periodNote" class="fs-sm mb-2">{{ diagnosis.periodNote }}</p>
+          <p v-if="!diagnosis" class="fs-sm text-muted-strong mb-3">
+            기업정보에 최근 1년 수출액을 입력하면 수출단계와 다음 단계 조건을 보여 드립니다.
           </p>
+          <ExportStageCriteriaNote />
         </SectionCard>
         <SectionCard class="col-span-12 lg-span-6" title="지금 할 수 있는 일" heading-id="roadmap-todo-title">
           <div class="action-row">
@@ -162,6 +222,16 @@ const nextLabel = computed(() =>
 .is-current .roadmap__card {
   border-color: var(--color-primary-strong);
   background: var(--color-primary-soft);
+}
+
+.is-secondary .roadmap__marker {
+  border-color: var(--color-primary-strong);
+  color: var(--color-primary-strong);
+}
+
+.is-secondary .roadmap__card {
+  border-style: dashed;
+  border-color: var(--color-primary-strong);
 }
 
 .roadmap__num {

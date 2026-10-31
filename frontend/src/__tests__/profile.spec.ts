@@ -138,4 +138,27 @@ describe('기기 저장', () => {
     expect(restored?.profile.companyType).toBeNull()
     expect(restored?.profile.revenueKrw).toBeNull()
   })
+
+  it('새 필드 없이 저장된 예전 프로필도 오류 없이 읽고, 새 필드는 비워 둔다', () => {
+    const { companySize: _omitted, ...old } = filledProfile()
+    const raw = JSON.stringify({ version: 1, profile: { ...old, businessNumber: undefined }, meta: {} })
+    const restored = deserializeProfile(raw)
+    expect(restored).not.toBeNull()
+    expect(restored?.profile.companySize).toBeNull()
+    expect(restored?.profile.companyName).toBe('테스트 입력')
+    expect(restored?.profile.interestAreas).toEqual(['market-research'])
+  })
+
+  it('기업 규모 구분과 새 관심 분야를 저장·복원한다', () => {
+    const profile: CompanyProfile = {
+      ...filledProfile(),
+      companySize: 'sme',
+      interestAreas: ['legal-tax', 'ip', 'local-registration', 'export-training', 'customs-fta'],
+    }
+    const restored = deserializeProfile(serializeProfile(profile, createEmptyMeta()))
+    expect(restored?.profile.companySize).toBe('sme')
+    expect(restored?.profile.interestAreas).toEqual(profile.interestAreas)
+    // 기업 규모 구분은 선택 입력이라 비워 두어도 1단계 검증을 통과한다
+    expect(validateStep(1, { ...filledProfile(), companySize: null })).toEqual({})
+  })
 })

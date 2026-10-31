@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import { COMPANY_TYPE_OPTIONS, REGION_OPTIONS } from '@/constants/options'
+import { COMPANY_SIZE_OPTIONS, COMPANY_TYPE_OPTIONS, REGION_OPTIONS } from '@/constants/options'
 import { useProfileForm } from '@/composables/useProfileForm'
 import { formatBusinessNumber } from '@/lib/display'
 import { normalizeBusinessNumber } from '@/lib/profile'
@@ -95,6 +95,22 @@ function formatBusinessNumberOnBlur() {
         :options="COMPANY_TYPE_OPTIONS"
         :describedby="describedby"
         :invalid="invalid"
+      />
+    </FormFieldset>
+
+    <FormFieldset
+      v-slot="{ describedby }"
+      :id="fieldId('companySize')"
+      legend="기업 규모 구분"
+      optional
+      hint="중소기업확인서 기준입니다. 소상공인도 중소기업에 포함됩니다. 모르면 비워 두거나 '잘 모르겠어요'를 고르세요."
+    >
+      <ChoiceCards
+        v-model="profile.companySize"
+        :name="fieldId('companySize-choice')"
+        :options="COMPANY_SIZE_OPTIONS"
+        :describedby="describedby"
+        clearable
       />
     </FormFieldset>
 

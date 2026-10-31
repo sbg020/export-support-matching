@@ -15,6 +15,7 @@ import {
 import {
   businessNumberText,
   certificationText,
+  companySizeText,
   companyTypeText,
   countriesText,
   factoryText,
@@ -83,6 +84,7 @@ const exportPeriod = computed(() =>
           hint="이 기기에 저장하지 않으며, 현재 화면에서만 보관합니다."
         />
         <InfoRow label="기업 형태" :value="companyTypeText(profile)" />
+        <InfoRow label="기업 규모 구분" :value="companySizeText(profile)" />
         <InfoRow label="설립일" :value="profile.foundedAt" :format="formatDate" />
         <InfoRow label="본사 소재지" :value="regionText(profile.hqRegion, profile.hqDistrict)" />
         <InfoRow label="공장" :value="factoryText(profile)" />

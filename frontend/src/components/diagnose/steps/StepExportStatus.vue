@@ -53,7 +53,7 @@ function setNoExport() {
       :id="fieldId('exportPeriod')"
       legend="측정 기간"
       required
-      hint="위 수출액을 집계한 기간입니다. 예를 들어 최근 12개월이나 지난 회계연도를 선택해 주세요."
+      hint="위 수출액을 집계한 기간입니다. 예를 들어 최근 12개월이나 지난 회계연도를 선택해 주세요. 공고 대부분은 직전 연도(1~12월) 수출실적을 기준으로 하므로, 가능하면 지난해 1월~12월로 입력해 주세요."
     >
       <div class="field-pair">
         <div :id="fieldId('exportPeriodStart')">

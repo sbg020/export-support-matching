@@ -5,6 +5,7 @@
 import type { CompanyProfile, HoldingStatus, RegionCode } from '@/types/profile'
 import {
   CERTIFICATION_OPTIONS,
+  COMPANY_SIZE_OPTIONS,
   COMPANY_TYPE_OPTIONS,
   HS_STATUS_OPTIONS,
   INDUSTRY_MODE_OPTIONS,
@@ -23,6 +24,10 @@ export function regionText(region: RegionCode | null, district: string | null): 
 
 export function companyTypeText(p: CompanyProfile): string | null {
   return optionLabel(COMPANY_TYPE_OPTIONS, p.companyType)
+}
+
+export function companySizeText(p: CompanyProfile): string | null {
+  return optionLabel(COMPANY_SIZE_OPTIONS, p.companySize)
 }
 
 export function businessNumberText(p: CompanyProfile): string | null {
