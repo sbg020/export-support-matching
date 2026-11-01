@@ -50,7 +50,7 @@ const file = JSON.parse(readFileSync(path, 'utf8')) as EngineCasesFile
 describe('공유 판정 사례 (engine-cases.json)', () => {
   it('사례가 20개 이상이고 엔진 버전이 같다', () => {
     expect(file.cases.length).toBeGreaterThanOrEqual(20)
-    expect(file.engineVersion).toBe('eligibility-0.2.0')
+    expect(file.engineVersion).toBe('eligibility-0.2.1')
   })
 
   function run(c: EngineCase) {

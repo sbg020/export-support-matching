@@ -1,5 +1,5 @@
 /*
- * 신청 자격 판정 v2 (순수 함수, eligibility-0.2.0). REVISION_02 §6.6~6.10
+ * 신청 자격 판정 v2 (순수 함수, eligibility-0.2.1). REVISION_02 §6.6~6.10, 업종 사전은 revision_03 테스트 계정 §6.3
  *
  * - 규칙의 '기준에 회사가 해당하는지'를 필드별로 판정한 뒤, 필수 조건은 해당 → 충족,
  *   제외 조건은 해당 → '제외 대상 해당'(미충족)으로 바꾼다.
@@ -32,7 +32,8 @@ import {
 } from '@/constants/options'
 import { formatCount, formatKrw, formatUsd, formatYearMonth } from '@/lib/display'
 
-export const ELIGIBILITY_ENGINE_VERSION = 'eligibility-0.2.0'
+/** 0.2.1: 업종 설명 사전 추가 (revision_03 테스트 계정 §6.3, 판정 규칙은 0.2.0과 같다) */
+export const ELIGIBILITY_ENGINE_VERSION = 'eligibility-0.2.1'
 
 export interface EligibilityContext {
   /** 데이터 기준일 (기준 연도 계산용). 없으면 공고의 receptionStatusAsOf를 쓴다 */
@@ -154,6 +155,15 @@ function evaluateCompanyType(rule: EligibilityRule, profile: CompanyProfile): Ma
     (size !== null && sizeTokens.some((t) => SIZE_TOKENS[t]?.includes(size))) ||
     (profile.companyType !== null && typeTokens.some((t) => TYPE_TOKENS[t] === profile.companyType))
   if (hit) return { kind: 'yes', reason: '기업 유형이 공고에 적힌 유형에 포함됩니다.', companyValue }
+  // '농식품 제조업체'처럼 업종으로 정해지는 유형은 업종 사전으로 본다 (해당할 때만)
+  const termHits = industryTermHits(unknownTokens, ksicDigits(profile.ksicCode))
+  if (termHits.length > 0) {
+    return {
+      kind: 'yes',
+      reason: `입력한 업종 코드(${profile.ksicCode})가 '${termHits.join(', ')}'에 해당합니다 (업종 사전).`,
+      companyValue: [companyValue, profile.ksicCode].filter(Boolean).join(' · '),
+    }
+  }
   if ((sizeTokens.length > 0 && size === null) || (typeTokens.length > 0 && profile.companyType === null)) {
     return missingInput('기업 규모 구분·기업 형태', 1)
   }
@@ -298,6 +308,23 @@ function ksicMatch(digits: string, range: KsicRange): 'yes' | 'no' | 'partial' {
   return digits >= lo && digits <= hi ? 'partial' : 'no'
 }
 
+/**
+ * 업종 설명 사전 (revision_03 테스트 계정 §6.3). 공백을 뺀 업종 설명 → 그 설명에 속하는 KSIC 범위.
+ * 한 방향으로만 쓴다: 입력한 KSIC가 범위에 들면 '해당', 들지 않으면 판정하지 않고 직접 확인으로 둔다
+ * (예: '농·식품'에는 농업 등 다른 업종도 들어갈 수 있다). '제조업'(10~34)은 아래에서 따로 다룬다.
+ */
+const INDUSTRY_TERM_KSIC: Record<string, KsicRange[]> = {
+  식품제조: [{ lo: '10', hi: '10' }],
+  '농·식품': [{ lo: '10', hi: '10' }],
+  농식품제조업체: [{ lo: '10', hi: '10' }],
+}
+
+/** 업종 설명 사전에 있는 설명 중 입력한 업종 코드가 속하는 것 */
+function industryTermHits(tokens: string[], digits: string | null): string[] {
+  if (!digits) return []
+  return tokens.filter((t) => INDUSTRY_TERM_KSIC[compact(t)]?.some((range) => ksicMatch(digits, range) === 'yes'))
+}
+
 function evaluateIndustry(rule: EligibilityRule, profile: CompanyProfile): Match {
   const tokens = valueTokens(rule.value)
   const digits = ksicDigits(profile.ksicCode)
@@ -329,6 +356,14 @@ function evaluateIndustry(rule: EligibilityRule, profile: CompanyProfile): Match
     }
     if (others.length === 0) {
       return { kind: 'no', reason: `입력한 업종 코드(${profile.ksicCode})가 제조업(KSIC 10~34)이 아닙니다.`, companyValue }
+    }
+  }
+  const termHits = industryTermHits(others, digits)
+  if (termHits.length > 0) {
+    return {
+      kind: 'yes',
+      reason: `입력한 업종 코드(${profile.ksicCode})가 '${termHits.join(', ')}'에 해당합니다 (업종 사전).`,
+      companyValue,
     }
   }
   return describe('업종 설명으로 된 조건이라 직접 확인이 필요합니다.')
