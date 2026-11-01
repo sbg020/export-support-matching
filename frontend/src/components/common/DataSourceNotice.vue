@@ -3,6 +3,7 @@
  * 데이터 출처 안내 (REVISION_02 §3.6).
  * 테스트 데이터셋을 쓰는 동안 제목 아래 한 줄로 출처·건수·기준일·검수 전 초안임을 알린다.
  * 숫자와 날짜는 데이터셋 meta에서 읽는다(하드코딩 금지). 데이터가 연결되지 않았으면 그리지 않는다.
+ * 기준일은 시스템 날짜가 아니라 PoC 데이터 기준일(--as-of)임을 함께 적는다 (revision_03 테스트 계정 §7).
  */
 import { computed, ref, useId } from 'vue'
 import { IconChevronDown, IconFlask } from '@tabler/icons-vue'
@@ -22,7 +23,7 @@ const detailId = `${useId()}-detail`
       <IconFlask :size="16" stroke-width="2" aria-hidden="true" />
       <span>
         테스트 데이터 · 기업마당 수출지원 공고 {{ source.announcementCount }}건({{ DATA_STATE_LABEL[source.dataState] }}) ·
-        기준일 {{ source.asOf }}
+        기준일 {{ source.asOf }} (PoC 데이터 기준)
       </span>
       <button
         type="button"

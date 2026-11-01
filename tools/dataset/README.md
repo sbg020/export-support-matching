@@ -29,7 +29,7 @@ tools/.venv/Scripts/python tools/dataset/build_test_dataset.py \
   --input "수출 지원사업 공고문/정답세트/EC_정답세트_초안_랜덤30건.xlsx" \
   --inventory-from "수출 지원사업 공고문/정답세트/EC_정답세트_초안_랜덤30건.xlsx" \
   --source-urls "수출 지원사업 공고문/정답세트/source_urls.csv" \
-  --as-of 2026-10-30 \
+  --as-of 2026-10-15 \
   --out frontend/src/data/test-dataset.json \
   --report docs/data/test-dataset-report.md
 ```

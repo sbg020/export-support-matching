@@ -43,10 +43,10 @@ describe('테스트 데이터셋', () => {
   })
 
   it('meta의 건수·기준일과 실제 행이 같고, 모두 검수 전 초안이다', () => {
-    expect(repository.source).toMatchObject({ kind: 'test-dataset', asOf: '2026-10-30', programCount: 68, announcementCount: 60 })
+    expect(repository.source).toMatchObject({ kind: 'test-dataset', asOf: '2026-10-15', programCount: 68, announcementCount: 60 })
     expect(programs).toHaveLength(datasetFile.meta.counts.programs)
     expect(new Set(programs.map((p) => p.parentId)).size).toBe(datasetFile.meta.counts.announcements)
-    expect(programs.every((p) => p.dataState === 'draft' && p.receptionStatusAsOf === '2026-10-30')).toBe(true)
+    expect(programs.every((p) => p.dataState === 'draft' && p.receptionStatusAsOf === '2026-10-15')).toBe(true)
   })
 
   it('정답 세트에 없는 값은 모두 null이다', () => {
@@ -61,9 +61,9 @@ describe('테스트 데이터셋', () => {
     expect(p?.supportAreas).toContain('logistics')
   })
 
-  it('접수상태 분포 (기준일 2026-10-30)', () => {
+  it('접수상태 분포 (기준일 2026-10-15, PoC 데이터 기간 중간)', () => {
     const count = (s: Program['receptionStatus']) => programs.filter((p) => p.receptionStatus === s).length
-    expect([count('open'), count('closed'), count(null)]).toEqual([42, 16, 10])
+    expect([count('open'), count('closed'), count(null)]).toEqual([58, 0, 10])
   })
 
   it('공통 확인 키별 규칙 수가 문서와 같고 모두 제외 조건이다', () => {
@@ -314,7 +314,7 @@ describe('데이터 출처 안내', () => {
       dataState: 'draft',
     }
     const wrapper = mount(DataSourceNotice, { props: { status } })
-    expect(wrapper.text()).toContain('테스트 데이터 · 기업마당 수출지원 공고 60건(검수 전 초안) · 기준일 2026-10-30')
+    expect(wrapper.text()).toContain('테스트 데이터 · 기업마당 수출지원 공고 60건(검수 전 초안) · 기준일 2026-10-15 (PoC 데이터 기준)')
   })
 
   it('데이터가 연결되지 않았으면 아무것도 그리지 않는다', () => {

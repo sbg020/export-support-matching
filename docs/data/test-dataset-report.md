@@ -1,7 +1,7 @@
 # 테스트 데이터셋 변환 보고서
 
 > `tools/dataset/build_test_dataset.py`가 만든 파일이다. 손으로 고치지 말고 스크립트를 다시 실행한다.
-> 데이터 버전 `test-2026-10-30` · 기준일 `2026-10-30` · 데이터 상태 `draft`
+> 데이터 버전 `test-2026-10-15` · 기준일 `2026-10-15` · 데이터 상태 `draft`
 
 ## 1. 입력과 행 수
 
@@ -60,7 +60,7 @@
 
 | 항목 | 분포 |
 |---|---|
-| 접수상태 | 없음 10, closed 16, open 42 |
+| 접수상태 | 없음 10, open 58 |
 | 기관 유형 | association 2, central-ministry 4, local-government 38, public-agency 24 |
 | 데이터 상태 | draft 68 |
 | 바우처형 | False 63, True 5 |
