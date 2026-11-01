@@ -4,11 +4,12 @@
  *
  *   POST /api/auth/login    { id, password } → 로그인, 세션 쿠키 발급
  *   POST /api/auth/logout   → 세션 쿠키 삭제
- *   GET  /api/auth/me       → { authenticated, user? }
+ *   GET  /api/auth/me       → { authenticated, user?: { id, role } }  (role: demo | test)
  *   POST /api/auth/signup   → 501 (회원 정보를 저장할 서버 DB가 없음)
  */
 import {
   createSessionToken,
+  findAccount,
   parseCookies,
   readAuthConfig,
   serializeClearedSessionCookie,
@@ -17,6 +18,7 @@ import {
   shouldUseSecureCookie,
   verifyCredentials,
   verifySessionToken,
+  type AuthAccount,
   type AuthEnv,
 } from './core.js'
 
@@ -78,16 +80,21 @@ async function login(request: Request, env: AuthEnv, nowSeconds: number): Promis
   const credentials = await readCredentials(request)
   if (!credentials) return json(400, { message: AUTH_MESSAGES.badRequest })
 
-  if (!verifyCredentials(config, credentials.id, credentials.password)) {
+  const account = verifyCredentials(config, credentials.id, credentials.password)
+  if (!account) {
     return json(401, { message: AUTH_MESSAGES.invalidCredentials })
   }
 
-  const token = createSessionToken(config.loginId, config.secret, nowSeconds)
+  const token = createSessionToken(account.loginId, config.secret, nowSeconds)
   return json(
     200,
-    { authenticated: true, user: { id: config.loginId } },
+    { authenticated: true, user: userOf(account) },
     { 'Set-Cookie': serializeSessionCookie(token, { secure: shouldUseSecureCookie(request, env) }) },
   )
+}
+
+function userOf(account: AuthAccount): { id: string; role: AuthAccount['role'] } {
+  return { id: account.loginId, role: account.role }
 }
 
 function logout(request: Request, env: AuthEnv): Response {
@@ -103,8 +110,9 @@ function me(request: Request, env: AuthEnv, nowSeconds: number): Response {
   if (!config) return json(200, { authenticated: false })
   const token = parseCookies(request.headers.get('cookie'))[SESSION_COOKIE_NAME]
   const session = verifySessionToken(token, config, nowSeconds)
-  if (!session) return json(200, { authenticated: false })
-  return json(200, { authenticated: true, user: { id: session.sub } })
+  const account = session ? findAccount(config, session.sub) : null
+  if (!account) return json(200, { authenticated: false })
+  return json(200, { authenticated: true, user: userOf(account) })
 }
 
 export async function handleAuthRequest(

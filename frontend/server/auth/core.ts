@@ -1,11 +1,13 @@
 /// <reference types="node" />
 // Vercel이 함수를 빌드할 때 쓰는 tsconfig에는 Node 타입이 기본 포함되지 않아(TypeScript 6) 직접 참조한다.
 /*
- * 데모 계정 인증 — 서버 전용 순수 함수.
+ * 데모·테스트 계정 인증 — 서버 전용 순수 함수.
  *
  * - 이 파일은 Vercel 서버 함수(api/)와 Vite 개발 서버 미들웨어에서만 쓴다. 브라우저 번들에 포함하지 않는다.
- * - 아이디·비밀번호·세션 키는 환경변수(DEMO_LOGIN_ID, DEMO_LOGIN_PASSWORD, AUTH_SESSION_SECRET)에서만 읽는다.
- *   값이 없으면 로그인을 막는다. 코드 안의 기본값으로 대신하지 않는다.
+ * - 아이디·비밀번호·세션 키는 환경변수에서만 읽는다. 코드 안의 기본값으로 대신하지 않는다.
+ *   데모 계정 DEMO_LOGIN_ID·DEMO_LOGIN_PASSWORD, 테스트 계정 TEST_LOGIN_ID·TEST_LOGIN_PASSWORD (revision_03 테스트 계정),
+ *   세션 키 AUTH_SESSION_SECRET. 계정은 아이디와 비밀번호가 둘 다 있을 때만 쓴다. 쓸 계정이 없거나 세션 키가 없으면 로그인을 막는다.
+ * - 두 계정 모두 관리자 권한이 없다(관리자 기능 자체가 없다). 역할은 화면에서 계정별 기업 프로필을 고르는 데만 쓴다.
  */
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto'
 
@@ -16,9 +18,17 @@ export const MIN_SECRET_LENGTH = 32
 
 export type AuthEnv = Record<string, string | undefined>
 
-export interface AuthConfig {
+/** demo: 기존 데모 계정, test: 시연·캡처용 테스트 계정 */
+export type AccountRole = 'demo' | 'test'
+
+export interface AuthAccount {
   loginId: string
   password: string
+  role: AccountRole
+}
+
+export interface AuthConfig {
+  accounts: AuthAccount[]
   secret: string
 }
 
@@ -28,12 +38,30 @@ export interface SessionPayload {
   exp: number
 }
 
+const ACCOUNT_ENV: { role: AccountRole; id: string; password: string }[] = [
+  { role: 'demo', id: 'DEMO_LOGIN_ID', password: 'DEMO_LOGIN_PASSWORD' },
+  { role: 'test', id: 'TEST_LOGIN_ID', password: 'TEST_LOGIN_PASSWORD' },
+]
+
 export function readAuthConfig(env: AuthEnv): AuthConfig | null {
-  const loginId = env.DEMO_LOGIN_ID ?? ''
-  const password = env.DEMO_LOGIN_PASSWORD ?? ''
   const secret = env.AUTH_SESSION_SECRET ?? ''
-  if (loginId === '' || password === '' || secret.length < MIN_SECRET_LENGTH) return null
-  return { loginId, password, secret }
+  if (secret.length < MIN_SECRET_LENGTH) return null
+  const accounts: AuthAccount[] = []
+  for (const names of ACCOUNT_ENV) {
+    const loginId = env[names.id] ?? ''
+    const password = env[names.password] ?? ''
+    if (loginId === '' || password === '') continue
+    // 아이디가 겹치면 먼저 설정된 계정(데모)만 쓴다
+    if (accounts.some((a) => a.loginId === loginId)) continue
+    accounts.push({ loginId, password, role: names.role })
+  }
+  if (accounts.length === 0) return null
+  return { accounts, secret }
+}
+
+/** 세션 주체(sub)에 해당하는 현재 설정된 계정 */
+export function findAccount(config: AuthConfig, loginId: string): AuthAccount | null {
+  return config.accounts.find((a) => a.loginId === loginId) ?? null
 }
 
 function sha256(value: string): Buffer {
@@ -45,11 +73,18 @@ function constantTimeEqual(a: string, b: string): boolean {
   return timingSafeEqual(sha256(a), sha256(b))
 }
 
-/** 아이디는 대소문자를 구분해 정확히 일치해야 한다. 두 값을 모두 비교한 뒤 판정한다. */
-export function verifyCredentials(config: AuthConfig, loginId: string, password: string): boolean {
-  const idMatches = constantTimeEqual(loginId, config.loginId)
-  const passwordMatches = constantTimeEqual(password, config.password)
-  return idMatches && passwordMatches
+/**
+ * 아이디는 대소문자를 구분해 정확히 일치해야 한다. 모든 계정의 아이디·비밀번호를 끝까지 비교한 뒤 판정한다.
+ * 맞는 계정이 없으면 null.
+ */
+export function verifyCredentials(config: AuthConfig, loginId: string, password: string): AuthAccount | null {
+  let matched: AuthAccount | null = null
+  for (const account of config.accounts) {
+    const idMatches = constantTimeEqual(loginId, account.loginId)
+    const passwordMatches = constantTimeEqual(password, account.password)
+    if (idMatches && passwordMatches && matched === null) matched = account
+  }
+  return matched
 }
 
 function signature(body: string, secret: string): string {
@@ -81,7 +116,7 @@ function isSessionPayload(value: unknown): value is SessionPayload {
 
 /**
  * 서명·만료·주체를 확인한다. 하나라도 맞지 않으면 null(비로그인)이다.
- * 주체(sub)가 현재 설정된 데모 아이디와 다르면 무효로 본다.
+ * 주체(sub)가 현재 설정된 계정 아이디 중 어느 것과도 다르면 무효로 본다.
  */
 export function verifySessionToken(
   token: string | undefined,
@@ -107,7 +142,7 @@ export function verifySessionToken(
   if (!isSessionPayload(payload)) return null
   if (payload.exp <= nowSeconds) return null
   if (payload.iat > nowSeconds + 60) return null
-  if (payload.sub !== config.loginId) return null
+  if (!findAccount(config, payload.sub)) return null
   return payload
 }
 

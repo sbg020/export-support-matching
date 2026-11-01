@@ -3,7 +3,7 @@
  * npm run dev / npm run preview 에서도 실제 서버 검증 로그인이 동작하게 하기 위한 것이다.
  *
  * 서버 전용 변수는 loadEnv(…, '')로 읽어 이 미들웨어에서만 쓴다. Vite는 VITE_ 접두사 변수만
- * 브라우저 번들에 넣으므로 DEMO_LOGIN_* · AUTH_SESSION_SECRET 는 번들에 포함되지 않는다.
+ * 브라우저 번들에 넣으므로 DEMO_LOGIN_* · TEST_LOGIN_* · AUTH_SESSION_SECRET 는 번들에 포함되지 않는다.
  */
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { loadEnv, type Plugin, type ResolvedConfig } from 'vite'
