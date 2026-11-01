@@ -44,6 +44,9 @@ Thumbs.db
 
 # ── 비밀번호가 들어 있는 개정 지시 원본 (가린 사본: docs/revisions/) ──
 /revision_01.md
+# revision_03 테스트 계정 원본 (파일명 대소문자가 달라도 루트 파일만 제외)
+/revision_03.md
+/REVISION_03.md
 
 # ── 공고 원문(PDF·이미지)은 저장소에 올리지 않는다 (정답 세트 xlsx·source_urls.csv는 커밋) ──
 수출 지원사업 공고문/**/*.pdf
