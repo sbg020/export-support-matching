@@ -102,7 +102,7 @@ interface ProgramRepository {
 
 | 함수 | 버전 | 결과가 `null`인 조건 |
 |---|---|---|
-| `evaluateEligibility(profile, program, { asOf, selfChecks })` | `eligibility-0.2.0` | 규칙이 없음, 데이터 상태(`dataState`)가 없음 |
+| `evaluateEligibility(profile, program, { asOf, selfChecks })` | `eligibility-0.2.1` | 규칙이 없음, 데이터 상태(`dataState`)가 없음 |
 | `evaluateFit(profile, program, context)` | `fit-0.2.0`, 기준 `fit-v0`(가설) | 반영할 수 있는 항목이 2개 미만 |
 | `evaluateOpportunityCost(program, { ownedDocumentTypes, today })` | `opportunity-0.2.0` | 데이터 상태·검증일이 없거나 근거 있는 값이 하나도 없음 |
 | `diagnoseExportStage(profile, { asOf })` | `export-stage-v1` | 최근 1년 수출액 미입력 |
@@ -148,7 +148,9 @@ interface ProgramRepository {
 - 아이디·비밀번호는 SHA-256 값을 `timingSafeEqual`로 비교하며 아이디는 대소문자를 구분한다. 실패 시 어느 쪽이 틀렸는지 알리지 않는다.
 - 세션은 `{ sub, iat, exp }`를 HMAC-SHA256으로 서명한 토큰을 `esm_session` 쿠키(`HttpOnly`, `SameSite=Lax`, `Path=/`, 12시간, 배포에서 `Secure`)에 담는다. 서명·만료·주체가 맞지 않으면 비로그인이다.
 - 브라우저 저장소에는 로그인 표시를 저장하지 않는다. 앱 시작 시 `/api/auth/me`로 한 번 확인한 뒤 `router.beforeEach`가 진행한다.
-- 환경변수(`DEMO_LOGIN_ID`, `DEMO_LOGIN_PASSWORD`, `AUTH_SESSION_SECRET`)가 없으면 로그인 API는 503이며 코드 안의 기본값으로 대신하지 않는다. `VITE_` 접두사를 붙이지 않아 번들에 포함되지 않는다.
+- 계정은 데모(`DEMO_LOGIN_ID`·`DEMO_LOGIN_PASSWORD`)와 테스트(`TEST_LOGIN_ID`·`TEST_LOGIN_PASSWORD`, revision_03 테스트 계정) 두 개이며, 아이디·비밀번호가 둘 다 있는 계정만 쓴다. 모든 계정을 끝까지 비교한 뒤 판정하고, 세션 주체가 설정된 계정이 아니면 무효다. `login`·`me`는 `user: { id, role }`(`demo`|`test`)을 돌려준다.
+- 역할 `test`이면 화면이 기업 프로필·직접 확인 답을 계정 전용 키(`<기존 키>:account:<아이디>`)로 읽고 쓴다(`src/stores/accountScope.ts`). 그 키가 없을 때만 `src/data/testAccountProfile.ts` 값을 넣는다. 데모 계정·비로그인은 기존 키를 그대로 쓴다.
+- 쓸 계정이 하나도 없거나 `AUTH_SESSION_SECRET`가 없으면 로그인 API는 503이며 코드 안의 기본값으로 대신하지 않는다. `VITE_` 접두사를 붙이지 않아 번들에 포함되지 않는다.
 - 회원가입은 회원 정보를 저장할 서버 DB가 생기면 같은 `redirect` 규칙으로 연결한다.
 
 ## 7. 화면 공통 컴포넌트
