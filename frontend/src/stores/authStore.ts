@@ -1,13 +1,19 @@
 /*
  * 로그인 상태. 서버(/api/auth/me)가 확인한 결과만 로그인 상태로 인정한다.
  * 브라우저 저장소에 '로그인됨' 같은 표시를 저장하지 않는다. 세션은 HttpOnly 쿠키로만 유지된다.
+ * 로그인 상태가 바뀌면 계정에 맞는 기업 프로필 저장 범위로 바꾼다(테스트 계정만 전용 범위, accountScope.ts).
  */
 import { reactive, readonly } from 'vue'
+import { applyAccountScope } from './accountScope'
 
 export type AuthStatus = 'unknown' | 'authenticated' | 'anonymous'
 
+/** demo: 데모 계정, test: 시연·캡처용 테스트 계정 (revision_03 테스트 계정) */
+export type AuthRole = 'demo' | 'test'
+
 export interface AuthUser {
   id: string
+  role: AuthRole
 }
 
 interface AuthState {
@@ -24,9 +30,16 @@ let checking: Promise<void> | null = null
 
 function readUser(data: unknown): AuthUser | null {
   if (typeof data !== 'object' || data === null) return null
-  const record = data as { authenticated?: unknown; user?: { id?: unknown } }
+  const record = data as { authenticated?: unknown; user?: { id?: unknown; role?: unknown } }
   if (record.authenticated !== true || typeof record.user?.id !== 'string') return null
-  return { id: record.user.id }
+  return { id: record.user.id, role: record.user.role === 'test' ? 'test' : 'demo' }
+}
+
+function setAuthenticated(user: AuthUser) {
+  state.status = 'authenticated'
+  state.user = user
+  state.errorMessage = null
+  applyAccountScope(user)
 }
 
 async function readJson(response: Response): Promise<unknown> {
@@ -39,6 +52,7 @@ function setAnonymous(errorMessage: string | null = null) {
   state.status = 'anonymous'
   state.user = null
   state.errorMessage = errorMessage
+  applyAccountScope(null)
 }
 
 async function checkSession(): Promise<void> {
@@ -50,13 +64,8 @@ async function checkSession(): Promise<void> {
     })
     if (!response.ok) throw new Error(`상태 확인 실패 (${response.status})`)
     const user = readUser(await readJson(response))
-    if (user) {
-      state.status = 'authenticated'
-      state.user = user
-      state.errorMessage = null
-    } else {
-      setAnonymous()
-    }
+    if (user) setAuthenticated(user)
+    else setAnonymous()
   } catch {
     // 확인할 수 없으면 비로그인으로 처리하고 로그인 화면에 안내한다.
     setAnonymous(AUTH_CHECK_FAILED_MESSAGE)
@@ -82,9 +91,7 @@ async function login(id: string, password: string): Promise<LoginResult> {
     const data = await readJson(response).catch(() => null)
     const user = response.ok ? readUser(data) : null
     if (user) {
-      state.status = 'authenticated'
-      state.user = user
-      state.errorMessage = null
+      setAuthenticated(user)
       checking = Promise.resolve()
       return { ok: true }
     }
@@ -98,7 +105,7 @@ async function login(id: string, password: string): Promise<LoginResult> {
   }
 }
 
-/** 서버 쿠키를 지운다. 이 기기에 저장한 기업정보와 관리 기록은 지우지 않는다. */
+/** 서버 쿠키를 지운다. 이 기기에 저장한 기업정보와 관리 기록은 지우지 않는다(테스트 계정 프로필도 그대로 둔다). */
 async function logout(): Promise<void> {
   try {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' })

@@ -3,11 +3,13 @@
  *
  * - 이 브라우저의 localStorage(esm.selfChecks.v1)에만 저장한다. 서버로 보내지 않는다.
  * - 공통 확인 5가지와 공고별 확인 답을 함께 둔다. 프로필 삭제와는 별개로 '모두 지우기'를 제공한다.
+ * - 테스트 계정으로 로그인하면 그 계정 전용 키를 쓴다(accountScope.ts). 그 밖에는 기존 키를 쓴다.
  */
 import { computed, reactive } from 'vue'
 import type { CommonCheckKey } from '@/types/program'
 import type { CommonCheckAnswer, RuleCheckAnswer, RuleCheckEntry, SelfCheckAnswers } from '@/types/selfCheck'
 import { getLocalStorage } from '@/lib/storage'
+import { DEVICE_SCOPE, scopedStorageKey, type StorageScope } from '@/lib/storageScope'
 
 export const SELF_CHECK_STORAGE_KEY = 'esm.selfChecks.v1'
 
@@ -18,10 +20,15 @@ interface StoredSelfChecks extends SelfCheckAnswers {
 const COMMON_KEYS: CommonCheckKey[] = ['closure', 'tax-arrears', 'credit', 'sanction', 'financial-health']
 const COMMON_ANSWERS: CommonCheckAnswer[] = ['no', 'yes', 'unknown']
 
-const state = reactive<{ answers: SelfCheckAnswers; loaded: boolean }>({
+const state = reactive<{ answers: SelfCheckAnswers; loaded: boolean; scope: StorageScope }>({
   answers: { common: {}, programs: {} },
   loaded: false,
+  scope: DEVICE_SCOPE,
 })
+
+function storageKey(): string {
+  return scopedStorageKey(SELF_CHECK_STORAGE_KEY, state.scope)
+}
 
 /** 저장된 값을 검사해 읽는다. 형식이 틀린 항목은 버린다. */
 export function readSelfChecks(raw: string | null): SelfCheckAnswers {
@@ -62,14 +69,39 @@ export function readSelfChecks(raw: string | null): SelfCheckAnswers {
   return { common, programs }
 }
 
-function ensureLoaded() {
-  if (state.loaded) return
+function load() {
   state.loaded = true
   try {
-    state.answers = readSelfChecks(getLocalStorage()?.getItem(SELF_CHECK_STORAGE_KEY) ?? null)
+    state.answers = readSelfChecks(getLocalStorage()?.getItem(storageKey()) ?? null)
   } catch {
     state.answers = { common: {}, programs: {} }
   }
+}
+
+function ensureLoaded() {
+  if (!state.loaded) load()
+}
+
+/**
+ * 저장 범위를 바꾸고 그 범위의 답을 읽는다. 같은 범위면 아무것도 하지 않는다.
+ * seedCommon이 있으면 그 범위에 저장된 답이 없을 때만 공통 확인 답을 넣고 저장한다.
+ */
+function activateScope(
+  scope: StorageScope,
+  seedCommon: (() => SelfCheckAnswers['common']) | null,
+) {
+  const nextKey = scopedStorageKey(SELF_CHECK_STORAGE_KEY, scope)
+  if (state.loaded && nextKey === storageKey()) return
+  state.scope = scope
+  load()
+  if (!seedCommon) return
+  let stored: string | null = null
+  try {
+    stored = getLocalStorage()?.getItem(nextKey) ?? null
+  } catch {
+    stored = null
+  }
+  if (stored === null) replaceAll({ common: seedCommon(), programs: {} })
 }
 
 function persist(): boolean {
@@ -77,7 +109,7 @@ function persist(): boolean {
   if (!storage) return false
   try {
     const stored: StoredSelfChecks = { version: 1, ...state.answers }
-    storage.setItem(SELF_CHECK_STORAGE_KEY, JSON.stringify(stored))
+    storage.setItem(storageKey(), JSON.stringify(stored))
     return true
   } catch {
     return false
@@ -103,11 +135,17 @@ function setProgramAnswer(programId: string, ruleId: string, answer: RuleCheckAn
   persist()
 }
 
+/** 답 전체를 바꾸고 저장한다 (테스트 프로필 넣기·초기화용) */
+function replaceAll(answers: SelfCheckAnswers) {
+  state.answers = { common: { ...answers.common }, programs: { ...answers.programs } }
+  persist()
+}
+
 /** 직접 확인 모두 지우기 (프로필은 지우지 않는다) */
 function clearAll() {
   state.answers = { common: {}, programs: {} }
   try {
-    getLocalStorage()?.removeItem(SELF_CHECK_STORAGE_KEY)
+    getLocalStorage()?.removeItem(storageKey())
   } catch {
     // 저장소를 쓸 수 없으면 화면 상태만 비운다
   }
@@ -122,6 +160,8 @@ export function useSelfChecks() {
     ),
     setCommon,
     setProgramAnswer,
+    replaceAll,
     clearAll,
+    activateScope,
   }
 }

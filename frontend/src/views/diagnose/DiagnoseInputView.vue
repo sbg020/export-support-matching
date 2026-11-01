@@ -18,6 +18,7 @@ import InfoRow from '@/components/common/InfoRow.vue'
 import AppModal from '@/components/common/AppModal.vue'
 import StepProgress from '@/components/diagnose/StepProgress.vue'
 import ProfileStatusBadge from '@/components/diagnose/ProfileStatusBadge.vue'
+import TestAccountProfileNotice from '@/components/diagnose/TestAccountProfileNotice.vue'
 import StepBasicInfo from '@/components/diagnose/steps/StepBasicInfo.vue'
 import StepCompanySize from '@/components/diagnose/steps/StepCompanySize.vue'
 import StepExportStatus from '@/components/diagnose/steps/StepExportStatus.vue'
@@ -217,6 +218,7 @@ function resetAll() {
           서버로 전송하지 않으며, '다음'·'건너뛰기'·'임시 저장'을 누를 때 이 브라우저에 저장합니다. 사업자등록번호는
           저장하지 않습니다.
         </NoticeBanner>
+        <TestAccountProfileNotice />
         <!-- 지운 기존 기업 프로필 화면에만 있던 안내 (REVISION_03 §2.5): 저장소가 막혔을 때만 보인다 -->
         <NoticeBanner v-if="!store.state.storageAvailable" tone="warning" title="브라우저 저장소를 사용할 수 없습니다">
           사생활 보호 모드 등으로 저장소가 차단되어, 입력한 정보는 이 화면을 떠나면 사라질 수 있습니다.
