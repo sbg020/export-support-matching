@@ -6,6 +6,7 @@
 > 테스트 데이터 연결·수출단계 진단·자격 판정 v2·적합도 v0·커뮤니티·둘러보기·공고 비교 개선은 [docs/revisions/REVISION_02.md](docs/revisions/REVISION_02.md)가 대체한다(충돌 시 개정 문서 우선). 반영 현황은 [docs/revisions/revision_02_inventory.md](docs/revisions/revision_02_inventory.md) 참고.
 > 상단 메뉴·로그인 후 첫 화면·프로필 팝업·기업 프로필·지원사업 관리는 [docs/revisions/REVISION_03.md](docs/revisions/REVISION_03.md)가 대체한다(충돌 시 개정 문서 우선). 반영 현황은 [docs/revisions/revision_03_inventory.md](docs/revisions/revision_03_inventory.md) 참고.
 > 테스트 계정(TEST)·테스트 기업 프로필·업종 사전 보완·데이터 기준일 2026-10-15는 [docs/revisions/REVISION_03_TEST_ACCOUNT.md](docs/revisions/REVISION_03_TEST_ACCOUNT.md)가 대체한다(충돌 시 개정 문서 우선, 비밀번호는 가린 사본). 반영 현황은 [docs/revisions/revision_03_test_account_inventory.md](docs/revisions/revision_03_test_account_inventory.md) 참고.
+> 테스트 데이터 정리·기업 진단 삭제·맞춤 추천 개편·관리자 영역은 [docs/revisions/REVISION_04.md](docs/revisions/REVISION_04.md)가 대체한다(충돌 시 개정 문서 우선). 반영 현황은 [docs/revisions/revision_04_inventory.md](docs/revisions/revision_04_inventory.md) 참고.
 
 ## 1. 이번 작업의 목표와 완료 기준
 

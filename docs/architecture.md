@@ -5,7 +5,7 @@
 ## 1. 기본 원칙
 
 1. **신청 자격과 적합도는 분리합니다.** 설명 순서는 `실제 신청 자격 → 적합도 → 준비 부담/기회비용`입니다.
-2. **근거 없이 판정·추정하지 않습니다.** 공고 원문 근거(문장·쪽)나 데이터 상태, 규칙·기준 버전이 없으면 결과는 `null`이고 화면에는 `-`입니다. 테스트 데이터(정답 세트 초안)로 계산한 결과에는 `초안 기준`을 붙이고, 적합도에는 `시험용 기준 v0 · 검증 전`을 항상 함께 표시합니다.
+2. **근거 없이 판정·추정하지 않습니다.** 공고 원문 근거(문장·쪽)나 데이터 상태, 규칙·기준 버전이 없으면 결과는 `null`이고 화면에는 `-`입니다. 적합도에는 계산 기준의 상태(`시험용 기준 v0 · 검증 전`)를 항상 함께 표시합니다. REVISION_04에서 테스트 데이터셋과 `초안 기준` 표시를 지웠으므로 지금 사용자 화면에는 공고가 없습니다.
 3. **결측은 `null`입니다.** `''`, `0`, 오늘 날짜, 임의 URL을 결측 대신 저장하지 않습니다. 숫자 `0`과 `false`는 유효한 값입니다(예: 수출액 `0 USD`).
 4. **가상 데이터를 만들지 않습니다.** 빈 배열은 빈 상태 컴포넌트로 보여 주며, 샘플 공고·회사·일정을 채우지 않습니다.
 
@@ -19,12 +19,11 @@
 
 | 주 메뉴 (순서) | 하위 메뉴 | 경로 | 이름 | 로그인 |
 |---|---|---|---|---|
-| (홈) | - | `/` (로그인 상태면 `/roadmap`으로 이동) | `home` | 불필요 |
+| (홈) | - | `/` (로그인 상태면 `/roadmap`, 관리자는 `/admin`으로 이동) | `home` | 불필요 |
 | (로그인) | 로그인 / 회원가입 탭 | `/login` (`?mode=signup`, `?redirect=`) | `login` | - |
 | (프로필 팝업, 섹션 없음) | 기업 프로필 (기업정보 6단계 입력·저장) | `/profile` (`?step=1~6`) | `company-profile` | 불필요 |
 | 1. 수출 로드맵 | 수출 로드맵 | `/roadmap` | `roadmap` | 불필요 |
-| 2. 기업 맞춤 지원사업 | 기업 진단 | `/diagnose/result` | `diagnose-result` | 불필요 |
-| | 맞춤 추천 | `/programs/recommended` | `programs-recommended` | 불필요 |
+| 2. 기업 맞춤 지원사업 | 맞춤 추천 (하위 메뉴 1개, REVISION_04) | `/programs/recommended` (`?tab=eligible\|needs-check\|ineligible`) | `programs-recommended` | 불필요 |
 | 3. 전체 지원사업 | 전체 공고 (둘러보기, 하단 비교 영역 `#compare`) | `/programs` (필터 `q`, `status`, `stage`, `cat`, `agency`, `region`, `method`, `sort`, 비교 `compare`) | `programs` | 불필요 |
 | | 공고 달력 | `/programs/calendar` | `programs-calendar` | 불필요 |
 | | (하위 메뉴 아님) 공고 상세 | `/programs/:id` (`?from=recommended\|calendar\|manage`, 예전 `mypage`도 받음) | `program-detail` | 불필요 |
@@ -35,12 +34,27 @@
 | | (하위 메뉴 아님) 글쓰기 | `/community/:board(reviews\|info)/write` | `community-write` | 필요 |
 | | (하위 메뉴 아님) 글 보기 | `/community/:board(reviews\|info)/:postId` | `community-post` | 불필요 |
 
-내부 섹션 키는 `roadmap`·`find`·`programs`·`manage`·`community`이다(`find`는 화면 이름만 `기업 맞춤 지원사업`으로 바뀌었다).
+내부 섹션 키는 `roadmap`·`find`·`programs`·`manage`·`community`이다(`find`는 화면 이름만 `기업 맞춤 지원사업`으로 바뀌었다). 기업 진단 화면(`diagnose-result`)은 REVISION_04에서 없앴고, 수출단계·다음 단계 조건·기준 안내와 `판정 대상 공고` 수는 수출 로드맵에서 본다.
+
+### 관리자 영역 (REVISION_04)
+
+관리자 메뉴는 사용자 메뉴(`NAV_SECTIONS`)와 따로 `constants/adminNavigation.ts`의 `ADMIN_NAV_ITEMS`에 정의한다. 사용자 헤더·서랍·하위 메뉴 패널에는 관리자 항목이 나오지 않는다. 관리자 경로의 `meta`는 `{ title, layout: 'admin', adminMenu, requiresAdmin: true }`이고, `App.vue`는 `layout: 'admin'`이면 `AdminHeader`(로고 · 관리자 메뉴 6개 · `사용자 화면 보기` · 프로필)를 쓴다. 991px 이하와 터치 기기는 `MobileNavDrawer`(`variant="admin"`, 관리자 메뉴 6개 + `사용자 화면 보기`). 탭 제목은 `<제목> | 관리자 | 수출지원사업 매칭`.
+
+| 화면 | 경로 | 이름 |
+|---|---|---|
+| 관리자 홈 | `/admin` | `admin-home` |
+| 기업마당 API 수집 | `/admin/bizinfo` | `admin-bizinfo` |
+| KOTRA CSV 업로드 | `/admin/kotra` | `admin-kotra` |
+| 공고 검수 | `/admin/review` (`?id=`) | `admin-review` |
+| 공고 관리 | `/admin/notices` (`?source=`, `?status=`, `?q=`, `?page=`, 정답세트 일괄 반영 `#bulk`) | `admin-notices` |
+| 기준·설정 | `/admin/settings` | `admin-settings` |
 
 로그인·로그아웃 이동 규칙은 `router/index.ts`의 순수 함수 `authNavigationTarget`과 `lib/redirect.ts`의 `afterLoginPath`에 있다.
 
-- 로그인이 필요한 화면을 비로그인으로 열면 `/login?redirect=<그 화면>`으로 보낸다. 로그인하면 안전한 redirect(같은 사이트의 앱 경로, 로그인 화면 제외)로, 없거나 거부되면 `/roadmap`으로 간다.
-- 헤더 `로그인` 버튼과 홈의 `추천받기`(비로그인)는 redirect를 붙이지 않는다. 로그인 상태에서 `/`를 열면 `/roadmap`, `/login`을 열면 redirect 또는 `/roadmap`으로 간다.
+- 로그인이 필요한 화면·관리자 화면을 비로그인으로 열면 `/login?redirect=<그 화면>`으로 보낸다. 로그인하면 안전한 redirect(같은 사이트의 앱 경로, 로그인 화면 제외)로, 없거나 거부되면 기업 회원은 `/roadmap`, 관리자는 `/admin`으로 간다.
+- 관리자가 아닌 계정이 `/admin/*`을 열면 `/roadmap`으로 보내고 토스트 `관리자 계정만 볼 수 있는 화면입니다.`를 띄운다(`isAdminDenied`). 관리자가 아닌 계정의 로그인 redirect가 `/admin/*`이면 거부한다.
+- 관리자는 사용자 화면도 열 수 있다. 사용자 화면에서 관리자의 프로필 팝업은 `관리자 홈`·`로그아웃`이다.
+- 헤더 `로그인` 버튼과 홈의 `추천받기`(비로그인)는 redirect를 붙이지 않는다. 로그인 상태에서 `/`를 열면 `/roadmap`(관리자는 `/admin`), `/login`을 열면 redirect 또는 각 계정의 첫 화면으로 간다.
 - 로그아웃(프로필 팝업)은 서버 세션만 끝내고 `/`로 간다. 이 기기에 저장한 값은 지우지 않는다.
 
 기존 주소는 query·hash를 유지한 채 새 위치로 보낸다(`router/index.ts`의 `moved` 함수).
@@ -48,6 +62,7 @@
 | 기존 주소 | 새 주소 |
 |---|---|
 | `/programs/compare?ids=…` | `/programs?compare=…#compare` |
+| `/diagnose/result` | `/roadmap` (REVISION_04) |
 | `/diagnose` · `/diagnose/input` | `/profile` (`?step=` 유지) |
 | `/mypage` · `/mypage/profile` | `/profile` |
 | `/mypage/programs` | `/manage/programs` |
@@ -65,7 +80,8 @@ Vue Router history 모드이므로 배포 환경에서는 `/api/`를 제외한 �
 
 - `Program` (`program.ts`): 공고(세부사업이 있으면 세부사업 1개, `parentId`·`subProgramName`). 원문 파일(`sourceFile`), 접수기간·메모, 데이터 기준일(`receptionStatusAsOf`), 주관·수행·기관 유형, 지역(+시·군·구), 15개 세부 분야(`supportCategories`, C01~C15)와 파생 지원 단계(`supportPhases`), 지원방식(+원문 표현), 지원금·총사업비 한도·금액 메모, 자기부담, 정산 방식(`settlement`), 대상 수출단계, 자격 규칙·서류·가점(`bonusItems`), 그룹(`groupKey`·`relatedProgramIds`), 데이터 상태(`dataState`: `draft`·`reviewed`·`verified`). `stage`는 `@deprecated`. 확인되지 않은 필드는 `null`. 배열 필드의 `null`은 "확인 전", `[]`는 "원문상 해당 없음 확인".
 - `EligibilityRule` (v2): 정답 세트 `rules` 시트의 필드 이름을 그대로 씁니다. `kind`(필수·제외), `group`(같은 그룹 OR, 다른 그룹 AND), `scope`(일부 지원 항목), `field`·`op`·`value`·`unit`·`basis`, `certainty`(명확·애매), `commonCheckKey`(공통 확인 5가지)·`commonCheckUncovered`, `exceptionText`, 원문 근거(`source`: 문장·쪽).
-- 테스트 데이터셋 (`dataset.ts`): `frontend/src/data/test-dataset.json`과 같은 `meta`를 담은 `test-dataset.meta.json`. `tools/dataset/build_test_dataset.py`가 정답 세트 xlsx에서 결정적으로 만들며 손으로 고치지 않습니다.
+- 정답세트 형식 (`answerSet.ts`): 관리자 `공고 관리`의 정답세트 xlsx 검사(`lib/admin/answerSet.ts`)가 쓰는 시트·행 형식. 테스트 데이터셋 JSON(`src/data/test-dataset*.json`)과 `dataset.ts`는 REVISION_04에서 지웠습니다.
+- 관리자 (`admin.ts`): `AdminNoticeSummary`·`AdminDashboard`·`CollectionSettings`·`CollectionRun`·`UploadRecord`·`NoticeVersion`·`ReviewItem`·`DuplicateGroup`·`CriteriaSettings` (REVISION_04 §13.1).
 - `CompanyProfile` (`profile.ts`): 사용자가 입력한 기업정보. 금액 단위를 필드명에 붙입니다(`revenueKrw`, `exportUsdLastYear`).
 - 판정 결과 (`results.ts`): `EligibilityResult`(조건별 결과·그룹·일부 항목 조건·확인 필요 수·직접 확인 수·데이터 상태), `FitScoreResult`(항목별 반영값·가중치·기여·가점 보정·확인 필요 가점), `OpportunityCostResult`(서류 수·최대 자기부담·정산 방식·마감 여유), `ExportStageDiagnosis`(수출단계·기준 구간·측정 기간 안내·권장 지원 단계). 모두 근거·기준일·버전을 포함하며 자료가 부족하면 **객체 자체가 `null`**입니다.
 - 직접 확인 (`selfCheck.ts`), 커뮤니티 (`community.ts`: 게시판·글·댓글·후기 문항·후기 요약).
@@ -78,18 +94,16 @@ Vue Router history 모드이므로 배포 환경에서는 `/api/`를 제외한 �
 
 ```ts
 interface ProgramRepository {
-  source:
-    | { kind: 'not-connected' }
-    | { kind: 'api'; baseUrl: string }
-    | { kind: 'test-dataset'; asOf; datasetVersion; programCount; announcementCount; dataState }
+  source: { kind: 'not-connected' } | { kind: 'api'; baseUrl: string }
   list(query): Promise<{ items: Program[]; total: number | null }>
   getById(id): Promise<Program | null>
   getByIds(ids): Promise<Program[]>
 }
 ```
 
-- 선택 순서(`repositories/index.ts`): `VITE_API_BASE_URL`이 있으면 API → `VITE_DATA_SOURCE=test-dataset`이면 테스트 데이터셋 → 그 외 빈 저장소. 테스트 실행 환경은 `vitest.config.ts`에서 두 값을 비워 빈 저장소를 씁니다.
-- `StaticProgramRepository`: 테스트 데이터셋 JSON을 **동적 import**(별도 청크)로 읽고, 세부 분야에서 지원 단계·관심 분야를 채운 뒤 브라우저에서 검색·필터·정렬합니다. 지역 필터는 전국 대상 공고도 함께 통과시키고, `total`은 실제 결과 건수입니다. 마감 임박순은 이미 마감된 공고를 뒤에 둡니다.
+- 선택(`repositories/index.ts`): `VITE_API_BASE_URL`이 있으면 API, 없으면 빈 저장소. 테스트 데이터셋 분기(`VITE_DATA_SOURCE`)와 `StaticProgramRepository`는 REVISION_04에서 지웠습니다. 테스트 실행 환경은 `vitest.config.ts`에서 API 주소를 비워 빈 저장소를 씁니다.
+- `dataBasisDate(source)`: 접수 상태·남은 일수·업력 계산에 쓰는 데이터 기준일. 지금은 항상 `null`이고(시스템 날짜로 대신하지 않음), 다음 개정에서 API 응답의 `meta.asOf`를 돌려준다.
+- 브라우저 검색·필터·정렬 순수 함수(`filterPrograms`, `sortPrograms`, `matchesKeyword`, `compareProgramIds`, `normalizeProgram`)는 `lib/programQuery.ts`에 있다. 지역 필터는 전국 대상 공고도 함께 통과시키고, 마감 임박순은 이미 마감된 공고를 뒤에 둡니다. 테스트는 `__tests__/fixtures.ts`의 테스트 전용 공고를 쓰며 앱 번들에는 들어가지 않습니다.
 - 화면 공통 계산은 `composables/useProgramEvaluations.ts`가 전체 공고를 한 번 읽어 `lib/engine/evaluateAll.ts`로 자격·적합도·기회비용을 계산합니다(필터와 무관, 직접 확인 답 반영).
 - 그 밖의 경계: `CommunityRepository`(빈 구현, 서버 연결 시 HTTP 구현), `ViewEventSink`(조회 집계, 지금은 저장하지 않음).
 - 기본 구현 `EmptyProgramRepository`: 항상 `items: []`, `total: null`. **실제 데이터 부재**를 뜻하며 샘플이 아닙니다. 건수 `null`은 화면에 `-`로 나오며 "0건 매칭"으로 표시하지 않습니다.
@@ -114,7 +128,7 @@ interface ProgramRepository {
 - **수출단계 v1:** 중소벤처기업부 공고 제2025-634호 「2026년 중소기업 수출지원사업 통합공고」 3쪽 수출바우처 지원트랙(전년도 수출액 1,000불 / 10만불 / 100만불 / 500만불 경계). 원문 문구·쪽·확인일을 `ACTIVE_EXPORT_STAGE_CRITERIA.source`에 둡니다(사본 주소).
 - **적합도 v0 (시험용):** 관심분야 일치도 0.40 · 단계 일치도 0.30 · 내용 유사도(글자 2-gram TF-IDF 백분위) 0.30, 가점·감점 보정 ±10. 신청 불가 공고는 계산하지 않습니다. 재무 변수와 재무 군집은 쓰지 않습니다. 비교용 `fit-v0-equal`은 Precision@5 검증에만 씁니다.
 - 분야 체계(`constants/categories.ts`): 세부 분야 → 지원 단계 `category-phase-v0`, 수출단계 × 지원 단계 가중치 `stage-phase-v0`(◎ 1 · ○ 0.5 · · 0.2). 모두 검증 전 가설입니다.
-- 맞춤 추천 정렬(`compareRecommended`): 신청 가능 → 확인 필요 → 신청 불가 → 적합도 높은 순 → 마감 빠른 순 → ID.
+- 맞춤 추천(`components/programs/RecommendationList.vue`, REVISION_04): 검색·필터·정렬 없이 전체 공고를 `신청 가능 · 확인 필요 · 신청 불가` 탭으로 나눈다(`?tab=`). 기본 탭은 1건 이상인 첫 탭, 모두 0건이거나 `-`이면 `신청 가능`. 탭 안 정렬은 `compareRecommended`(적합도 높은 순 → 마감 빠른 순 → ID). 자격 판정 결과가 없는 공고는 어느 탭에도 넣지 않고 건수만 안내한다. 카드의 `지원 내용` 한 줄은 `supportContentLine`(쉬운 설명 → 세부 분야 이름 2개 + `외 n개` → `-`)이다.
 - 둘러보기(`lib/programHighlights.ts`): 새로 올라온 공고(게시일 기준 데이터 기준일 이전 30일, 접수중·예정, 같은 원공고·그룹 1줄, 최대 10)와 많이 본 공고(최근 7일 순 방문자, 하루 1회, 10명 이상 공고 3개 이상일 때만). 많이 본 공고는 서버 저장소가 없어 아직 집계하지 않습니다.
 
 ## 6. 사용자 데이터와 개인정보
@@ -148,8 +162,9 @@ interface ProgramRepository {
 - 아이디·비밀번호는 SHA-256 값을 `timingSafeEqual`로 비교하며 아이디는 대소문자를 구분한다. 실패 시 어느 쪽이 틀렸는지 알리지 않는다.
 - 세션은 `{ sub, iat, exp }`를 HMAC-SHA256으로 서명한 토큰을 `esm_session` 쿠키(`HttpOnly`, `SameSite=Lax`, `Path=/`, 12시간, 배포에서 `Secure`)에 담는다. 서명·만료·주체가 맞지 않으면 비로그인이다.
 - 브라우저 저장소에는 로그인 표시를 저장하지 않는다. 앱 시작 시 `/api/auth/me`로 한 번 확인한 뒤 `router.beforeEach`가 진행한다.
-- 계정은 데모(`DEMO_LOGIN_ID`·`DEMO_LOGIN_PASSWORD`)와 테스트(`TEST_LOGIN_ID`·`TEST_LOGIN_PASSWORD`, revision_03 테스트 계정) 두 개이며, 아이디·비밀번호가 둘 다 있는 계정만 쓴다. 모든 계정을 끝까지 비교한 뒤 판정하고, 세션 주체가 설정된 계정이 아니면 무효다. `login`·`me`는 `user: { id, role }`(`demo`|`test`)을 돌려준다.
-- 역할 `test`이면 화면이 기업 프로필·직접 확인 답을 계정 전용 키(`<기존 키>:account:<아이디>`)로 읽고 쓴다(`src/stores/accountScope.ts`). 그 키가 없을 때만 `src/data/testAccountProfile.ts` 값을 넣는다. 데모 계정·비로그인은 기존 키를 그대로 쓴다.
+- 계정은 관리자(`DEMO_LOGIN_ID`·`DEMO_LOGIN_PASSWORD`, 아이디 `ADMIN`, 역할 `admin`)와 테스트(`TEST_LOGIN_ID`·`TEST_LOGIN_PASSWORD`, revision_03 테스트 계정, 역할 `test`) 두 개이며, 아이디·비밀번호가 둘 다 있는 계정만 쓴다. 환경변수 이름은 REVISION_04에서도 그대로다. 모든 계정을 끝까지 비교한 뒤 판정하고, 세션 주체가 설정된 계정이 아니면 무효다. `login`·`me`는 `user: { id, role }`(`admin`|`test`)을 돌려준다.
+- 브라우저(`stores/authStore.ts`)는 `'admin'` → `admin`, `'test'` → `test`, 그 밖의 값 → `member`(관리자로 보지 않음, 앞으로 회원가입 회원용)로 읽고 `isAdmin`을 내보낸다. **브라우저의 역할은 화면 이동에만 쓴다.** 지금은 관리자 데이터 API가 없어 서버에 관리자 데이터도 없다. `/api/admin/*`을 만들 때 서버 함수가 세션 주체의 역할을 다시 확인하고 관리자가 아니면 403을 돌려준다.
+- 역할 `test`이면 화면이 기업 프로필·직접 확인 답을 계정 전용 키(`<기존 키>:account:<아이디>`)로 읽고 쓴다(`src/stores/accountScope.ts`). 그 키가 없을 때만 `src/data/testAccountProfile.ts` 값을 넣는다. 관리자 계정·비로그인은 기존 키를 그대로 쓴다.
 - 쓸 계정이 하나도 없거나 `AUTH_SESSION_SECRET`가 없으면 로그인 API는 503이며 코드 안의 기본값으로 대신하지 않는다. `VITE_` 접두사를 붙이지 않아 번들에 포함되지 않는다.
 - 회원가입은 회원 정보를 저장할 서버 DB가 생기면 같은 `redirect` 규칙으로 연결한다.
 
@@ -157,17 +172,46 @@ interface ProgramRepository {
 
 `frontend/src/components/`
 
-- 레이아웃: `AppHeader`(로고 · `TopNav` · `ProfileMenu`, 하위 메뉴 패널과 프로필 팝업 중 하나만 열림), `TopNav`(데스크톱 주 메뉴 5개와 하위 메뉴 패널), `ProfileMenu`(비로그인 `로그인` 버튼 / 로그인 프로필 버튼 → `기업 프로필`·`로그아웃` 팝업), `MobileNavDrawer` + `SidebarNav`(991px 이하 서랍 메뉴), `SectionNav`(화면 내 하위 메뉴), `PageHeader`(제목·한 줄 설명·하위 메뉴), `BrandLink`
+- 레이아웃: `AppHeader`(로고 · `TopNav` · `ProfileMenu`, 하위 메뉴 패널과 프로필 팝업 중 하나만 열림), `AdminHeader` + `AdminNav`(관리자 화면, REVISION_04), `TopNav`(데스크톱 주 메뉴 5개와 하위 메뉴 패널), `ProfileMenu`(비로그인 `로그인` 버튼 / 로그인 프로필 버튼 → `기업 프로필`·`로그아웃` 팝업), `MobileNavDrawer` + `SidebarNav`(991px 이하 서랍 메뉴), `SectionNav`(화면 내 하위 메뉴), `PageHeader`(제목·한 줄 설명·하위 메뉴), `BrandLink`
 - 표시: `DataValue`(결측 → `-`), `InfoList`/`InfoRow`, `StatTile`, `StatusBadge`(색 + 글자 + 아이콘), `EmptyState`, `NoticeBanner`
 - 동작: `ActionButton`(비활성 시 `aria-disabled` + 이유 연결), `DisabledReason`, `TabNav`(방향키 이동), `SegmentedControl`, `AppModal`(포커스 가두기·Esc 닫기)
 - 도메인: 단계 폼(`diagnose/steps/*`, `StepProgress`), 필터(`ProgramFilters`), 공고 카드(`ProgramCard`)·추천 카드(`RecommendationCard`) — 실제 공고가 있을 때만 렌더링, 비교 영역(`CompareSection` + `CompareTable`, 선택은 `useCompareSelection`), 캘린더(`MonthCalendar`, 일정은 `lib/calendarEvents.ts`), 관리 기록(`mypage/*Panel`, `ApplicationRecordTable`, 상태 정의는 `constants/applicationStatus.ts`. 폴더 이름 `views/mypage`·`components/mypage`는 그대로 두고 화면 이름만 `지원사업 관리`)
-- revision_02: `DataSourceNotice`(테스트 데이터 출처·기준일), `DraftTag`(초안 기준), `CategoryChips`, `ProgramHighlights`(둘러보기), `CommonChecksPanel`(공통 확인 사항), `EligibilityConditions`·`ConditionItem`·`SelfCheckControl`(조건별 판정·직접 확인), `FitBreakdownTable`(적합도 계산 근거), `DocumentChecklist`, `OpportunityCostGrid`, `ProgramReviewsSection`(참여 후기), `CompareDock`(하단 비교 바), `diagnose/ExportStageCriteriaNote`, `community/CommunityPostList`
+- revision_02: `CategoryChips`, `ProgramHighlights`(둘러보기), `CommonChecksPanel`(공통 확인 사항), `EligibilityConditions`·`ConditionItem`·`SelfCheckControl`(조건별 판정·직접 확인), `FitBreakdownTable`(적합도 계산 근거), `DocumentChecklist`, `OpportunityCostGrid`, `ProgramReviewsSection`(참여 후기), `CompareDock`(하단 비교 바), `diagnose/ExportStageCriteriaNote`, `community/CommunityPostList` (REVISION_04에서 `DataSourceNotice`·`DraftTag`·`ProfileSummary`를 지웠다)
+- revision_04: `RecommendationList`(맞춤 추천 탭·목록), 관리자 공통 `admin/AdminStoreNotice`(저장소 연결 상태 안내), `admin/StoreButton`(저장이 필요한 비활성 버튼 + 이유), `admin/AdminTable`(가로 스크롤 표), `admin/AdminFilePicker`(끌어다 놓기·파일 선택), `admin/AnswerSetSection`(정답세트 검사)
 - 디자인 토큰: `frontend/src/styles/tokens.css` (색·간격·반경·그림자·타이포). 브랜드 색은 채움·아이콘에 쓰고, 작은 글자·흰 글자 버튼에는 대비 4.5:1 이상인 `*-strong` 색을 쓴다.
+
+## 7-1. 관리자 데이터 경계 (REVISION_04)
+
+`frontend/src/repositories/admin/` — `AdminRepository`(인터페이스), `EmptyAdminRepository`(지금 구현), `index.ts`.
+
+- `source: { kind: 'not-connected' } | { kind: 'api'; baseUrl }`, `canWrite`.
+- 읽기: `getDashboard`, `getCollectionSettings`, `listCollectionRuns`, `listUploads(kind)`, `listReviewQueue`, `getReviewItem(id)`, `listNotices(query)`, `listDuplicateGroups`, `listNoticeVersions(id)`, `getCriteriaSettings`.
+- 쓰기: `runCollection`, `saveCollectionSettings`, `applyUpload`, `revertUpload`, `approve`, `reject`, `suspend`, `republish`, `merge`, `keepSeparate`, `saveCriteriaSettings`.
+- `EmptyAdminRepository`는 `canWrite: false`이고 읽기는 수치 `null`·목록 `[]`다. 화면은 `canWrite`가 거짓이면 저장 버튼을 비활성 + 이유로 둔다. 쓰기 메서드를 부르면 `Error('not-connected')`를 던지며 성공을 흉내 내지 않는다.
+- 브라우저 안에서 끝나는 동작은 실제로 동작한다: KOTRA CSV 양식(UTF-8 BOM + 머리글) 내려받기, CSV 읽기(UTF-8 → 깨지면 EUC-KR)와 행 검사(`lib/admin/kotraCsv.ts`의 `validateKotraCsv`), 정답세트 xlsx 읽기(`lib/admin/readWorkbook.ts`, SheetJS 공식 배포본 0.20.3을 관리자 화면에서만 지연 로드)와 검사(`lib/admin/answerSet.ts`의 `validateAnswerSet`, `tools/dataset/build_test_dataset.py` 규칙을 옮김), 가중치 합계·키워드 검증(`lib/admin/settings.ts`), 공고 관리 필터의 주소 반영.
+- 사용자 화면에는 `published` 공고만 보인다(다음 개정에서 API가 지킨다).
+
+### 관리자 API 계약 (다음 개정, 모두 관리자 세션 필요 — 서버가 역할을 확인하고 아니면 403)
+
+| 메서드 · 경로 | 용도 |
+|---|---|
+| `GET /api/admin/dashboard` | 관리자 홈 |
+| `GET·PUT /api/admin/bizinfo/settings` | 수집 주기·필터 |
+| `POST /api/admin/bizinfo/key` | 인증키 등록(응답에 키를 돌려주지 않음, 화면에는 끝 4자리만) |
+| `POST /api/admin/bizinfo/run` · `GET /api/admin/bizinfo/runs` | 지금 수집 · 수집 로그 |
+| `POST /api/admin/uploads` · `GET /api/admin/uploads` · `POST /api/admin/uploads/:id/revert` | KOTRA CSV·정답세트 반영, 이력, 되돌리기 |
+| `GET /api/admin/review` · `GET /api/admin/review/:id` · `POST /api/admin/review/:id/approve` · `…/reject` | 공고 검수 |
+| `GET /api/admin/notices` · `POST /api/admin/notices/:id/suspend` · `…/republish` · `GET /api/admin/notices/:id/versions` | 공고 관리 |
+| `GET /api/admin/duplicates` · `POST /api/admin/duplicates/:id/merge` · `…/keep` | 중복 병합 |
+| `GET·PUT /api/admin/settings` | 기준·설정 |
+| `GET /api/programs`, `GET /api/programs/:id` | 사용자 화면용, **게시 중 공고만**. 응답에 기준일(`meta.asOf`)을 넣어 `dataBasisDate`가 쓰게 한다 |
+
+저장소(Vercel에 연결하는 Postgres 또는 기존 `backend/` Django + PostgreSQL)는 다음 개정에서 정한다. 예약 수집은 한국 시간 설정을 UTC로 바꿔 등록한다. 기업마당 API 필드 대응은 REVISION_04 §13.3을 따르되 구현 전 공식 안내로 다시 확인한다.
 
 ## 8. 공고 데이터를 연결할 때 할 일
 
-1. 정답 세트를 검수(`review_status` 확인·수정·추가)하고 원문 URL을 `source_urls.csv`에 적은 뒤 `tools/dataset/build_test_dataset.py`로 JSON을 다시 만듭니다(`check_dataset_fresh.py`로 확인). 검수가 끝난 공고는 `dataState`가 `reviewed`·`verified`가 됩니다.
-2. PostgreSQL을 연결해 `python manage.py migrate`를 실행하고, 검증된 공고만 저장합니다.
-3. 프론트엔드 배포 환경변수 `VITE_API_BASE_URL`에 API 주소를 넣습니다.
+1. 공고 저장소와 `/api/admin/*`·`/api/programs` 서버 함수를 만들고(위 계약), `HttpAdminRepository`를 더해 관리자 화면의 저장 버튼을 켭니다.
+2. 검수 완료된 정답세트 xlsx를 관리자 `공고 관리` → `검수 완료 데이터 일괄 반영`(`#bulk`)으로 올립니다. 오류 0건일 때만 반영하며, 검수가 끝난 공고는 `게시 중`(`dataState` `reviewed`, 원문 주소·검수일이 있으면 `verified`), 검수 대기 행이 남은 공고는 `검수 대기`가 됩니다. KOTRA 공고는 `KOTRA CSV 업로드`, 기업마당 공고는 `기업마당 API 수집`으로 들어와 `공고 검수`에서 승인한 것만 게시됩니다.
+3. 프론트엔드 배포 환경변수 `VITE_API_BASE_URL`에 API 주소를 넣습니다(또는 같은 도메인의 `/api/programs`를 쓰도록 저장소 선택을 바꿉니다).
 4. 적합도 기준은 사람 평가(Precision@5)로 `fit-v0`·`fit-v0-equal`을 비교해 확정한 뒤 `status: 'verified'`로 바꿉니다.
 5. 관리 기록(`stores/applicationStore.ts`)과 서류함은 계정 기능이 생기면 서버 저장으로 옮깁니다. 이때도 브라우저의 기존 키는 지우지 않고 복사·병합합니다.

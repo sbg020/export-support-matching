@@ -20,3 +20,11 @@ REVISION_02.md
 **/dist
 **/.venv
 **/__pycache__
+
+# 루트의 개정 원본·자료 파일 (배포에 필요 없음, REVISION_04)
+REVISION_01.md
+REVISION_04.md
+.claude
+별첨자료2_구현결과
+/*.xlsx
+/*.pdf

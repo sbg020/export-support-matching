@@ -1,6 +1,6 @@
 # 배포 안내
 
-현재 배포 대상은 **프론트엔드(정적 SPA) + 로그인용 Vercel 서버 함수(`frontend/api/`)**입니다. 공고 데이터는 정답 세트 초안으로 만든 테스트 데이터셋(`frontend/src/data/test-dataset.json`, 사람 검수 전)을 빌드에 함께 넣으므로 Django 백엔드와 DB 없이 배포해 모든 화면을 확인할 수 있습니다 (REVISION_02).
+현재 배포 대상은 **프론트엔드(정적 SPA) + 로그인용 Vercel 서버 함수(`frontend/api/`)**입니다. REVISION_04에서 테스트 데이터셋을 지웠으므로 공고 데이터는 없고(빈 상태), Django 백엔드와 DB 없이 배포해 모든 화면과 관리자 영역(`/admin`)을 확인할 수 있습니다. 검수 완료된 최종 데이터는 공고 저장소를 연결한 뒤 관리자 화면에서 반영합니다.
 
 - Production: `https://exportsupportmatching.vercel.app/` (Vercel 프로젝트 `exportsupportmatching`, 팀 `sbg020`)
 - GitHub: `https://github.com/sbg020/export-support-matching`
@@ -36,15 +36,16 @@ git push -u origin main
 
    | 이름 | 값 | 비고 |
    |---|---|---|
-   | `DEMO_LOGIN_ID` | 데모 아이디 | 대소문자 구분 |
-   | `DEMO_LOGIN_PASSWORD` | 데모 비밀번호 | 문서·커밋에 적지 않음 |
+   | `DEMO_LOGIN_ID` | 관리자 계정 아이디 (`ADMIN`) | 대소문자 구분. 이 계정의 역할이 `admin`이다 (관리자 영역 `/admin`) |
+   | `DEMO_LOGIN_PASSWORD` | 관리자 계정 비밀번호 | 문서·커밋에 적지 않음 |
    | `TEST_LOGIN_ID` | `TEST` | 테스트 계정 (대소문자 구분) |
    | `TEST_LOGIN_PASSWORD` | 테스트 계정 비밀번호 | 문서·커밋에 적지 않음. 둘 중 하나라도 없으면 테스트 계정만 로그인 불가 |
    | `AUTH_SESSION_SECRET` | `openssl rand -base64 32` 결과 | Production과 Preview에 **서로 다른 값** |
-   | `VITE_DATA_SOURCE` | `test-dataset` | 테스트 데이터셋 사용. 비우면 공고 없음 상태로 빌드 |
-   | `VITE_API_BASE_URL` | (공고 API가 생기면) | 지금은 넣지 않음. 넣으면 테스트 데이터보다 우선 |
+   | `VITE_API_BASE_URL` | (공고 API가 생기면) | 지금은 넣지 않음. 비우면 공고 없음 상태로 빌드 |
 
-   서버 전용 값에는 `VITE_` 접두사를 붙이지 않습니다. `VITE_` 값은 빌드 시점에 번들에 들어가므로, 환경변수는 추가·변경한 뒤 **다시 배포해야** 적용됩니다. CLI로 넣을 때는 연결(`.vercel/`)이 있는 **저장소 루트**에서 `npx vercel env add <이름> production` / `preview`를 실행합니다. Vercel 빌드에서는 Python 변환을 실행하지 않으므로 테스트 데이터셋 JSON은 커밋된 파일을 그대로 씁니다.
+   `VITE_DATA_SOURCE`는 REVISION_04에서 지웠습니다(Production·Preview 모두). 앱은 이 값을 더 읽지 않습니다.
+
+   서버 전용 값에는 `VITE_` 접두사를 붙이지 않습니다. `VITE_` 값은 빌드 시점에 번들에 들어가므로, 환경변수는 추가·변경한 뒤 **다시 배포해야** 적용됩니다. CLI로 넣을 때는 연결(`.vercel/`)이 있는 **저장소 루트**에서 `npx vercel env add <이름> production` / `preview`를 실행합니다(지울 때는 `npx vercel env rm <이름> production`).
 4. **Deploy**를 누르면 배포 URL이 생깁니다. Vercel 프로젝트를 GitHub 저장소와 연결(Git Integration)하면 이후 `main` 푸시는 운영 배포, 다른 브랜치·PR은 미리보기 URL이 자동으로 생깁니다. 현재 프로젝트는 Git 자동 배포가 연결되어 있지 않아 아래 CLI 방식으로 배포합니다.
 
 하위 경로를 직접 열거나 새로고침해도 앱이 열리도록 `frontend/vercel.json`에 다음 rewrite가 들어 있습니다. `/api/`는 서버 함수가 처리하도록 제외합니다. Vercel은 실제 파일(`/assets/*` 등)을 먼저 제공하고, 없는 경로만 `index.html`로 보냅니다.
@@ -53,7 +54,7 @@ git push -u origin main
 { "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }] }
 ```
 
-CLI로 배포할 때는 프로젝트의 Root Directory가 `frontend`이므로 **저장소 루트**에서 실행합니다. 루트의 `.vercelignore`가 비밀값·로컬 파일(`.env.local`, 원본 `revision_01.md`)과 `backend/`·`node_modules/` 등을 업로드에서 뺍니다.
+CLI로 배포할 때는 프로젝트의 Root Directory가 `frontend`이므로 **저장소 루트**에서 실행합니다. 루트의 `.vercelignore`가 비밀값·로컬 파일(`.env.local`, 원본 개정 문서)과 `backend/`·`node_modules/`, 루트의 정답세트 xlsx·발표 PDF·`별첨자료2_구현결과/` 등을 업로드에서 뺍니다.
 
 ```bash
 npx vercel link --project export_support_matching   # 처음 한 번 (루트에 .vercel/ 생성, Git 제외)
@@ -69,14 +70,18 @@ npx vercel deploy --prod    # 운영 (exportsupportmatching.vercel.app)
 
 - `/` — 한 줄 소개 → 이용 방법 3단계 → `추천받기`, 상단 한 줄 헤더의 주 메뉴 5개(수출 로드맵 · 기업 맞춤 지원사업 · 전체 지원사업 · 지원사업 관리 · 커뮤니티, 아이콘 없음)와 마우스를 올렸을 때 펼쳐지는 하위 메뉴. 왼쪽 사이드바가 없는지
 - `/login` — 테스트 계정 `TEST` 로그인 후 `/profile`에 `테스트 계정(TEST)의 기업 프로필입니다` 안내와 `EC 테스트식품(주)`, `/roadmap` 현재 단계 `내수`, 소문자 `test` 실패. 로그아웃하면 기기 공용 프로필로 돌아오는지
-- `/login` — 데모 계정 로그인 후 `/roadmap`이 첫 화면인지, 틀린 비밀번호·소문자 아이디 실패, 회원가입 탭은 비활성과 이유 표시. 로그인 상태에서 `/`를 열면 `/roadmap`, 프로필 버튼 팝업(`기업 프로필`·`로그아웃`), 로그아웃 후 홈
-- `/profile`(기업 프로필, 로그인 불필요), `/diagnose/result`, `/programs/recommended`, `/programs`(하단 `#compare`), `/programs/calendar`, `/programs/아무-ID`, `/roadmap`
+- `/login` — 관리자 계정 `ADMIN` 로그인 후 `/admin`(관리자 홈)이 첫 화면인지, 관리자 메뉴 6개 화면, `사용자 화면 보기`, 프로필 팝업(`관리자 홈`·`로그아웃`), 로그아웃 후 홈. 틀린 비밀번호·소문자 아이디 실패, 회원가입 탭은 비활성과 이유 표시
+- `TEST`로 로그인한 상태에서 `/admin`을 열면 `/roadmap`과 안내 `관리자 계정만 볼 수 있는 화면입니다.`. 비로그인 `/admin/review` → 로그인 화면 → `ADMIN`으로 로그인하면 `/admin/review`로 돌아오는지
+- `/programs`, `/programs/recommended`, `/programs/calendar`, `/roadmap` — 테스트 데이터 안내 카드·`초안 기준`이 없고, 공고 없음 빈 상태, 건수 `-`. 맞춤 추천은 `신청 가능 · 확인 필요 · 신청 불가` 탭(건수 `-`)이고 검색창·필터·정렬이 없는지
+- `/programs/P001` — `해당 공고를 찾을 수 없습니다.` / `/diagnose/result` → `/roadmap`, 상단 `기업 맞춤 지원사업`의 하위 메뉴가 맞춤 추천 하나인지
+- `/admin/kotra` — 양식 내려받기, CSV 미리보기·오류 표시. `/admin/notices#bulk` — 정답세트 xlsx 검사 결과
+- `/profile`(기업 프로필, 로그인 불필요), `/programs`(하단 `#compare`), `/programs/아무-ID`
 - 로그인 후 `/manage/programs?tab=applied`, `/manage/documents` (로그아웃 상태에서는 로그인 화면으로 이동하고, 로그인하면 그 화면으로 돌아옴)
-- 테스트 데이터: `/programs` 상단에 `테스트 데이터 · 기업마당 수출지원 공고 60건(검수 전 초안) · 기준일 2026-10-15 (PoC 데이터 기준)`, 검색 결과 `68건`, 둘러보기의 새로 올라온 공고. `/programs/P001`, `/programs/P004-01`(세부사업)이 직접 열리는지
 - 커뮤니티: `/community` → `/community/reviews`, 두 게시판의 빈 상태, 비로그인 `글쓰기` → 로그인 후 같은 게시판으로 복귀, `/community/free/1`은 `페이지를 찾을 수 없음`
 - 기존 주소 `/programs/compare`, `/diagnose/input?step=2`, `/mypage`, `/mypage/profile`, `/mypage/programs`, `/mypage/documents`, `/mypage/saved`, `/mypage/preparation`, `/mypage/history`, `/mypage/calendar`가 새 위치(`/profile`, `/manage/*`, `/programs/calendar`)로 이동하는지
 - 세션 쿠키 `esm_session`이 `HttpOnly`, `Secure`, `SameSite=Lax`인지 (브라우저 개발자 도구 → Application → Cookies)
-- 모바일(폭 360px)에서 한 줄 헤더와 서랍 메뉴(새 순서·이름), 하위 메뉴 가로 스크롤, 비교 영역·하단 비교 바, 달력, 탭, 세부 분야 필터, 조건 목록 사용 가능 여부
+- 배포 JS에서 비밀번호·세션 키가 검색되지 않고, 서버 전용 변수에 `VITE_` 접두사가 없는지
+- 모바일(폭 360px)에서 한 줄 헤더와 서랍 메뉴(사용자 5개 / 관리자 6개 + 사용자 화면 보기), 관리자 표 가로 스크롤, 하위 메뉴 가로 스크롤, 비교 영역·하단 비교 바, 달력, 탭, 세부 분야 필터, 조건 목록 사용 가능 여부
 
 ## 4. 백엔드·DB 배포 (공고 데이터 연결 시)
 
