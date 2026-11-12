@@ -18,7 +18,7 @@ import {
   detectPersonalInfo,
 } from '@/constants/community'
 import { communityRepository } from '@/repositories/communityRepository'
-import { matchesKeyword } from '@/repositories/staticProgramRepository'
+import { matchesKeyword } from '@/lib/programQuery'
 import { useProgramEvaluations } from '@/composables/useProgramEvaluations'
 import { programTitleText } from '@/lib/programDisplay'
 import type { CommunityBoard, ReviewAnswers } from '@/types/community'

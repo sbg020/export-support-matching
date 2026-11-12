@@ -1,23 +1,16 @@
 import { categoryName, deriveSupportAreas, deriveSupportPhases } from '@/constants/categories'
-import type { DatasetMeta, DatasetProgram, TestDatasetFile } from '@/types/dataset'
-import type { Program, ProgramListResult, ProgramQuery, ProgramSort } from '@/types/program'
-import type { DataSourceStatus, ProgramRepository } from './programRepository'
+import type { Program, ProgramQuery, ProgramSort } from '@/types/program'
 
 /*
- * 정답 세트 초안에서 만든 테스트 데이터셋(사람 검수 전)을 읽는 저장소.
- * 검색·필터·정렬은 브라우저에서 한다. 추천순은 ID순으로 돌려주고, 화면이 자격·적합도로 다시 정렬한다.
+ * 공고 목록의 검색·필터·정렬 (순수 함수).
+ * 전체 공고 정렬과 다음 개정의 API 저장소·관리자 화면에서 다시 쓴다 (REVISION_04 §3.3).
  */
 
-export type DatasetLoader = () => Promise<TestDatasetFile>
+/** 원천 공고 (정답세트·업로드 등). 지원 단계·관심 분야·stage는 normalizeProgram이 채운다 */
+export type RawProgram = Omit<Program, 'stage' | 'supportPhases' | 'supportAreas'>
 
-/** 테스트 데이터셋 JSON을 별도 청크로 읽는다 (첫 화면 번들에 넣지 않음) */
-export async function loadTestDataset(): Promise<TestDatasetFile> {
-  const module = await import('@/data/test-dataset.json?raw')
-  return JSON.parse(module.default) as TestDatasetFile
-}
-
-/** JSON 공고에 지원 단계·관심 분야(세부 분야에서 파생)를 채운다 */
-export function normalizeDatasetProgram(raw: DatasetProgram): Program {
+/** 원천 공고에 지원 단계·관심 분야(세부 분야에서 파생)를 채운다 */
+export function normalizeProgram(raw: RawProgram): Program {
   return {
     ...raw,
     stage: null,
@@ -114,51 +107,4 @@ export function sortPrograms(programs: readonly Program[], sort: ProgramSort): P
     })
   }
   return copy.sort(byId)
-}
-
-export class StaticProgramRepository implements ProgramRepository {
-  readonly source: DataSourceStatus
-  private loading: Promise<Program[]> | null = null
-
-  constructor(
-    meta: DatasetMeta,
-    private readonly loader: DatasetLoader = loadTestDataset,
-  ) {
-    this.source = {
-      kind: 'test-dataset',
-      asOf: meta.asOf,
-      datasetVersion: meta.datasetVersion,
-      programCount: meta.counts.programs,
-      announcementCount: meta.counts.announcements,
-      dataState: meta.dataState,
-    }
-  }
-
-  private all(): Promise<Program[]> {
-    if (!this.loading) {
-      this.loading = this.loader()
-        .then((file) => file.programs.map(normalizeDatasetProgram))
-        .catch((error: unknown) => {
-          this.loading = null
-          throw error
-        })
-    }
-    return this.loading
-  }
-
-  async list(query: ProgramQuery): Promise<ProgramListResult> {
-    const items = sortPrograms(filterPrograms(await this.all(), query), query.sort)
-    return { items, total: items.length }
-  }
-
-  async getById(id: string): Promise<Program | null> {
-    return (await this.all()).find((program) => program.id === id) ?? null
-  }
-
-  async getByIds(ids: string[]): Promise<Program[]> {
-    const all = await this.all()
-    return ids
-      .map((id) => all.find((program) => program.id === id))
-      .filter((program): program is Program => program !== undefined)
-  }
 }

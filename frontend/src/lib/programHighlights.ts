@@ -11,7 +11,7 @@ import type { IsoDate } from '@/types/common'
 import type { Program } from '@/types/program'
 import type { ProgramViewEvent } from '@/repositories/viewEventSink'
 import { daysBetween } from '@/lib/engine/opportunityCost'
-import { compareProgramIds } from '@/repositories/staticProgramRepository'
+import { compareProgramIds } from '@/lib/programQuery'
 
 export const NEW_PROGRAM_WINDOW_DAYS = 30
 export const HIGHLIGHT_LIMIT = 10
