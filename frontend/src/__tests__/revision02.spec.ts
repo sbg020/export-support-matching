@@ -1,27 +1,21 @@
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { routes } from '@/router'
-import datasetMeta from '@/data/test-dataset.meta.json'
-import { StaticProgramRepository, filterPrograms, sortPrograms } from '@/repositories/staticProgramRepository'
-import { createEmptyQuery, type DataSourceStatus } from '@/repositories'
+import { filterPrograms, sortPrograms } from '@/lib/programQuery'
+import { createEmptyQuery } from '@/repositories'
 import { viewEventSink } from '@/repositories/viewEventSink'
 import { selectNewPrograms, rankMostViewed, MIN_UNIQUE_VISITORS } from '@/lib/programHighlights'
-import { selfPaymentMax } from '@/lib/engine/opportunityCost'
 import { compareToggleMessage, useCompareSelection } from '@/composables/useCompareSelection'
 import { COMPARE_ROW_GROUPS, compareCellText, type CompareSlot } from '@/components/programs/compareRows'
 import { SELF_CHECK_STORAGE_KEY, readSelfChecks, useSelfChecks } from '@/stores/selfCheckStore'
 import { createEmptyProfile } from '@/lib/profile'
 import { detectPersonalInfo } from '@/constants/community'
 import { summarizeReviews } from '@/lib/reviewStats'
-import DataSourceNotice from '@/components/common/DataSourceNotice.vue'
 import CompareDock from '@/components/programs/CompareDock.vue'
 import ApplicationRecordTable from '@/components/mypage/ApplicationRecordTable.vue'
 import CommunityBoardView from '@/views/community/CommunityBoardView.vue'
 import CommunityWriteView from '@/views/community/CommunityWriteView.vue'
-import type { DatasetMeta, TestDatasetFile } from '@/types/dataset'
 import type { Program } from '@/types/program'
 import type { ApplicationRecord } from '@/types/tracking'
 import { blankProgram, draftProgram } from './fixtures'
@@ -29,86 +23,6 @@ import { blankProgram, draftProgram } from './fixtures'
 function makeRouter() {
   return createRouter({ history: createMemoryHistory(), routes })
 }
-
-// 실제 테스트 데이터셋(정답 세트 초안). 화면 번들과 같은 파일을 실행 시점에 읽는다.
-const datasetFile = JSON.parse(
-  readFileSync(resolve(process.cwd(), 'src/data/test-dataset.json'), 'utf8'),
-) as TestDatasetFile
-const repository = new StaticProgramRepository(datasetMeta as DatasetMeta, async () => datasetFile)
-
-describe('테스트 데이터셋', () => {
-  let programs: Program[] = []
-  beforeEach(async () => {
-    programs = (await repository.list(createEmptyQuery())).items
-  })
-
-  it('meta의 건수·기준일과 실제 행이 같고, 모두 검수 전 초안이다', () => {
-    expect(repository.source).toMatchObject({ kind: 'test-dataset', asOf: '2026-10-15', programCount: 68, announcementCount: 60 })
-    expect(programs).toHaveLength(datasetFile.meta.counts.programs)
-    expect(new Set(programs.map((p) => p.parentId)).size).toBe(datasetFile.meta.counts.announcements)
-    expect(programs.every((p) => p.dataState === 'draft' && p.receptionStatusAsOf === '2026-10-15')).toBe(true)
-  })
-
-  it('정답 세트에 없는 값은 모두 null이다', () => {
-    for (const field of ['summaryEasy', 'targetDescription', 'useExamples', 'obligations', 'prepEstimate', 'sourceUrl'] as const) {
-      expect({ field, ids: programs.filter((p) => p[field] !== null).map((p) => p.id) }).toEqual({ field, ids: [] })
-    }
-  })
-
-  it('지원 단계·관심 분야는 세부 분야에서 파생한다', () => {
-    const p = programs.find((x) => x.supportCategories?.includes('C13'))
-    expect(p?.supportPhases).toEqual(expect.arrayContaining(['market-entry', 'execution']))
-    expect(p?.supportAreas).toContain('logistics')
-  })
-
-  it('접수상태 분포 (기준일 2026-10-15, PoC 데이터 기간 중간)', () => {
-    const count = (s: Program['receptionStatus']) => programs.filter((p) => p.receptionStatus === s).length
-    expect([count('open'), count('closed'), count(null)]).toEqual([58, 0, 10])
-  })
-
-  it('공통 확인 키별 규칙 수가 문서와 같고 모두 제외 조건이다', () => {
-    const rules = new Map(programs.flatMap((p) => (p.eligibilityRules ?? []).map((r) => [r.id, r] as const)))
-    expect(rules.size).toBe(548)
-    const withKey = [...rules.values()].filter((r) => r.commonCheckKey)
-    expect(withKey).toHaveLength(96)
-    expect(withKey.every((r) => r.kind === 'exclusion')).toBe(true)
-    const byKey = (key: string) => withKey.filter((r) => r.commonCheckKey?.includes(key as never)).length
-    expect(['closure', 'tax-arrears', 'credit', 'sanction', 'financial-health'].map(byKey)).toEqual([25, 34, 36, 21, 6])
-    expect(rules.get('P005-R11')?.commonCheckKey).toBeNull()
-    expect([...rules.values()].filter((r) => r.commonCheckUncovered.length > 0).map((r) => r.id)).toEqual([
-      'P006-R05',
-      'P022-R11',
-      'P100-R07',
-      'P124-R09',
-    ])
-    expect([...rules.values()].filter((r) => r.exceptionText).length).toBe(14)
-  })
-
-  it('정산 방식 26행(P001만 mixed), 최대 자기부담 4행', () => {
-    const settled = programs.filter((p) => p.settlement)
-    expect(settled).toHaveLength(26)
-    expect(settled.filter((p) => p.settlement?.type === 'mixed').map((p) => p.id)).toEqual(['P001'])
-    const max = programs.map((p) => [p.id, selfPaymentMax(p)?.value ?? null] as const).filter(([, v]) => v !== null)
-    expect(max).toEqual([
-      ['P001', 4_500_000],
-      ['P006', 1_125_000],
-      ['P009', 12_000_000],
-      ['P028-01', 500_000],
-    ])
-    for (const id of ['P010', 'P011', 'P025']) expect(selfPaymentMax(programs.find((p) => p.id === id)!)).toBeNull()
-  })
-
-  it('공고별 검색·필터·정렬은 실제 건수를 돌려준다', async () => {
-    const query = { ...createEmptyQuery(), regions: ['gyeonggi' as const] }
-    const result = await repository.list(query)
-    expect(result.total).toBe(result.items.length)
-    // 선택한 지역 공고와 함께 전국 공고도 통과한다
-    expect(result.items.some((p) => p.regions?.includes('nationwide'))).toBe(true)
-    expect(result.items.every((p) => p.regions?.some((r) => r === 'gyeonggi' || r === 'nationwide'))).toBe(true)
-    expect(await repository.getById('P004-01')).not.toBeNull()
-    expect((await repository.getByIds(['P001', '없는-ID'])).map((p) => p.id)).toEqual(['P001'])
-  })
-})
 
 describe('저장소의 필터·정렬 (테스트 전용 공고)', () => {
   const programs = [
@@ -123,6 +37,16 @@ describe('저장소의 필터·정렬 (테스트 전용 공고)', () => {
     expect(filterPrograms(programs, { ...createEmptyQuery(), keyword: '물류' }).map((p) => p.id)).toEqual(['B'])
   })
 
+  it('지역 필터는 선택한 지역 공고와 전국 공고를 함께 통과시킨다', () => {
+    const withRegions = [
+      draftProgram({ id: 'R1', regions: ['gyeonggi'] }),
+      draftProgram({ id: 'R2', regions: ['nationwide'] }),
+      draftProgram({ id: 'R3', regions: ['busan'] }),
+      draftProgram({ id: 'R4', regions: null }),
+    ]
+    expect(filterPrograms(withRegions, { ...createEmptyQuery(), regions: ['gyeonggi'] }).map((p) => p.id)).toEqual(['R1', 'R2'])
+  })
+
   it('마감순은 마감일 없는 공고를 뒤에 두고, 이미 마감된 공고는 맨 뒤로 보낸다', () => {
     expect(sortPrograms(programs, 'deadline').map((p) => p.id)).toEqual(['C', 'A', 'B'])
     const withClosed = [...programs, draftProgram({ id: 'D', applyEnd: '2030-05-01', receptionStatus: 'closed' })]
@@ -131,17 +55,24 @@ describe('저장소의 필터·정렬 (테스트 전용 공고)', () => {
 })
 
 describe('새로 올라온 공고 · 많이 본 공고', () => {
-  it('실제 데이터: 30일 창·접수중/예정·최대 10줄, 게시일 미확인 건수', async () => {
-    const programs = (await repository.list(createEmptyQuery())).items
-    const result = selectNewPrograms(programs, '2026-10-30')
-    expect(result.excludedNoDate).toBe(18)
-    expect(result.items.length).toBeLessThanOrEqual(10)
+  it('30일 창·접수중/예정·최대 10줄, 게시일 미확인 건수 (테스트 전용 공고)', () => {
+    const programs = [
+      ...Array.from({ length: 12 }, (_, i) =>
+        draftProgram({ id: `N${i + 1}`, sourcePublishedAt: `2030-06-${String(10 + i).padStart(2, '0')}`, receptionStatus: 'open' }),
+      ),
+      draftProgram({ id: 'S1', parentId: 'S', sourcePublishedAt: '2030-06-25', receptionStatus: 'upcoming' }),
+      draftProgram({ id: 'S2', parentId: 'S', sourcePublishedAt: '2030-06-24', receptionStatus: 'upcoming' }),
+      draftProgram({ id: 'NODATE', sourcePublishedAt: null, receptionStatus: 'open' }),
+    ]
+    const result = selectNewPrograms(programs, '2030-06-30')
+    expect(result.excludedNoDate).toBe(1)
+    expect(result.items).toHaveLength(10)
     for (const line of result.items) {
       expect(['open', 'upcoming']).toContain(line.program.receptionStatus)
-      expect(line.program.sourcePublishedAt! >= '2026-09-30').toBe(true)
+      expect(line.program.sourcePublishedAt! >= '2030-05-31').toBe(true)
     }
-    // P057-01·P057-02는 같은 원공고라 1줄로 묶인다
-    expect(result.items.filter((l) => l.program.parentId === 'P057')).toHaveLength(1)
+    // S1·S2는 같은 원공고라 1줄로 묶인다
+    expect(result.items.filter((l) => l.program.parentId === 'S')).toHaveLength(1)
   })
 
   it('같은 그룹은 최근 게시 공고를 대표로 묶고, 기간 밖 공고로 채우지 않는다', () => {
@@ -300,26 +231,6 @@ describe('직접 확인 저장', () => {
     checks.clearAll()
     expect(localStorage.getItem(SELF_CHECK_STORAGE_KEY)).toBeNull()
     expect(checks.hasAny.value).toBe(false)
-  })
-})
-
-describe('데이터 출처 안내', () => {
-  it('테스트 데이터일 때 meta의 건수·기준일로 한 줄 안내를 보여 준다', () => {
-    const status: DataSourceStatus = {
-      kind: 'test-dataset',
-      asOf: datasetMeta.asOf,
-      datasetVersion: datasetMeta.datasetVersion,
-      programCount: datasetMeta.counts.programs,
-      announcementCount: datasetMeta.counts.announcements,
-      dataState: 'draft',
-    }
-    const wrapper = mount(DataSourceNotice, { props: { status } })
-    expect(wrapper.text()).toContain('테스트 데이터 · 기업마당 수출지원 공고 60건(검수 전 초안) · 기준일 2026-10-15 (PoC 데이터 기준)')
-  })
-
-  it('데이터가 연결되지 않았으면 아무것도 그리지 않는다', () => {
-    const wrapper = mount(DataSourceNotice)
-    expect(wrapper.find('aside').exists()).toBe(false)
   })
 })
 

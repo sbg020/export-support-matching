@@ -18,7 +18,6 @@ describe('경로', () => {
       '/': 'home',
       '/login': 'login',
       '/profile': 'company-profile',
-      '/diagnose/result': 'diagnose-result',
       '/programs/recommended': 'programs-recommended',
       '/programs': 'programs',
       '/programs/calendar': 'programs-calendar',
@@ -79,7 +78,6 @@ describe('경로', () => {
     expect(router.resolve('/').meta.section).toBeUndefined()
     expect(router.resolve('/profile').meta.section).toBeUndefined()
     expect(router.resolve('/roadmap').meta.section).toBe('roadmap')
-    expect(router.resolve('/diagnose/result').meta.section).toBe('find')
     expect(router.resolve('/programs/recommended').meta.section).toBe('find')
     expect(router.resolve('/programs/calendar').meta.section).toBe('programs')
     expect(router.resolve('/programs/abc').meta.section).toBe('programs')

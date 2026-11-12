@@ -1,16 +1,11 @@
 /*
  * revision_03 테스트 계정(TEST): 테스트 프로필 · 계정별 저장 · 기대 결과(§6) · 업종 사전(§6.3)
  *
- * - 판정·적합도는 현재 엔진이 실제 테스트 데이터셋(정답 세트 초안)으로 계산한 값이다. 결과를 저장해 두지 않는다.
- * - §6 기대값과 다른 공고는 docs/revisions/revision_03_test_account_inventory.md §5에 원인과 함께 적었다.
+ * - REVISION_04에서 공고 데이터(테스트 데이터셋)를 지웠다. §6 기대 결과(추천 9건) 검증은 테스트 전용 공고로 대신한다.
  * - 비밀번호는 다루지 않는다(서버 테스트 server/__tests__/auth.spec.ts가 테스트 전용 값으로 확인한다).
  */
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { StaticProgramRepository } from '@/repositories/staticProgramRepository'
-import { createEmptyQuery } from '@/repositories'
-import { evaluateAll, type EvaluationSet } from '@/lib/engine/evaluateAll'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { evaluateAll } from '@/lib/engine/evaluateAll'
 import { evaluateEligibility } from '@/lib/engine/eligibility'
 import { PROFILE_STORAGE_KEY, assessProfile, createEmptyProfile, serializeProfile, createEmptyMeta } from '@/lib/profile'
 import { createTestAccountCommonChecks, createTestAccountProfile } from '@/data/testAccountProfile'
@@ -18,9 +13,8 @@ import { applyAccountScope, resetTestAccountData } from '@/stores/accountScope'
 import { useProfileStore } from '@/stores/profileStore'
 import { SELF_CHECK_STORAGE_KEY, useSelfChecks } from '@/stores/selfCheckStore'
 import { useAuth } from '@/stores/authStore'
-import datasetMeta from '@/data/test-dataset.meta.json'
-import type { DatasetMeta, TestDatasetFile } from '@/types/dataset'
-import type { Program } from '@/types/program'
+import { deriveSupportAreas, deriveSupportPhases } from '@/constants/categories'
+import type { SupportCategoryCode } from '@/types/program'
 import { draftProgram, rule } from './fixtures'
 
 const TEST_USER = { id: 'TEST', role: 'test' } as const
@@ -52,91 +46,41 @@ describe('테스트 프로필 (§4)', () => {
   })
 })
 
-describe('테스트 계정 기대 결과 (§6, 기준일 2026-10-15)', () => {
-  let programs: Program[] = []
-  let set: EvaluationSet
-  const status = (id: string) => set.byId.get(id)?.eligibility?.status
-  const condition = (id: string, ruleId: string) =>
-    set.byId.get(id)?.eligibility?.conditions.find((c) => c.ruleId === ruleId)
-
-  beforeAll(async () => {
-    const file = JSON.parse(readFileSync(resolve(process.cwd(), 'src/data/test-dataset.json'), 'utf8')) as TestDatasetFile
-    const repository = new StaticProgramRepository(datasetMeta as DatasetMeta, async () => file)
-    programs = (await repository.list(createEmptyQuery())).items
-    set = evaluateAll(programs, createTestAccountProfile(), {
-      asOf: datasetMeta.asOf,
-      selfChecks: { common: createTestAccountCommonChecks(), programs: {} },
+describe('테스트 계정 — 공고 데이터 삭제 후 (REVISION_04 §3.3)', () => {
+  const selfChecks = { common: createTestAccountCommonChecks(), programs: {} }
+  /** 테스트 전용 공고: 직접 확인 조건 하나(확인 필요)와 세부 분야 */
+  const program = (id: string, categories: SupportCategoryCode[]) =>
+    draftProgram({
+      id,
+      supportCategories: categories,
+      supportPhases: deriveSupportPhases(categories),
+      supportAreas: deriveSupportAreas(categories),
+      eligibilityRules: [rule({ id: `${id}-R1` })],
     })
-  })
 
-  it('데이터 기준일은 2026-10-15이다', () => {
-    expect(datasetMeta.asOf).toBe('2026-10-15')
-  })
-
-  it('수출단계는 내수: 2025년 수출액 0달러 < 1,000달러', () => {
+  it('공고가 없어도 수출단계는 내수: 기준일이 없으면 기준표 연도의 직전 연도(2025년)로 진단한다', () => {
+    const set = evaluateAll([], createTestAccountProfile(), { asOf: null, selfChecks })
     expect(set.diagnosis?.stage).toBe('domestic')
     expect(set.diagnosis?.referenceYear).toBe(2025)
     expect(set.diagnosis?.reasons[0]).toContain('0 USD(2025년 1월 ~ 2025년 12월)')
     expect(set.diagnosis?.reasons[0]).toContain('1,000달러 미만')
-    expect(set.diagnosis?.nextStageConditions.length).toBeGreaterThan(0)
+    expect(set.byId.size).toBe(0)
   })
 
-  const RECOMMENDED = ['P001', 'P005', 'P006', 'P022-02', 'P025', 'P034', 'P037', 'P038', 'P122']
-  const INTEREST_MATCH = ['P001', 'P005', 'P006', 'P022-02', 'P034', 'P037', 'P122']
-
-  it('§6.1 9개는 모두 확인 필요이고 기준일에 접수 중이다', () => {
-    for (const id of RECOMMENDED) {
-      expect({ id, status: status(id) }).toEqual({ id, status: 'needs-check' })
-      expect({ id, recv: programs.find((p) => p.id === id)?.receptionStatus }).toEqual({ id, recv: 'open' })
-    }
-    expect(programs.filter((p) => status(p.id) === 'eligible')).toHaveLength(0)
-  })
-
-  it('관심 분야가 맞는 7개의 적합도가 맞지 않는 2개(P025·P038)보다 높다', () => {
-    const score = (id: string) => set.byId.get(id)?.fit?.score ?? null
+  it('관심 분야가 맞는 공고의 적합도가 맞지 않는 공고보다 높다 (§6 추천 9건 검증을 대신하는 테스트 전용 공고)', () => {
+    // C13 국제운송은 관심 분야(국제물류)와 맞고, C14 무역보험·보증은 맞지 않는다
+    const set = evaluateAll([program('MATCH', ['C13']), program('OTHER', ['C14'])], createTestAccountProfile(), {
+      asOf: '2030-06-30',
+      selfChecks,
+    })
     const interest = (id: string) => set.byId.get(id)?.fitFactors.find((f) => f.key === 'interest')?.value
-    for (const id of INTEREST_MATCH) expect({ id, interest: interest(id) }).toEqual({ id, interest: 1 })
-    for (const id of ['P025', 'P038']) expect({ id, interest: interest(id) }).toEqual({ id, interest: 0.5 })
-    const lowestMatched = Math.min(...INTEREST_MATCH.map((id) => score(id)!))
-    const highestUnmatched = Math.max(score('P025')!, score('P038')!)
-    expect(lowestMatched).toBeGreaterThan(highestUnmatched)
-  })
-
-  it('P025·P122의 미확인 사유: 입주기업 조건은 직접 확인', () => {
-    expect(condition('P025', 'P025-R01')).toMatchObject({ label: '성남글로벌융합센터 입주기업', reasonCode: 'not-automatable' })
-    const p122 = set.byId.get('P122')?.eligibility?.groups.find((g) => g.ruleIds.includes('P122-R02'))
-    expect(p122?.ruleIds).toEqual(['P122-R02', 'P122-R03', 'P122-R04'])
-    expect(condition('P122', 'P122-R02')?.reasonCode).toBe('not-automatable')
-  })
-
-  it('§6.2 중 14개는 신청 불가 (지역·수출 실적)', () => {
-    const ineligible = ['P010', 'P011', 'P015', 'P028-01', 'P028-02', 'P046', 'P057-02', 'P062', 'P073', 'P093', 'P104', 'P127-01', 'P127-02', 'P132']
-    for (const id of ineligible) expect({ id, status: status(id) }).toEqual({ id, status: 'ineligible' })
-  })
-
-  it('§6.2 중 12개는 확인 필요: 해석 애매 규칙·업종 설명·유형·인증 조건은 그것만으로 불가로 만들지 않는다', () => {
-    const needsCheck = ['P004-01', 'P004-02', 'P009', 'P022-01', 'P049', 'P050', 'P057-01', 'P070', 'P082', 'P099', 'P101', 'P105']
-    for (const id of needsCheck) expect({ id, status: status(id) }).toEqual({ id, status: 'needs-check' })
-    // 지역 불일치가 '해석 애매' 규칙이라 확인 필요로 낮아진 예 (사유에 불일치가 함께 보인다)
-    expect(condition('P099', 'P099-R02')).toMatchObject({ status: 'needs-check', reasonCode: 'ambiguous' })
-    expect(condition('P099', 'P099-R02')?.reason).toContain('공고 대상 지역이 아닙니다')
-    // 본사는 불일치(명확)지만 같은 그룹의 공장 조건이 애매 → 그룹이 확인 필요
-    expect(condition('P101', 'P101-R02')?.status).toBe('unmet')
-    expect(condition('P101', 'P101-R03')?.reasonCode).toBe('ambiguous')
-    // 업종·유형·인증 설명 조건
-    expect(condition('P004-01', 'P004-R01')?.reasonCode).toBe('not-automatable')
-    expect(condition('P022-01', 'P022-R01')?.reasonCode).toBe('not-automatable')
-    expect(condition('P057-01', 'P057-R01')?.reasonCode).toBe('not-automatable')
-  })
-
-  it('업종 사전(§6.3): 식료품 제조업(C10)은 농·식품, 식품 제조, 농식품 제조업체에 해당한다', () => {
-    expect(condition('P022-02', 'P022-R06')?.status).toBe('met')
-    expect(condition('P122', 'P122-R05')?.status).toBe('met')
-    expect(condition('P105', 'P105-R01')?.status).toBe('met')
-    // 기존 '제조업' 판정은 그대로
-    for (const [id, ruleId] of [['P011', 'P011-R02'], ['P034', 'P034-R02'], ['P046', 'P046-R03'], ['P070', 'P070-R01']] as const) {
-      expect({ ruleId, status: condition(id, ruleId)?.status }).toEqual({ ruleId, status: 'met' })
-    }
+    const score = (id: string) => set.byId.get(id)?.fit?.score ?? null
+    expect(set.byId.get('MATCH')?.eligibility?.status).toBe('needs-check')
+    expect(interest('MATCH')).toBe(1)
+    expect(interest('OTHER')).toBeLessThan(1)
+    expect(score('MATCH')).not.toBeNull()
+    expect(score('OTHER')).not.toBeNull()
+    expect(score('MATCH')!).toBeGreaterThan(score('OTHER')!)
   })
 })
 
@@ -211,8 +155,8 @@ describe('계정별 저장 (테스트 계정만 전용 키)', () => {
     expect(localStorage.getItem(PROFILE_STORAGE_KEY)).toBeNull()
   })
 
-  it('데모 계정과 비로그인은 기존 키를 쓰고, 테스트 계정이 아니면 초기화하지 않는다', () => {
-    applyAccountScope({ id: 'ADMIN', role: 'demo' })
+  it('관리자 계정과 비로그인은 기존 키를 쓰고, 테스트 계정이 아니면 초기화하지 않는다', () => {
+    applyAccountScope({ id: 'ADMIN', role: 'admin' })
     expect(useProfileStore().state.scope).toEqual({ kind: 'device' })
     expect(resetTestAccountData()).toBe(false)
     expect(Object.keys(localStorage)).toEqual([])

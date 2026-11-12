@@ -7,15 +7,13 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 import { authNavigationTarget, routes } from '@/router'
 import { AFTER_LOGIN_PATH, afterLoginPath } from '@/lib/redirect'
-import { PROFILE_STORAGE_KEY, createEmptyProfile } from '@/lib/profile'
+import { PROFILE_STORAGE_KEY } from '@/lib/profile'
 import { APPLICATION_STORAGE_KEY } from '@/stores/applicationStore'
 import { SELF_CHECK_STORAGE_KEY } from '@/stores/selfCheckStore'
 import { COMPARE_STORAGE_KEY } from '@/composables/useCompareSelection'
 import { useAuth } from '@/stores/authStore'
-import { useProfileStore } from '@/stores/profileStore'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import LoginView from '@/views/LoginView.vue'
-import DiagnoseResultView from '@/views/diagnose/DiagnoseResultView.vue'
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } })
@@ -39,7 +37,8 @@ function makeRouter(): Router {
 /** 실제 앱과 같은 로그인 규칙(authNavigationTarget)을 건 테스트용 라우터 */
 function makeGuardedRouter(isAuthenticated: () => boolean = () => useAuth().state.status === 'authenticated'): Router {
   const router = makeRouter()
-  router.beforeEach((to) => authNavigationTarget(to, isAuthenticated(), router))
+  // 이 파일은 기업 회원(관리자가 아닌 계정) 기준이다. 관리자 이동 규칙은 revision04.spec.ts
+  router.beforeEach((to) => authNavigationTarget(to, { authenticated: isAuthenticated(), role: 'member' }, router))
   return router
 }
 
@@ -150,7 +149,7 @@ describe('상단 주 메뉴와 하위 메뉴 패널', () => {
     expect(links.map((a) => a.text())).toEqual(['수출 로드맵', '기업 맞춤 지원사업', '전체 지원사업', '지원사업 관리', '커뮤니티'])
     expect(links.map((a) => a.attributes('href'))).toEqual([
       '/roadmap',
-      '/diagnose/result',
+      '/programs/recommended',
       '/programs',
       '/manage/programs',
       '/community/reviews',
@@ -160,13 +159,12 @@ describe('상단 주 메뉴와 하위 메뉴 패널', () => {
     expect(wrapper.get('.brand-link').text()).toContain('수출지원사업 매칭')
   })
 
-  it('마우스를 올리면 하위 항목 9개가 보이고 Esc로 다시 숨는다', async () => {
+  it('마우스를 올리면 하위 항목 8개가 보이고 Esc로 다시 숨는다 (기업 진단은 REVISION_04에서 없앰)', async () => {
     expect(allHidden()).toBe(true)
     await wrapper.get('.top-nav__list').trigger('mouseenter')
     expect(noneHidden()).toBe(true)
     expect(wrapper.findAll('.top-nav__sublink').map((a) => a.text())).toEqual([
       '수출 로드맵',
-      '기업 진단',
       '맞춤 추천',
       '전체 공고',
       '공고 달력',
@@ -286,35 +284,5 @@ describe('데이터 보존', () => {
     // 비로그인이므로 지원사업 관리 주소는 로그인 화면에서 멈춘다
     expect(landed).toEqual(['company-profile', 'company-profile', 'company-profile', 'login', 'login', 'roadmap', 'home'])
     expectStorageUnchanged()
-  })
-})
-
-describe('기업 진단 → 기업 프로필 연결', () => {
-  let wrapper: VueWrapper
-  const store = useProfileStore()
-
-  beforeEach(async () => {
-    store.replaceProfile({ ...createEmptyProfile(), companyName: '테스트 전용 기업' })
-    const router = makeRouter()
-    await at(router, '/diagnose/result')
-    wrapper = mount(DiagnoseResultView, { global: { plugins: [router] } })
-    await flushPromises()
-  })
-  afterEach(() => {
-    wrapper.unmount()
-    store.replaceProfile(createEmptyProfile())
-  })
-
-  it('기업정보 수정하기·기업 프로필에서 수정은 /profile을 가리킨다', () => {
-    const href = (text: string) => wrapper.findAll('a').find((a) => a.text().includes(text))?.attributes('href')
-    expect(href('기업정보 수정하기')).toBe('/profile')
-    expect(href('기업 프로필에서 수정')).toBe('/profile')
-  })
-
-  it('요약의 단계별 수정은 그 단계(/profile?step=n)를 연다', async () => {
-    await wrapper.get('button[aria-label="수출 현황 수정"]').trigger('click')
-    await flushPromises()
-    const router = wrapper.vm.$router
-    expect(router.currentRoute.value.fullPath).toBe('/profile?step=3')
   })
 })

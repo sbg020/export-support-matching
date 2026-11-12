@@ -6,7 +6,7 @@ import { ACTIVE_EXPORT_STAGE_CRITERIA, diagnoseExportStage } from '@/lib/engine/
 import { compareRecommended, countByPhase, evaluateAll } from '@/lib/engine/evaluateAll'
 import { charBigrams, normalizeText, percentileRanks, similarity } from '@/lib/engine/textSimilarity'
 import { deriveSupportPhases, deriveSupportAreas, recommendedPhases } from '@/constants/categories'
-import { compareProgramIds } from '@/repositories/staticProgramRepository'
+import { compareProgramIds } from '@/lib/programQuery'
 import { createEmptyProfile } from '@/lib/profile'
 import type { CompanyProfile } from '@/types/profile'
 import type { BonusItem } from '@/types/program'

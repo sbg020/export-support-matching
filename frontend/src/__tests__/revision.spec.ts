@@ -118,17 +118,18 @@ describe('공고 달력 일정', () => {
 })
 
 describe('추천 카드', () => {
-  it('기본 정보 4가지를 보여 주고, 근거가 없으면 안내만 표시한다', async () => {
+  it('정보 4칸(신청 마감·지원 내용·지원금·자부담)을 보여 주고, 근거가 없으면 안내만 표시한다', async () => {
     const router = makeRouter()
     await router.push('/programs/recommended')
     await router.isReady()
     const wrapper = mount(RecommendationCard, {
-      props: { program: blankProgram({ id: 't2', title: '테스트 전용 공고' }), evaluation: undefined, inCompare: false },
+      props: { program: blankProgram({ id: 't2', title: '테스트 전용 공고' }), evaluation: undefined, asOf: null, inCompare: false },
       global: { plugins: [router] },
     })
     const text = wrapper.text()
     expect(text).toContain('테스트 전용 공고')
-    for (const label of ['신청자격', '마감일', '추천 이유']) expect(text).toContain(label)
+    for (const label of ['신청 마감', '지원 내용', '지원금', '자부담', '적합도']) expect(text).toContain(label)
+    expect(text).not.toContain('추천 이유')
     expect(wrapper.find('a').attributes('href')).toBe('/programs/t2?from=recommended')
 
     const toggle = wrapper.get('button[aria-controls]')
