@@ -22,7 +22,6 @@ import {
 import InfoList from '@/components/common/InfoList.vue'
 import InfoRow from '@/components/common/InfoRow.vue'
 import DataValue from '@/components/common/DataValue.vue'
-import DraftTag from '@/components/common/DraftTag.vue'
 import EligibilityBadge from './EligibilityBadge.vue'
 import CategoryChips from './CategoryChips.vue'
 
@@ -70,14 +69,12 @@ const periodText = computed(() => applyPeriodText(props.program) ?? props.progra
         <EligibilityBadge
           :status="eligibility?.status ?? null"
           :self-checked-count="eligibility?.selfCheckedCount ?? 0"
-          :data-state="eligibility?.dataState ?? null"
         />
       </div>
       <div :class="{ 'is-muted': eligibility?.status === 'ineligible' }">
         <p class="program-card__label">적합도 <span class="program-card__hint">시험용 v0</span></p>
         <span class="program-card__fit">
           <DataValue :value="fit?.score ?? null" :format="(score: number) => `${score}점`" />
-          <DraftTag v-if="fit" :state="eligibility?.dataState ?? program.dataState" />
         </span>
       </div>
     </div>

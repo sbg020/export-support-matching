@@ -33,7 +33,7 @@ export function useProgramEvaluations() {
   void ensureAllPrograms()
   const profileStore = useProfileStore()
   const selfChecks = useSelfChecks()
-  /** 데이터 기준일 (테스트 데이터셋이 아니면 null). 시스템 날짜를 쓰지 않는다 */
+  /** 데이터 기준일 (지금은 항상 null, 다음 개정에서 API의 meta.asOf). 시스템 날짜를 쓰지 않는다 */
   const asOf = dataBasisDate(programRepository.source)
 
   const set = computed(() =>

@@ -5,7 +5,6 @@ import PageHeader from '@/components/layout/PageHeader.vue'
 import SectionCard from '@/components/common/SectionCard.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import NoticeBanner from '@/components/common/NoticeBanner.vue'
-import DataSourceNotice from '@/components/common/DataSourceNotice.vue'
 import ActionButton from '@/components/common/ActionButton.vue'
 import DisabledReason from '@/components/common/DisabledReason.vue'
 import MonthCalendar from '@/components/calendar/MonthCalendar.vue'
@@ -83,7 +82,6 @@ const selectedEvents = computed(() =>
     <PageHeader title="공고 달력" description="공고의 접수 시작·마감, 발표·협약일을 달력으로 확인합니다." />
 
     <div class="stack">
-      <DataSourceNotice />
       <NoticeBanner v-if="loadFailed" tone="danger" title="공고를 불러오지 못했습니다" alert>
         공고 데이터를 불러올 수 없어 일정을 표시하지 못했습니다. 잠시 후 다시 시도해 주세요.
       </NoticeBanner>

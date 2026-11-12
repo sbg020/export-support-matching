@@ -2,7 +2,6 @@
 /**
  * 공고 상세. 공고가 조회되지 않아도 상세 화면의 틀과 '-' 슬롯을 보여 주고,
  * 공고가 필요한 동작(신청·원문 보기·서류 체크·저장·비교)은 이유와 함께 비활성화한다.
- * 테스트 데이터(검수 전 초안)일 때는 출처·기준일과 '초안 기준'을 함께 보여 준다 (REVISION_02 §11).
  * '비교에 추가'는 화면을 이동하지 않고 선택만 바꾼다. 하단 비교 바에서 비교 영역으로 간다.
  */
 import { computed, ref, watch } from 'vue'
@@ -32,8 +31,6 @@ import DataValue from '@/components/common/DataValue.vue'
 import StatusBadge from '@/components/common/StatusBadge.vue'
 import ActionButton from '@/components/common/ActionButton.vue'
 import DisabledReason from '@/components/common/DisabledReason.vue'
-import DataSourceNotice from '@/components/common/DataSourceNotice.vue'
-import DraftTag from '@/components/common/DraftTag.vue'
 import EligibilityBadge from '@/components/programs/EligibilityBadge.vue'
 import EligibilityConditions from '@/components/programs/EligibilityConditions.vue'
 import FitBreakdownTable from '@/components/programs/FitBreakdownTable.vue'
@@ -214,7 +211,6 @@ const formatConditionCount = (n: number) => `${n}개`
           :status="eligibility?.status ?? null"
           size="sm"
           :self-checked-count="eligibility?.selfCheckedCount ?? 0"
-          :data-state="eligibility?.dataState ?? null"
         />
       </template>
       <template #actions>
@@ -226,7 +222,6 @@ const formatConditionCount = (n: number) => `${n}개`
     </PageHeader>
 
     <div class="stack">
-      <DataSourceNotice />
 
       <p v-if="status === 'loading'" class="loading-line" role="status">
         <span class="spinner-border spinner-border-sm" aria-hidden="true" />
@@ -372,7 +367,6 @@ const formatConditionCount = (n: number) => `${n}개`
             <EligibilityBadge
               :status="eligibility?.status ?? null"
               :self-checked-count="eligibility?.selfCheckedCount ?? 0"
-              :data-state="eligibility?.dataState ?? null"
             />
           </div>
           <div class="verdict__item">
@@ -430,8 +424,7 @@ const formatConditionCount = (n: number) => `${n}개`
           id-prefix="detail-fit"
         />
         <p v-if="fit" class="fs-sm text-muted-strong mt-3 mb-0">
-          검수 전 초안 데이터로 계산한 점수입니다 <DraftTag :state="eligibility?.dataState ?? p?.dataState" />. 재무 상태는
-          적합도에 쓰지 않습니다.
+          재무 상태는 적합도에 쓰지 않습니다.
         </p>
       </SectionCard>
 

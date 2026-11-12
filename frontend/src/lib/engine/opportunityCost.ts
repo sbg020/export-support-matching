@@ -18,7 +18,7 @@ export const OPPORTUNITY_COST_ENGINE_VERSION = 'opportunity-0.2.0'
 export interface OpportunityCostContext {
   /** 서류함에 실제로 보관 중인 서류 유형. 서류함이 연결되지 않았으면 null */
   ownedDocumentTypes: DocumentType[] | null
-  /** 마감 여유 계산 기준일. 테스트 데이터는 데이터 기준일, 모르면 null */
+  /** 마감 여유 계산 기준일. 공고 데이터의 기준일, 모르면 null */
   today: IsoDate | null
 }
 
@@ -60,7 +60,7 @@ export function evaluateOpportunityCost(
   program: Program,
   context: OpportunityCostContext,
 ): OpportunityCostResult | null {
-  // 근거·검수 정보가 없는 공고는 계산하지 않는다 (테스트 데이터는 dataState로 계산한다)
+  // 근거·검수 정보가 없는 공고는 계산하지 않는다 (데이터 상태 또는 검수일이 있어야 계산한다)
   if (program.dataState === null && program.verifiedAt === null) return null
 
   const reasons: string[] = []
