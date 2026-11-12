@@ -3,13 +3,17 @@ import {
   createWebHistory,
   type RouteLocationNormalized,
   type RouteLocationRaw,
+  type RouteMeta,
   type Router,
   type RouteRecordRaw,
   type RouteRecordRedirectOption,
+  type RouteRecordSingleView,
 } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import { APP_NAME, type NavSectionKey } from '@/constants/navigation'
-import { useAuth } from '@/stores/authStore'
+import { ADMIN_AREA_LABEL, ADMIN_ONLY_MESSAGE, type AdminMenuKey } from '@/constants/adminNavigation'
+import { useAuth, type AuthRole } from '@/stores/authStore'
+import { useToast } from '@/stores/toastStore'
 import { afterLoginPath } from '@/lib/redirect'
 
 declare module 'vue-router' {
@@ -20,7 +24,24 @@ declare module 'vue-router' {
     section?: NavSectionKey
     /** 로그인이 필요한 화면 */
     requiresAuth?: boolean
+    /** 관리자 영역 화면: 관리자 헤더를 쓴다 (REVISION_04 §6.1) */
+    layout?: 'admin'
+    /** 관리자 메뉴에서 선택 상태로 표시할 항목 */
+    adminMenu?: AdminMenuKey
+    /** 관리자 계정만 볼 수 있는 화면 */
+    requiresAdmin?: boolean
   }
+}
+
+/** 관리자 영역 화면: 관리자 헤더, 관리자 메뉴 선택 상태, 관리자 계정만 */
+function adminRoute(
+  path: string,
+  name: string,
+  title: string,
+  adminMenu: AdminMenuKey,
+  component: RouteRecordSingleView['component'],
+): RouteRecordSingleView {
+  return { path, name, component, meta: { title, layout: 'admin', adminMenu, requiresAdmin: true } }
 }
 
 /** 이동·통합된 화면의 기존 주소를 새 위치로 보낸다. 기존 쿼리와 해시는 유지한다. */
@@ -56,13 +77,8 @@ export const routes: RouteRecordRaw[] = [
   { path: '/diagnose', redirect: moved('company-profile') },
   { path: '/diagnose/input', redirect: moved('company-profile') },
 
-  // 기업 맞춤 지원사업
-  {
-    path: '/diagnose/result',
-    name: 'diagnose-result',
-    component: () => import('@/views/diagnose/DiagnoseResultView.vue'),
-    meta: { title: '기업 진단', section: 'find' },
-  },
+  // 기업 맞춤 지원사업 (기업 진단 화면은 없앴다. 진단 결과는 수출 로드맵에 있다 — REVISION_04 §4.1)
+  { path: '/diagnose/result', redirect: moved('roadmap') },
   {
     path: '/programs/recommended',
     name: 'programs-recommended',
@@ -158,6 +174,14 @@ export const routes: RouteRecordRaw[] = [
     meta: { title: '서류함', section: 'manage', requiresAuth: true },
   },
 
+  // 관리자 영역 (REVISION_04 §5.2). 사용자 메뉴에는 넣지 않는다
+  adminRoute('/admin', 'admin-home', '관리자 홈', 'home', () => import('@/views/admin/AdminHomeView.vue')),
+  adminRoute('/admin/bizinfo', 'admin-bizinfo', '기업마당 API 수집', 'bizinfo', () => import('@/views/admin/AdminBizinfoView.vue')),
+  adminRoute('/admin/kotra', 'admin-kotra', 'KOTRA CSV 업로드', 'kotra', () => import('@/views/admin/AdminKotraView.vue')),
+  adminRoute('/admin/review', 'admin-review', '공고 검수', 'review', () => import('@/views/admin/AdminReviewView.vue')),
+  adminRoute('/admin/notices', 'admin-notices', '공고 관리', 'notices', () => import('@/views/admin/AdminNoticesView.vue')),
+  adminRoute('/admin/settings', 'admin-settings', '기준·설정', 'settings', () => import('@/views/admin/AdminSettingsView.vue')),
+
   // 없어진 마이페이지 주소: 북마크·공유 링크가 계속 열리도록 새 위치로 보낸다 (쿼리·해시 유지)
   { path: '/mypage', redirect: moved('company-profile') },
   { path: '/mypage/profile', redirect: moved('company-profile') },
@@ -217,32 +241,66 @@ const router = createRouter({
   },
 })
 
+/** 이동 규칙에 쓰는 로그인 상태. 역할은 화면 이동에만 쓴다 (서버 데이터는 서버가 역할을 다시 확인한다) */
+export interface NavigationAuth {
+  authenticated: boolean
+  role: AuthRole | null
+}
+
 /**
- * 로그인 상태에 따른 이동 (REVISION_03 §4).
- * - 로그인이 필요한 화면 → 로그인 화면 (로그인 후 그 화면으로 돌아온다)
- * - 로그인 상태에서 홈 → 수출 로드맵 (로그인 전 첫 화면은 보이지 않는다)
- * - 로그인 상태에서 로그인 화면 → 안전한 redirect 또는 수출 로드맵
+ * 로그인 상태·역할에 따른 이동 (REVISION_03 §4, REVISION_04 §5.2).
+ * - 로그인이 필요한 화면·관리자 화면을 비로그인으로 → 로그인 화면 (로그인 후 그 화면으로 돌아온다)
+ * - 관리자가 아닌 계정으로 관리자 화면 → 수출 로드맵 (안내 토스트는 beforeEach가 띄운다)
+ * - 로그인 상태에서 홈 → 관리자는 관리자 홈, 그 밖의 계정은 수출 로드맵
+ * - 로그인 상태에서 로그인 화면 → 안전한 redirect 또는 각 계정의 첫 화면
  */
 export function authNavigationTarget(
   to: RouteLocationNormalized,
-  authenticated: boolean,
+  auth: NavigationAuth,
   router: Router,
 ): RouteLocationRaw | true {
-  if (to.meta.requiresAuth && !authenticated) return { name: 'login', query: { redirect: to.fullPath } }
-  if (authenticated && to.name === 'home') return { name: 'roadmap' }
-  if (authenticated && to.name === 'login') return afterLoginPath(to.query.redirect, router)
+  const admin = auth.authenticated && auth.role === 'admin'
+  if ((to.meta.requiresAuth || to.meta.requiresAdmin) && !auth.authenticated) {
+    return { name: 'login', query: { redirect: to.fullPath } }
+  }
+  if (to.meta.requiresAdmin && !admin) return { name: 'roadmap' }
+  if (auth.authenticated && to.name === 'home') return admin ? { name: 'admin-home' } : { name: 'roadmap' }
+  if (auth.authenticated && to.name === 'login') return afterLoginPath(to.query.redirect, router, auth.role)
   return true
+}
+
+/** 이동 대상의 이름과 meta만 보는 규칙에 쓰는 최소 형태 (resolve 결과도 받는다) */
+interface RouteNameMeta {
+  name?: unknown
+  meta: RouteMeta
+}
+
+/** 관리자가 아닌 계정이 관리자 화면을 열었는지 (수출 로드맵으로 보내며 안내한다) */
+export function isAdminDenied(to: RouteNameMeta, auth: NavigationAuth): boolean {
+  return Boolean(to.meta.requiresAdmin) && auth.authenticated && auth.role !== 'admin'
 }
 
 router.beforeEach(async (to) => {
   const auth = useAuth()
   // 확인 중(unknown)에는 서버 확인이 끝난 뒤 판단한다
   await auth.ensureChecked()
-  return authNavigationTarget(to, auth.state.status === 'authenticated', router)
+  const navigationAuth: NavigationAuth = {
+    authenticated: auth.state.status === 'authenticated',
+    role: auth.state.user?.role ?? null,
+  }
+  if (isAdminDenied(to, navigationAuth)) useToast().show(ADMIN_ONLY_MESSAGE, 'warning')
+  return authNavigationTarget(to, navigationAuth, router)
 })
 
+/** 브라우저 탭 제목: 관리자 화면은 '<제목> | 관리자 | 서비스 이름' (REVISION_04 §6.1) */
+export function documentTitle(to: RouteNameMeta): string {
+  if (to.name === 'home') return APP_NAME
+  if (to.meta.layout === 'admin') return `${to.meta.title} | ${ADMIN_AREA_LABEL} | ${APP_NAME}`
+  return `${to.meta.title} | ${APP_NAME}`
+}
+
 router.afterEach((to) => {
-  document.title = to.name === 'home' ? APP_NAME : `${to.meta.title} | ${APP_NAME}`
+  document.title = documentTitle(to)
 })
 
 export default router

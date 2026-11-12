@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
-import { RouterView, useRouter } from 'vue-router'
+import { computed, nextTick, ref } from 'vue'
+import { RouterView, useRoute, useRouter } from 'vue-router'
 import AppHeader from '@/components/layout/AppHeader.vue'
+import AdminHeader from '@/components/layout/AdminHeader.vue'
 import MobileNavDrawer from '@/components/layout/MobileNavDrawer.vue'
 import SiteFooter from '@/components/layout/SiteFooter.vue'
 import ToastRegion from '@/components/common/ToastRegion.vue'
 
 const router = useRouter()
+const route = useRoute()
 const menuOpen = ref(false)
+/** 관리자 화면은 관리자 헤더와 관리자 메뉴 서랍을 쓴다 (REVISION_04 §6.1) */
+const adminLayout = computed(() => route.meta.layout === 'admin')
 const mainRef = ref<HTMLElement | null>(null)
 
 function skipToMain() {
@@ -27,13 +31,14 @@ router.afterEach((to, from) => {
   <a class="skip-link" href="#main-content" @click.prevent="skipToMain">본문 바로가기</a>
   <!-- 헤더 · 본문 · 바닥글을 위에서 아래로 쌓는다 (REVISION_03 §3.5). 주 메뉴는 헤더 한 줄에 있다 -->
   <div class="app-shell">
-    <AppHeader :menu-open="menuOpen" @open-menu="menuOpen = true" />
+    <AdminHeader v-if="adminLayout" :menu-open="menuOpen" @open-menu="menuOpen = true" />
+    <AppHeader v-else :menu-open="menuOpen" @open-menu="menuOpen = true" />
     <main id="main-content" ref="mainRef" class="app-main" tabindex="-1">
       <RouterView />
     </main>
     <SiteFooter />
   </div>
-  <MobileNavDrawer v-model:open="menuOpen" />
+  <MobileNavDrawer v-model:open="menuOpen" :variant="adminLayout ? 'admin' : 'user'" />
   <ToastRegion />
 </template>
 

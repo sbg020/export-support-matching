@@ -1,32 +1,60 @@
 <script setup lang="ts">
 /**
- * 모바일 서랍의 주 메뉴 5개 (REVISION_03 §3.3). 아이콘 없이 글자만 둔다.
- * 각 메뉴는 그 섹션의 첫 번째 하위 메뉴로 이동한다. 홈·로그인·기업 프로필에서는 아무것도 선택하지 않는다.
- * 하위 화면은 각 화면 제목 아래의 하위 메뉴 탭으로 이동한다.
+ * 모바일 서랍의 메뉴 (REVISION_03 §3.3, REVISION_04 §6.1). 아이콘 없이 글자만 둔다.
+ * - user: 주 메뉴 5개. 각 메뉴는 그 섹션의 첫 번째 하위 메뉴로 이동한다. 홈·로그인·기업 프로필에서는 아무것도
+ *   선택하지 않는다. 하위 화면은 각 화면 제목 아래의 하위 메뉴 탭으로 이동한다.
+ * - admin: 관리자 메뉴 6개와 '사용자 화면 보기'. 사용자 메뉴에는 관리자 항목을 넣지 않는다.
  */
-import { useRoute } from 'vue-router'
-import { NAV_SECTIONS, firstRouteName, type NavSection } from '@/constants/navigation'
+import { computed } from 'vue'
+import { useRoute, type RouteLocationRaw } from 'vue-router'
+import { NAV_SECTIONS, firstRouteName } from '@/constants/navigation'
+import { ADMIN_NAV_ITEMS } from '@/constants/adminNavigation'
+
+const props = withDefaults(defineProps<{ variant?: 'user' | 'admin' }>(), { variant: 'user' })
 
 const route = useRoute()
 
-function isCurrent(section: NavSection): boolean {
-  return route.meta.section === section.key
+interface DrawerItem {
+  key: string
+  label: string
+  to: RouteLocationRaw
+  current: boolean
 }
+
+const items = computed<DrawerItem[]>(() =>
+  props.variant === 'admin'
+    ? [
+        ...ADMIN_NAV_ITEMS.map((item) => ({
+          key: item.key,
+          label: item.label,
+          to: { name: item.routeName },
+          current: route.meta.adminMenu === item.key,
+        })),
+        { key: 'user-view', label: '사용자 화면 보기', to: { name: 'roadmap' }, current: false },
+      ]
+    : NAV_SECTIONS.map((section) => ({
+        key: section.key,
+        label: section.label,
+        to: { name: firstRouteName(section) },
+        current: route.meta.section === section.key,
+      })),
+)
+const label = computed(() => (props.variant === 'admin' ? '관리자 메뉴' : '주 메뉴'))
 </script>
 
 <template>
-  <nav class="side-nav" aria-label="주 메뉴">
+  <nav class="side-nav" :aria-label="label">
     <ul class="side-nav__list">
-      <li v-for="section in NAV_SECTIONS" :key="section.key">
-        <RouterLink v-slot="{ href, navigate }" :to="{ name: firstRouteName(section) }" custom>
+      <li v-for="item in items" :key="item.key">
+        <RouterLink v-slot="{ href, navigate }" :to="item.to" custom>
           <a
             :href="href"
             class="side-nav__link"
-            :class="{ 'is-current': isCurrent(section) }"
-            :aria-current="isCurrent(section) ? 'page' : undefined"
+            :class="{ 'is-current': item.current }"
+            :aria-current="item.current ? 'page' : undefined"
             @click="navigate"
           >
-            {{ section.label }}
+            {{ item.label }}
           </a>
         </RouterLink>
       </li>
