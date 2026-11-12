@@ -165,6 +165,14 @@
 - 관리자가 아닌 계정의 `/admin` 접근 안내 토스트 문구는 `constants/adminNavigation.ts`의 `ADMIN_ONLY_MESSAGE`.
 - 로컬 브라우저 확인은 실제 비밀번호 대신 그 세션에서만 만든 임시 비밀번호로 개발 서버를 띄워 했다(저장소·로그에 남기지 않음).
 
+## R10. 커밋·배포 기록 (2026-11-12)
+
+- 브랜치 `revision-04`를 `origin`에 푸시했다(`main` 병합 안 함). 커밋 13개: 공통 표시 정리 → 데이터 삭제 → 기업 진단 삭제·로드맵 → 맞춤 추천 → 인증 역할 → 관리자 공통 → 관리자 홈·기업마당 → KOTRA → 공고 검수 → 공고 관리·정답세트 → 기준·설정 → 테스트 → 문서. 중간 커밋은 파일 단위로 나눈 것이라 하나씩 빌드하지는 않았고, 마지막 커밋에서 전체 검사를 통과했다.
+- Vercel 환경변수 `VITE_DATA_SOURCE`를 Production·Preview에서 지웠다(`vercel env rm`). 남은 이름: `DEMO_LOGIN_ID`·`DEMO_LOGIN_PASSWORD`·`AUTH_SESSION_SECRET`·`TEST_LOGIN_ID`·`TEST_LOGIN_PASSWORD` (Production·Preview).
+- 저장소 루트에서 `npx vercel deploy --prod`로 운영 배포: 배포 `dpl_5G2fUUTrXiwQKcN4CnuorgZWkFWG`, 상태 Ready, 별칭 `https://exportsupportmatching.vercel.app`. (CLI가 빌드 대기 중 연결이 끊겨 `fetch failed`를 냈으나 배포는 계속 진행되어 `vercel inspect --wait`로 Ready를 확인했다.)
+- 배포 사이트에서 확인한 것: `/programs`·`/programs/recommended`·`/programs/calendar`·`/roadmap`·`/programs/P001`·`/diagnose/result`·`/admin`·`/admin/review`·`/admin/없는-경로` 직접 접근 200(SPA fallback). 실제 페이지 로드로 테스트 데이터 카드·`초안 기준`·`샘플 데이터` 없음, 전체 공고·맞춤 추천 빈 상태, 맞춤 추천 탭 3개 건수 `-`, 공고 달력 `공고와 연동된 일정이 없습니다`, `/programs/P001` → `해당 공고를 찾을 수 없습니다.`, `/diagnose/result?x=1#h` → `/roadmap?x=1#h`, 상단 `기업 맞춤 지원사업` 하위 메뉴는 맞춤 추천 하나, 수출 로드맵 지표 `현재 수출단계 · 우선 지원 단계 · 우선 단계 공고 · 판정 대상 공고`, 비로그인 `/admin/review` → `/login?redirect=/admin/review`, `/admin/없는-경로` → `페이지를 찾을 수 없음`. `/api/auth/me` 200(비로그인), 없는 계정 로그인 401. 배포 JS 75개 청크에서 비밀번호·세션 키 변수 이름, `test-dataset`, `VITE_DATA_SOURCE`, 금지 문구가 검색되지 않음. xlsx 청크는 따로 있다(관리자 공고 관리에서만 로드).
+- 배포 사이트에서 확인하지 못한 것: `ADMIN`·`TEST` 계정 로그인 이후 흐름(관리자 홈·관리자 6개 화면·서랍·KOTRA 미리보기·정답세트 검사, TEST → 로드맵과 `/admin` 차단 토스트). 운영 비밀번호는 입력하지 않았다. 같은 코드로 로컬 개발 서버에서 임시 비밀번호로 모두 확인했고(R5·R6), 운영에서는 사용자가 확인한다.
+
 ## R9. 사용자 결정이 필요한 사항 (문서 부록 B 그대로)
 
 1. 공고 저장소(Vercel에 연결하는 Postgres 또는 기존 `backend/` Django + PostgreSQL). 연결 전까지 사용자 화면은 공고 없음 상태다.
