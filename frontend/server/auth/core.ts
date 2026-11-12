@@ -1,13 +1,15 @@
 /// <reference types="node" />
 // Vercel이 함수를 빌드할 때 쓰는 tsconfig에는 Node 타입이 기본 포함되지 않아(TypeScript 6) 직접 참조한다.
 /*
- * 데모·테스트 계정 인증 — 서버 전용 순수 함수.
+ * 관리자·테스트 계정 인증 — 서버 전용 순수 함수.
  *
  * - 이 파일은 Vercel 서버 함수(api/)와 Vite 개발 서버 미들웨어에서만 쓴다. 브라우저 번들에 포함하지 않는다.
  * - 아이디·비밀번호·세션 키는 환경변수에서만 읽는다. 코드 안의 기본값으로 대신하지 않는다.
- *   데모 계정 DEMO_LOGIN_ID·DEMO_LOGIN_PASSWORD, 테스트 계정 TEST_LOGIN_ID·TEST_LOGIN_PASSWORD (revision_03 테스트 계정),
+ *   관리자 계정 DEMO_LOGIN_ID·DEMO_LOGIN_PASSWORD(환경변수 이름은 그대로, REVISION_04 §5.1), 테스트 계정 TEST_LOGIN_ID·TEST_LOGIN_PASSWORD,
  *   세션 키 AUTH_SESSION_SECRET. 계정은 아이디와 비밀번호가 둘 다 있을 때만 쓴다. 쓸 계정이 없거나 세션 키가 없으면 로그인을 막는다.
- * - 두 계정 모두 관리자 권한이 없다(관리자 기능 자체가 없다). 역할은 화면에서 계정별 기업 프로필을 고르는 데만 쓴다.
+ * - DEMO_LOGIN_* 계정의 역할은 admin(관리자 영역 /admin), TEST_LOGIN_* 계정은 test(일반 기업 회원 권한)다.
+ *   이번 개정에는 관리자 데이터 API가 없다. /api/admin/*을 만들면 서버가 세션 주체의 역할을 다시 확인하고
+ *   관리자가 아니면 403을 돌려준다(REVISION_04 §5.1, §13.2).
  */
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto'
 
@@ -18,8 +20,8 @@ export const MIN_SECRET_LENGTH = 32
 
 export type AuthEnv = Record<string, string | undefined>
 
-/** demo: 기존 데모 계정, test: 시연·캡처용 테스트 계정 */
-export type AccountRole = 'demo' | 'test'
+/** admin: 관리자(DEMO_LOGIN_*), test: 시연·캡처용 테스트 계정(일반 기업 회원 권한) */
+export type AccountRole = 'admin' | 'test'
 
 export interface AuthAccount {
   loginId: string
@@ -39,7 +41,7 @@ export interface SessionPayload {
 }
 
 const ACCOUNT_ENV: { role: AccountRole; id: string; password: string }[] = [
-  { role: 'demo', id: 'DEMO_LOGIN_ID', password: 'DEMO_LOGIN_PASSWORD' },
+  { role: 'admin', id: 'DEMO_LOGIN_ID', password: 'DEMO_LOGIN_PASSWORD' },
   { role: 'test', id: 'TEST_LOGIN_ID', password: 'TEST_LOGIN_PASSWORD' },
 ]
 

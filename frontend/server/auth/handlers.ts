@@ -4,7 +4,7 @@
  *
  *   POST /api/auth/login    { id, password } → 로그인, 세션 쿠키 발급
  *   POST /api/auth/logout   → 세션 쿠키 삭제
- *   GET  /api/auth/me       → { authenticated, user?: { id, role } }  (role: demo | test)
+ *   GET  /api/auth/me       → { authenticated, user?: { id, role } }  (role: admin | test)
  *   POST /api/auth/signup   → 501 (회원 정보를 저장할 서버 DB가 없음)
  */
 import {

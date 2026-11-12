@@ -2,14 +2,18 @@
  * 로그인 상태. 서버(/api/auth/me)가 확인한 결과만 로그인 상태로 인정한다.
  * 브라우저 저장소에 '로그인됨' 같은 표시를 저장하지 않는다. 세션은 HttpOnly 쿠키로만 유지된다.
  * 로그인 상태가 바뀌면 계정에 맞는 기업 프로필 저장 범위로 바꾼다(테스트 계정만 전용 범위, accountScope.ts).
+ * 역할은 화면 이동에만 쓴다. 관리자 데이터는 서버가 역할을 다시 확인한다(REVISION_04 §5.1).
  */
-import { reactive, readonly } from 'vue'
+import { computed, reactive, readonly } from 'vue'
 import { applyAccountScope } from './accountScope'
 
 export type AuthStatus = 'unknown' | 'authenticated' | 'anonymous'
 
-/** demo: 데모 계정, test: 시연·캡처용 테스트 계정 (revision_03 테스트 계정) */
-export type AuthRole = 'demo' | 'test'
+/**
+ * admin: 관리자(DEMO_LOGIN_* 계정), test: 시연·캡처용 테스트 계정,
+ * member: 그 밖의 모든 값(앞으로 회원가입 회원용). 알 수 없는 값을 관리자로 보지 않는다.
+ */
+export type AuthRole = 'admin' | 'test' | 'member'
 
 export interface AuthUser {
   id: string
@@ -32,8 +36,17 @@ function readUser(data: unknown): AuthUser | null {
   if (typeof data !== 'object' || data === null) return null
   const record = data as { authenticated?: unknown; user?: { id?: unknown; role?: unknown } }
   if (record.authenticated !== true || typeof record.user?.id !== 'string') return null
-  return { id: record.user.id, role: record.user.role === 'test' ? 'test' : 'demo' }
+  return { id: record.user.id, role: roleOf(record.user.role) }
 }
+
+function roleOf(value: unknown): AuthRole {
+  if (value === 'admin') return 'admin'
+  if (value === 'test') return 'test'
+  return 'member'
+}
+
+/** 로그인한 관리자인지 (화면 이동용) */
+const isAdmin = computed(() => state.status === 'authenticated' && state.user?.role === 'admin')
 
 function setAuthenticated(user: AuthUser) {
   state.status = 'authenticated'
@@ -117,5 +130,5 @@ async function logout(): Promise<void> {
 }
 
 export function useAuth() {
-  return { state: readonly(state), ensureChecked, login, logout }
+  return { state: readonly(state), isAdmin, ensureChecked, login, logout }
 }

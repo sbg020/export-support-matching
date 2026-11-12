@@ -42,9 +42,12 @@ watch(mode, () => {
   fieldError.value = null
 })
 
-/** 로그인이 필요한 화면·동작에서 넘어왔으면 그 화면으로, 아니면 수출 로드맵으로 (REVISION_03 §4) */
+/**
+ * 로그인이 필요한 화면·동작에서 넘어왔으면 그 화면으로, 아니면 기업 회원은 수출 로드맵,
+ * 관리자 계정은 관리자 홈으로 (REVISION_03 §4, REVISION_04 §5.2)
+ */
 function destination(): string {
-  return afterLoginPath(route.query.redirect, router)
+  return afterLoginPath(route.query.redirect, router, auth.state.user?.role ?? null)
 }
 
 async function submitLogin() {
@@ -173,6 +176,7 @@ async function submitLogin() {
           수출 로드맵·기업 맞춤 지원사업·전체 지원사업·기업 프로필과 커뮤니티 읽기는 로그인하지 않아도 이용할 수
           있습니다.
         </li>
+        <li>기업 회원은 수출 로드맵으로, 관리자 계정은 관리자 홈으로 이동합니다.</li>
         <li>입력한 기업정보는 로그인과 관계없이 이 기기에만 저장됩니다.</li>
       </ul>
     </section>

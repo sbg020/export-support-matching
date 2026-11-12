@@ -11,7 +11,7 @@ export function scopedStorageKey(baseKey: string, scope: StorageScope): string {
   return scope.kind === 'device' ? baseKey : `${baseKey}:account:${encodeURIComponent(scope.accountId)}`
 }
 
-/** 테스트 계정(역할 test)만 계정 전용 범위를 쓴다. 비로그인·데모 계정은 기기 공용 범위 */
+/** 테스트 계정(역할 test)만 계정 전용 범위를 쓴다. 비로그인·관리자 계정은 기기 공용 범위 */
 export function scopeOfUser(user: { id: string; role: string } | null): StorageScope {
   return user?.role === 'test' ? { kind: 'test-account', accountId: user.id } : DEVICE_SCOPE
 }

@@ -2,7 +2,8 @@
 /**
  * 헤더 오른쪽 계정 영역 (REVISION_03 §5).
  *
- * - 로그인: 원형 프로필 버튼 → '기업 프로필'·'로그아웃' 팝업. 키보드로 열면 첫 항목에 포커스를 둔다.
+ * - 로그인: 원형 프로필 버튼 → '기업 프로필'·'로그아웃' 팝업(관리자는 '관리자 홈'·'로그아웃', REVISION_04 §5.2).
+ *   키보드로 열면 첫 항목에 포커스를 둔다.
  *   Esc(포커스는 버튼으로)·바깥 누르기·항목 선택·화면 이동·Tab으로 밖으로 나갈 때 닫는다.
  *   하위 메뉴 패널이 열리면 AppHeader가 닫는다.
  * - 비로그인: '로그인' 버튼 (redirect 없이 로그인 화면, 로그인 후 수출 로드맵). 로그인 화면에서는 숨긴다.
@@ -30,7 +31,14 @@ const popupId = `${useId()}-account-menu`
 const user = computed(() => auth.state.user)
 /** 계정 아이디의 첫 글자 (예: ADMIN → A) */
 const initial = computed(() => Array.from(user.value?.id ?? '')[0] ?? '')
-const onProfile = computed(() => route.name === 'company-profile')
+const isAdmin = computed(() => auth.isAdmin.value)
+/** 첫 항목: 관리자는 관리자 홈, 그 밖의 계정은 기업 프로필 */
+const firstItem = computed(() =>
+  isAdmin.value
+    ? { to: { name: 'admin-home' }, label: '관리자 홈', routeName: 'admin-home' }
+    : { to: { name: 'company-profile' }, label: '기업 프로필', routeName: 'company-profile' },
+)
+const onProfile = computed(() => route.name === firstItem.value.routeName)
 
 /** 키보드(Enter·Space)로 누른 경우에는 detail이 0이다 */
 async function toggle(event: MouseEvent) {
@@ -115,8 +123,8 @@ async function logout() {
       <div v-show="open" :id="popupId" ref="popupRef" class="profile-menu__popup">
         <ul class="profile-menu__list">
           <li>
-            <RouterLink :to="{ name: 'company-profile' }" class="profile-menu__item" @click="open = false">
-              기업 프로필
+            <RouterLink :to="firstItem.to" class="profile-menu__item" @click="open = false">
+              {{ firstItem.label }}
             </RouterLink>
           </li>
           <li>

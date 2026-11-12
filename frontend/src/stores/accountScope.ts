@@ -4,7 +4,7 @@
  * 서버 DB가 없어 기업 프로필과 직접 확인 답은 이 브라우저(localStorage)에만 저장한다.
  * - 테스트 계정(역할 test)으로 로그인하면 그 계정 전용 키를 쓴다. 그 키가 비어 있을 때만 테스트 프로필
  *   (src/data/testAccountProfile.ts)을 넣는다. 시연 중에 고친 값은 다시 로그인해도 덮어쓰지 않는다.
- * - 비로그인과 데모 계정은 기존 키를 그대로 쓴다. 테스트 계정은 기존 키를 읽거나 바꾸지 않는다.
+ * - 비로그인과 관리자 계정(그 밖의 계정 포함)은 기존 키를 그대로 쓴다. 테스트 계정은 기존 키를 읽거나 바꾸지 않는다.
  * - 초기화(resetTestAccountData)는 테스트 계정 키만 테스트 프로필 값으로 다시 덮어쓴다.
  */
 import { createTestAccountCommonChecks, createTestAccountProfile } from '@/data/testAccountProfile'
