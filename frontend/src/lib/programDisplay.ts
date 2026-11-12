@@ -164,3 +164,42 @@ export function sourceUnavailableReason(p: Program | null): string {
   const page = sourcePageText(p)
   return `원문 링크는 검수 과정에서 등록됩니다. 원문 파일: ${p.sourceFile}${page ? ` (${page})` : ''}`
 }
+
+/** 맞춤 추천 카드의 적합도 자리: 신청 불가 공고는 적합도를 계산하지 않는다 (REVISION_02 §7.2) */
+export const INELIGIBLE_FIT_REASON = '신청 불가 공고는 계산하지 않습니다'
+
+/**
+ * 맞춤 추천 카드의 '지원 내용' 한 줄 (REVISION_04 §4.4.4).
+ * 1) 쉬운 설명(summaryEasy) 2) 세부 분야 이름(앞 2개, 나머지는 ' 외 n개') 3) 없으면 null.
+ * 새 문장을 지어내거나 원문을 요약하지 않는다.
+ */
+export function supportContentLine(p: Program | null): string | null {
+  if (!p) return null
+  const summary = p.summaryEasy?.trim()
+  if (summary) return summary
+  const names = (p.supportCategories ?? []).map(categoryName)
+  if (names.length === 0) return null
+  const head = names.slice(0, 2).join(' · ')
+  return names.length > 2 ? `${head} 외 ${names.length - 2}개` : head
+}
+
+/**
+ * 맞춤 추천 카드의 신청 마감 (REVISION_04 §4.4.3).
+ * 예: '12월 18일 (42일 남음)'. 기준일과 연도가 다르거나 기준일이 없으면 연도를 붙인다.
+ * 남은 일수는 데이터 기준일로만 계산하고, 기준일이 없으면 붙이지 않는다(시스템 날짜로 대신하지 않는다).
+ * 마감일이 없으면 기간 메모(예: 예산 소진 시까지), 그것도 없으면 null.
+ */
+export function recommendationDeadlineText(p: Program | null, asOf: IsoDate | null): string | null {
+  if (!p) return null
+  const match = p.applyEnd ? /^(\d{4})-(\d{2})-(\d{2})/.exec(p.applyEnd) : null
+  if (!match || !p.applyEnd) return p.applyPeriodNote?.trim() || null
+  const [, year, month, day] = match
+  const monthDay = `${Number(month)}월 ${Number(day)}일`
+  const date = asOf !== null && asOf.slice(0, 4) === year ? monthDay : `${year}년 ${monthDay}`
+  if (asOf === null) return date
+  const days = daysBetween(asOf, p.applyEnd)
+  if (days === null) return date
+  if (days < 0) return `${date} (마감)`
+  if (days === 0) return `${date} (오늘 마감)`
+  return `${date} (${days}일 남음)`
+}

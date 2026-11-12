@@ -6,12 +6,14 @@ const props = withDefaults(defineProps<{ recommended?: boolean }>(), { recommend
 
 const fields = computed(() =>
   props.recommended
-    ? ['공고명', '신청자격', '마감일', '추천 이유']
+    ? ['신청자격', '공고명', '주관·수행기관', '신청 마감', '지원 내용', '지원금', '자부담']
     : ['공고명', '주관·수행기관', '접수상태', '접수기간', '지원방식', '지원규모'],
 )
-const judgementFields = computed(() => (props.recommended ? ['계산 근거 보기'] : ['신청 자격', '적합도', '추천 이유']))
+const judgementFields = computed(() =>
+  props.recommended ? ['적합도 (시험용 기준)', '계산 근거 보기'] : ['신청 자격', '적합도', '추천 이유'],
+)
 const actions = computed(() =>
-  props.recommended ? ['비교에 추가', '관심사업 저장'] : ['상세보기', '비교에 추가', '관심사업 저장'],
+  props.recommended ? ['자세히 보기', '관심사업 저장', '비교에 추가'] : ['상세보기', '비교에 추가', '관심사업 저장'],
 )
 </script>
 
@@ -30,7 +32,7 @@ const actions = computed(() =>
     <p class="field-guide__note">
       {{
         recommended
-          ? '신청할 수 없는 공고는 다른 공고 뒤에 두고, 적합도보다 “신청 불가”를 먼저 표시합니다. 기관·지원규모 등은 상세 화면에서 확인합니다.'
+          ? '신청 가능 · 확인 필요 · 신청 불가 탭으로 나누어 보여 드리고, 신청할 수 없는 공고는 적합도를 계산하지 않습니다.'
           : '신청 자격과 적합도는 서로 다른 기준으로, 근거와 함께 따로 표시합니다.'
       }}
     </p>

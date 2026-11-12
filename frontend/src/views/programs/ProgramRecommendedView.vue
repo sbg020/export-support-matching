@@ -4,8 +4,7 @@ import { IconCircleCheck, IconCircleX, IconHelpCircle, IconScale, IconTargetArro
 import PageHeader from '@/components/layout/PageHeader.vue'
 import DataValue from '@/components/common/DataValue.vue'
 import StatusBadge from '@/components/common/StatusBadge.vue'
-import DataSourceNotice from '@/components/common/DataSourceNotice.vue'
-import ProgramBrowser from '@/components/programs/ProgramBrowser.vue'
+import RecommendationList from '@/components/programs/RecommendationList.vue'
 import CommonChecksPanel from '@/components/programs/CommonChecksPanel.vue'
 import CompareDock from '@/components/programs/CompareDock.vue'
 import ProfileStatusBadge from '@/components/diagnose/ProfileStatusBadge.vue'
@@ -24,7 +23,10 @@ const connected = isSourceConnected(programRepository.source)
 
 <template>
   <div class="page">
-    <PageHeader title="맞춤 추천" description="입력한 기업정보를 기준으로 공고마다 신청자격과 추천 이유를 보여 드립니다.">
+    <PageHeader
+      title="맞춤 추천"
+      description="입력한 기업정보를 기준으로 공고를 신청 가능 여부와 적합도 순으로 보여 드립니다."
+    >
       <template #meta>
         <span class="fs-sm text-muted-strong">기준 프로필</span>
         <strong class="text-heading"><DataValue :value="companyName" missing-label="기업명 미입력" /></strong>
@@ -36,17 +38,16 @@ const connected = isSourceConnected(programRepository.source)
     </PageHeader>
 
     <div class="stack">
-      <DataSourceNotice />
       <CommonChecksPanel v-if="connected" />
       <!-- 추천 결과(또는 빈 상태)를 설명보다 먼저 보여 준다 -->
-      <ProgramBrowser mode="recommended" />
+      <RecommendationList />
 
       <details class="criteria surface-card">
         <summary class="criteria__summary">추천 기준 안내</summary>
         <div class="criteria__body">
           <p class="criteria__lead">
             신청할 수 있는지와 얼마나 잘 맞는지는 서로 다른 질문입니다. <strong>신청 자격 → 적합도 → 준비 부담</strong>
-            순서로 봅니다. 목록은 신청 가능 → 확인 필요 → 신청 불가 순서이고, 같은 상태 안에서는 적합도 높은 순 → 마감
+            순서로 봅니다. 신청 가능 · 확인 필요 · 신청 불가 탭으로 나누어 보여 드리고, 탭 안에서는 적합도 높은 순 → 마감
             빠른 순입니다. 선정 가능성이나 확률은 표시하지 않습니다.
           </p>
           <div class="split">
@@ -98,7 +99,7 @@ const connected = isSourceConnected(programRepository.source)
             </section>
           </div>
           <ul class="notes">
-            <li>모든 판정에는 데이터 상태(검수 전 초안 등), 기준일, 판정 기준 버전을 함께 표시합니다.</li>
+            <li>모든 판정에는 기준일과 판정 기준 버전을 함께 표시합니다.</li>
             <li>휴·폐업·체납·신용·제재·재무 상태는 위의 '공통 확인 사항'에서 직접 답할 수 있습니다.</li>
             <li>실제 신청 전에는 반드시 공고 원문으로 자격 조건을 다시 확인해 주세요.</li>
           </ul>

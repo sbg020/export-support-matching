@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * 공고 목록 본체: 검색, 필터, 정렬, 결과.
+ * 전체 공고 목록 본체: 검색, 필터, 정렬, 결과. (맞춤 추천은 RecommendationList — REVISION_04 §4.4)
  * 공고가 없으면 가짜 카드 대신 빈 상태를 보여 주고, 정렬은 이유와 함께 비활성화한다.
  * 비교 선택은 모든 화면이 공유하는 useCompareSelection으로 관리한다 (비교 영역은 전체 공고 하단).
  * 추천순은 자격 상태 → 적합도 → 마감일 → ID 순서다 (REVISION_02 §7.1).
@@ -8,40 +8,29 @@
 import { computed, ref, watch } from 'vue'
 import { IconAdjustmentsHorizontal, IconRefresh, IconSearch, IconX } from '@tabler/icons-vue'
 import type { ProgramSort } from '@/types/program'
-import type { EligibilityStatus } from '@/types/results'
-import { SORT_OPTIONS, ELIGIBILITY_STATUS_OPTIONS } from '@/constants/options'
+import { SORT_OPTIONS } from '@/constants/options'
 import { useProgramFilters } from '@/composables/useProgramFilters'
 import { useProgramList } from '@/composables/useProgramList'
 import { useProgramEvaluations } from '@/composables/useProgramEvaluations'
-import {
-  COMPARE_FULL_MESSAGE,
-  compareToggleMessage,
-  useCompareSelection,
-} from '@/composables/useCompareSelection'
+import { COMPARE_FULL_MESSAGE, useCompareSelection } from '@/composables/useCompareSelection'
 import { compareRecommended } from '@/lib/engine/evaluateAll'
-import { compareProgramIds } from '@/repositories/staticProgramRepository'
+import { compareProgramIds } from '@/lib/programQuery'
 import { useToast } from '@/stores/toastStore'
 import DataValue from '@/components/common/DataValue.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import NoticeBanner from '@/components/common/NoticeBanner.vue'
 import AppModal from '@/components/common/AppModal.vue'
-import TabNav from '@/components/common/TabNav.vue'
 import DisabledReason from '@/components/common/DisabledReason.vue'
-import type { TabItem } from '@/components/common/types'
 import ProgramFilters from './ProgramFilters.vue'
 import ProgramCard from './ProgramCard.vue'
-import RecommendationCard from './RecommendationCard.vue'
 import ProgramCardFieldGuide from './ProgramCardFieldGuide.vue'
-
-const props = defineProps<{ mode: 'all' | 'recommended' }>()
 
 const toast = useToast()
 const selection = useCompareSelection()
 const evaluation = useProgramEvaluations()
-const idPrefix = computed(() => `browser-${props.mode}`)
+const idPrefix = 'browser-all'
 
-const defaultSort: ProgramSort = props.mode === 'recommended' ? 'recommended' : 'deadline'
-const filters = useProgramFilters(defaultSort)
+const filters = useProgramFilters('deadline')
 const { status, items, total, showLoading, reload, sourceConnected } = useProgramList(filters.query)
 const regionFilterActive = computed(() => filters.query.value.regions.length > 0)
 
@@ -56,48 +45,11 @@ watch(
 const filtersOpen = ref(false)
 const hasPrograms = computed(() => items.value.length > 0)
 
-/* 맞춤 추천: 신청 자격 상태별 탭 */
-type EligibilityTab = 'all' | EligibilityStatus
-const eligibilityTab = ref<EligibilityTab>('all')
-const eligibilityById = computed(() => {
-  const map = new Map<string, EligibilityStatus | null>()
-  for (const program of items.value) {
-    map.set(program.id, evaluation.get(program.id)?.eligibility?.status ?? null)
-  }
-  return map
-})
-
 /** 추천순: 저장소는 ID순으로 주고, 여기서 자격·적합도·마감일로 다시 정렬한다 */
 const sortedItems = computed(() => {
   if (filters.query.value.sort !== 'recommended') return items.value
   const evaluations = evaluation.evaluations.value
   return [...items.value].sort((a, b) => compareRecommended(a, b, evaluations, compareProgramIds))
-})
-
-function countFor(tab: EligibilityTab): number | null {
-  if (!hasPrograms.value) return null
-  if (tab === 'all') return items.value.length
-  return items.value.filter((p) => eligibilityById.value.get(p.id) === tab).length
-}
-
-const eligibilityTabs = computed<TabItem<EligibilityTab>[]>(() => [
-  { key: 'all', label: '전체', count: countFor('all') },
-  ...ELIGIBILITY_STATUS_OPTIONS.map((option) => ({
-    key: option.value,
-    label: option.label,
-    count: countFor(option.value),
-  })),
-])
-
-const visibleItems = computed(() => {
-  if (props.mode !== 'recommended') return sortedItems.value
-  const filtered =
-    eligibilityTab.value === 'all'
-      ? sortedItems.value
-      : sortedItems.value.filter((p) => eligibilityById.value.get(p.id) === eligibilityTab.value)
-  // 추천순이 아니어도 신청 불가 공고는 다른 공고 뒤에 둔다 (순서는 그대로 유지).
-  const ineligible = (id: string) => (eligibilityById.value.get(id) === 'ineligible' ? 1 : 0)
-  return [...filtered].sort((a, b) => ineligible(a.id) - ineligible(b.id))
 })
 
 /* 비교 선택 (공통) */
@@ -111,12 +63,6 @@ function toggleCompare(id: string, checked: boolean): boolean {
     return false
   }
   return true
-}
-
-/** 맞춤 추천 카드의 '비교에 추가': 화면을 이동하지 않고 선택만 바꾼다 */
-function toggleCompareFromCard(id: string) {
-  const result = selection.toggle(id)
-  toast.show(compareToggleMessage(result, selection.count.value), result === 'full' ? 'warning' : 'success')
 }
 
 function onSortChange(event: Event) {
@@ -174,7 +120,7 @@ const resultCountFormat = (n: number) => `${n}건`
         <div class="results-bar surface-card">
           <div class="results-bar__top">
             <h2 :id="`${idPrefix}-results-title`" class="results-bar__title">
-              {{ mode === 'recommended' ? '추천 결과' : '검색 결과' }}
+              검색 결과
               <span class="results-bar__count"><DataValue :value="total" :format="resultCountFormat" missing-label="건수 없음" /></span>
             </h2>
             <div class="results-bar__sort">
@@ -217,21 +163,7 @@ const resultCountFormat = (n: number) => `${n}건`
           </p>
         </div>
 
-        <TabNav
-          v-if="mode === 'recommended'"
-          v-model="eligibilityTab"
-          :tabs="eligibilityTabs"
-          label="신청 자격 상태별 보기"
-          :id-prefix="`${idPrefix}-eligibility`"
-        />
-
-        <div
-          :id="mode === 'recommended' ? `${idPrefix}-eligibility-panel` : undefined"
-          :role="mode === 'recommended' ? 'tabpanel' : undefined"
-          :aria-labelledby="mode === 'recommended' ? `${idPrefix}-eligibility-tab-${eligibilityTab}` : undefined"
-          class="browser__list"
-          :aria-busy="status === 'loading' ? 'true' : 'false'"
-        >
+        <div class="browser__list" :aria-busy="status === 'loading' ? 'true' : 'false'">
           <p v-if="status === 'loading' && showLoading" class="loading-line" role="status">
             <span class="spinner-border spinner-border-sm" aria-hidden="true" />
             공고를 불러오는 중입니다.
@@ -254,16 +186,9 @@ const resultCountFormat = (n: number) => `${n}건`
                   : '공고가 수집·검증되면 이곳에 표시됩니다. 검색어와 필터는 미리 설정해 볼 수 있습니다.'
               "
             >
-              <ProgramCardFieldGuide :recommended="mode === 'recommended'" />
+              <ProgramCardFieldGuide />
               <template #actions>
-                <RouterLink
-                  v-if="mode === 'recommended'"
-                  :to="{ name: 'company-profile' }"
-                  class="btn btn-secondary"
-                >
-                  기업정보 확인하기
-                </RouterLink>
-                <RouterLink v-else :to="{ name: 'programs-recommended' }" class="btn btn-secondary">
+                <RouterLink :to="{ name: 'programs-recommended' }" class="btn btn-secondary">
                   맞춤 추천 화면 보기
                 </RouterLink>
               </template>
@@ -279,24 +204,9 @@ const resultCountFormat = (n: number) => `${n}건`
               </template>
             </EmptyState>
 
-            <EmptyState
-              v-else-if="visibleItems.length === 0"
-              title="이 상태에 해당하는 공고가 없습니다."
-              description="다른 자격 상태 탭을 선택해 보세요."
-              compact
-            />
-
             <ul v-else class="program-list">
-              <li v-for="program in visibleItems" :key="program.id">
-                <RecommendationCard
-                  v-if="mode === 'recommended'"
-                  :program="program"
-                  :evaluation="evaluation.get(program.id)"
-                  :in-compare="selection.has(program.id)"
-                  @compare="toggleCompareFromCard"
-                />
+              <li v-for="program in sortedItems" :key="program.id">
                 <ProgramCard
-                  v-else
                   :program="program"
                   :evaluation="evaluation.get(program.id)"
                   :as-of="evaluation.asOf"
