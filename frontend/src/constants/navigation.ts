@@ -36,10 +36,7 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     key: 'find',
     label: '기업 맞춤 지원사업',
-    items: [
-      { label: '기업 진단', routeName: 'diagnose-result' },
-      { label: '맞춤 추천', routeName: 'programs-recommended' },
-    ],
+    items: [{ label: '맞춤 추천', routeName: 'programs-recommended' }],
   },
   {
     key: 'programs',

@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { IconArrowRight, IconFlag, IconMapPin, IconReportAnalytics, IconRoute, IconStack2 } from '@tabler/icons-vue'
+import { IconArrowRight, IconFlag, IconMapPin, IconReportAnalytics, IconStack2 } from '@tabler/icons-vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import NoticeBanner from '@/components/common/NoticeBanner.vue'
 import StatTile from '@/components/common/StatTile.vue'
 import SectionCard from '@/components/common/SectionCard.vue'
 import DataValue from '@/components/common/DataValue.vue'
-import DataSourceNotice from '@/components/common/DataSourceNotice.vue'
 import ExportStageCriteriaNote from '@/components/diagnose/ExportStageCriteriaNote.vue'
 import { ROADMAP_STAGES } from '@/constants/options'
 import { STAGE_PHASE_VERSION } from '@/constants/categories'
@@ -29,7 +28,7 @@ function recommendation(stage: SupportStage): 'primary' | 'secondary' | null {
   return null
 }
 
-/** 단계별 공고 수 (신청 불가 제외, 테스트 데이터 기준). 공고 데이터가 없으면 null */
+/** 단계별 공고 수 (신청 불가 제외). 공고 데이터가 없으면 null */
 const phaseCounts = computed(() =>
   sourceConnected && evaluation.ready.value
     ? countByPhase(evaluation.programs.value, evaluation.evaluations.value)
@@ -44,6 +43,11 @@ const primaryCount = computed(() => {
       (p.supportPhases ?? []).some((phase) => primary.has(phase)),
   ).length
 })
+/** 판정 대상 공고 수 (신청 불가 제외, 기업 진단에서 옮김). 공고 데이터가 없거나 계산 전이면 null */
+const recommendableCount = computed(() => {
+  if (!sourceConnected || !evaluation.ready.value) return null
+  return evaluation.programs.value.filter((p) => evaluation.get(p.id)?.eligibility?.status !== 'ineligible').length
+})
 const countFormat = (n: number) => `${n}건`
 </script>
 
@@ -52,18 +56,9 @@ const countFormat = (n: number) => `${n}건`
     <PageHeader
       title="나의 수출 로드맵"
       description="수출을 준비하는 기업이 일반적으로 거치는 단계를 보여 드리고, 단계별로 지원사업을 찾아볼 수 있게 합니다."
-    >
-      <template #actions>
-        <RouterLink :to="{ name: 'diagnose-result' }" class="btn btn-secondary">
-          <IconReportAnalytics :size="18" stroke-width="2" aria-hidden="true" />
-          기업 진단 보기
-        </RouterLink>
-      </template>
-    </PageHeader>
+    />
 
     <div class="stack">
-      <DataSourceNotice />
-
       <NoticeBanner tone="neutral" title="로드맵을 볼 때">
         아래 네 단계는 일반적인 수출 탐색 단계 이름입니다. 우선·함께 보기 표시는 수출단계 진단 결과와 단계 가중치({{
           STAGE_PHASE_VERSION
@@ -89,9 +84,16 @@ const countFormat = (n: number) => `${n}건`
           :value="primaryCount !== null ? countFormat(primaryCount) : null"
           :icon="IconStack2"
           tone="accent"
-          :hint="sourceConnected ? '신청 불가 제외 · 테스트 데이터 기준' : '공고 등록 전'"
+          :hint="sourceConnected ? '신청 불가 제외' : '공고 등록 전'"
         />
-        <StatTile label="단계 가중치 버전" :value="STAGE_PHASE_VERSION" :icon="IconRoute" tone="neutral" hint="검증 전" />
+        <StatTile
+          label="판정 대상 공고"
+          :value="recommendableCount !== null ? countFormat(recommendableCount) : null"
+          :icon="IconReportAnalytics"
+          tone="neutral"
+          :hint="sourceConnected ? '신청 불가 제외' : '공고 등록 전'"
+          :to="sourceConnected ? { name: 'programs-recommended' } : undefined"
+        />
       </div>
 
       <SectionCard
