@@ -141,14 +141,6 @@ export const STAGE_OPTIONS: Option<SupportStage>[] = [
   { value: 'localization', label: '사후관리·현지화' },
 ]
 
-/** 로드맵에 표시하는 일반적인 탐색 단계 이름 (개별 기업의 진단 결과가 아님) */
-export const ROADMAP_STAGES: { value: SupportStage; label: string }[] = [
-  { value: 'preparation', label: '수출 준비' },
-  { value: 'market-entry', label: '시장 진출' },
-  { value: 'execution', label: '수출 이행' },
-  { value: 'localization', label: '현지화' },
-]
-
 export const AGENCY_TYPE_OPTIONS: Option<AgencyType>[] = [
   { value: 'central-ministry', label: '중앙부처' },
   { value: 'public-agency', label: '공공기관·수출지원기관' },

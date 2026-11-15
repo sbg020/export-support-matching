@@ -24,7 +24,7 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
 
 export const ADMIN_AREA_LABEL = '관리자'
 
-/** 관리자가 아닌 계정이 관리자 화면을 열었을 때 (수출 로드맵으로 보낸 뒤 보여 준다) */
+/** 관리자가 아닌 계정이 관리자 화면을 열었을 때 (맞춤 추천으로 보낸 뒤 보여 준다) */
 export const ADMIN_ONLY_MESSAGE = '관리자 계정만 볼 수 있는 화면입니다.'
 
 /** 저장소가 없어 쓸 수 없는 버튼의 기본 이유 (REVISION_04 §6.2) */

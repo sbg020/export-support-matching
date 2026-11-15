@@ -27,12 +27,12 @@ export function safeRedirect(value: unknown, router: Router, role: AuthRole | nu
   return resolved.fullPath
 }
 
-/** redirect가 없거나 허용되지 않을 때 로그인 후 여는 첫 화면: 수출 로드맵 (REVISION_03 §4) */
-export const AFTER_LOGIN_PATH = '/roadmap'
+/** redirect가 없거나 허용되지 않을 때 로그인 후 여는 첫 화면: 맞춤 추천 (REVISION_05, 수출 로드맵 삭제) */
+export const AFTER_LOGIN_PATH = '/programs/recommended'
 /** 관리자 계정의 첫 화면: 관리자 홈 (REVISION_04 §5.2) */
 export const ADMIN_HOME_PATH = '/admin'
 
-/** 로그인 후 이동할 주소: 안전한 redirect, 없으면 관리자는 관리자 홈, 그 밖의 계정은 수출 로드맵 */
+/** 로그인 후 이동할 주소: 안전한 redirect, 없으면 관리자는 관리자 홈, 그 밖의 계정은 맞춤 추천 */
 export function afterLoginPath(value: unknown, router: Router, role: AuthRole | null = null): string {
   return safeRedirect(value, router, role) ?? (role === 'admin' ? ADMIN_HOME_PATH : AFTER_LOGIN_PATH)
 }

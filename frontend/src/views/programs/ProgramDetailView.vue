@@ -83,7 +83,7 @@ const backLink = computed<{ to: RouteLocationRaw; label: string }>(() => {
   if (route.query.from === 'calendar') return { to: { name: 'programs-calendar' }, label: '공고 달력' }
   // 지원사업 관리 목록에서 연 상세 (이전 링크의 from=mypage도 받는다)
   if (route.query.from === 'manage' || route.query.from === 'mypage') {
-    return { to: { name: 'manage-programs' }, label: '관심·준비 중·신청완료 사업' }
+    return { to: { name: 'manage-programs' }, label: '나의 사업 관리' }
   }
   return { to: { name: 'programs' }, label: '전체 공고' }
 })

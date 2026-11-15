@@ -30,7 +30,7 @@ const items = computed<DrawerItem[]>(() =>
           to: { name: item.routeName },
           current: route.meta.adminMenu === item.key,
         })),
-        { key: 'user-view', label: '사용자 화면 보기', to: { name: 'roadmap' }, current: false },
+        { key: 'user-view', label: '사용자 화면 보기', to: { name: 'programs-recommended' }, current: false },
       ]
     : NAV_SECTIONS.map((section) => ({
         key: section.key,
@@ -91,8 +91,8 @@ const label = computed(() => (props.variant === 'admin' ? '관리자 메뉴' : '
 
 /* 현재 섹션: 배경 + 굵은 글씨 + 왼쪽 강조선 (색만으로 구분하지 않음) */
 .side-nav__link.is-current {
-  background: var(--color-primary-soft);
-  color: var(--color-primary-strong);
+  background: var(--color-yellow-soft);
+  color: var(--color-ink);
   font-weight: var(--fw-bold);
 }
 
@@ -104,7 +104,7 @@ const label = computed(() => (props.variant === 'admin' ? '관리자 메뉴' : '
   left: 0;
   width: 4px;
   border-radius: 0 4px 4px 0;
-  background: var(--color-primary-strong);
+  background: var(--color-ink);
 }
 
 .side-nav__link:focus-visible {

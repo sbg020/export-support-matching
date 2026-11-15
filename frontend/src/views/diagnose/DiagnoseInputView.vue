@@ -182,13 +182,13 @@ async function complete() {
   PROFILE_STEP_IDS.forEach((step) => store.clearStepSkipped(step))
   persist()
   toast.show('기업정보 입력을 마쳤습니다.')
-  void router.push({ name: 'roadmap' })
+  void router.push({ name: 'programs-recommended' })
 }
 
-/** 빠진 항목이 있어도 '입력 중' 상태로 수출 로드맵을 본다 (기업 진단 화면은 REVISION_04에서 없앰) */
+/** 빠진 항목이 있어도 '입력 중' 상태로 맞춤 추천을 본다 (수출 로드맵은 REVISION_05에서 없앰) */
 function viewResultInProgress() {
   persist()
-  void router.push({ name: 'roadmap' })
+  void router.push({ name: 'programs-recommended' })
 }
 
 function onSubmit() {
@@ -275,7 +275,7 @@ function resetAll() {
             >
               <p class="completion-panel__title">아직 입력하지 않은 필수 항목이 있습니다.</p>
               <p class="completion-panel__text">
-                아래 단계를 마저 입력하면 '입력 완료'가 됩니다. 지금 수출 로드맵을 보면 프로필은 '입력 중'으로 표시되며,
+                아래 단계를 마저 입력하면 '입력 완료'가 됩니다. 지금 맞춤 추천을 보면 프로필은 '입력 중'으로 표시되며,
                 완료된 자격 판정에 사용하지 않습니다.
               </p>
               <ul class="completion-panel__list">
@@ -292,7 +292,7 @@ function resetAll() {
                 </li>
               </ul>
               <button type="button" class="btn btn-outline-primary" @click="viewResultInProgress">
-                '입력 중' 상태로 수출 로드맵 보기
+                '입력 중' 상태로 맞춤 추천 보기
               </button>
             </div>
           </div>

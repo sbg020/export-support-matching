@@ -221,7 +221,7 @@ function downloadStrategyTemplate() {
       <SectionCard
         title="19개 전략표"
         heading-id="settings-strategy-title"
-        description="적합도·로드맵 계산에는 아직 연결하지 않습니다. 재무 군집 전략(A~D)과는 다른 표입니다."
+        description="적합도 계산에는 아직 연결하지 않습니다. 재무 군집 전략(A~D)과는 다른 표입니다."
       >
         <template #actions>
           <div class="action-row">

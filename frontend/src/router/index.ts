@@ -58,7 +58,7 @@ export const routes: RouteRecordRaw[] = [
     path: '/',
     name: 'home',
     component: HomeView,
-    meta: { title: '홈' },
+    meta: { title: '서비스 소개', section: 'intro' },
   },
   {
     path: '/login',
@@ -77,8 +77,9 @@ export const routes: RouteRecordRaw[] = [
   { path: '/diagnose', redirect: moved('company-profile') },
   { path: '/diagnose/input', redirect: moved('company-profile') },
 
-  // 기업 맞춤 지원사업 (기업 진단 화면은 없앴다. 진단 결과는 수출 로드맵에 있다 — REVISION_04 §4.1)
-  { path: '/diagnose/result', redirect: moved('roadmap') },
+  // 기업 맞춤 지원사업 (기업 진단 화면은 REVISION_04, 수출 로드맵은 REVISION_05에서 없앴다. 예전 주소는 맞춤 추천으로)
+  { path: '/diagnose/result', redirect: moved('programs-recommended') },
+  { path: '/roadmap', redirect: moved('programs-recommended') },
   {
     path: '/programs/recommended',
     name: 'programs-recommended',
@@ -120,14 +121,6 @@ export const routes: RouteRecordRaw[] = [
     meta: { title: '공고 상세', section: 'programs' },
   },
 
-  // 수출 로드맵 (로그인 후 첫 화면)
-  {
-    path: '/roadmap',
-    name: 'roadmap',
-    component: () => import('@/views/RoadmapView.vue'),
-    meta: { title: '수출 로드맵', section: 'roadmap' },
-  },
-
   // 커뮤니티 (읽기는 로그인 없이, 글쓰기는 로그인 필요). 글쓰기 경로가 :postId로 해석되지 않게 먼저 둔다.
   { path: '/community', redirect: moved('community-reviews') },
   {
@@ -165,7 +158,7 @@ export const routes: RouteRecordRaw[] = [
     path: '/manage/programs',
     name: 'manage-programs',
     component: () => import('@/views/mypage/MyProgramsView.vue'),
-    meta: { title: '관심·준비 중·신청완료 사업', section: 'manage', requiresAuth: true },
+    meta: { title: '나의 사업 관리', section: 'manage', requiresAuth: true },
   },
   {
     path: '/manage/documents',
@@ -250,8 +243,8 @@ export interface NavigationAuth {
 /**
  * 로그인 상태·역할에 따른 이동 (REVISION_03 §4, REVISION_04 §5.2).
  * - 로그인이 필요한 화면·관리자 화면을 비로그인으로 → 로그인 화면 (로그인 후 그 화면으로 돌아온다)
- * - 관리자가 아닌 계정으로 관리자 화면 → 수출 로드맵 (안내 토스트는 beforeEach가 띄운다)
- * - 로그인 상태에서 홈 → 관리자는 관리자 홈, 그 밖의 계정은 수출 로드맵
+ * - 관리자가 아닌 계정으로 관리자 화면 → 맞춤 추천 (안내 토스트는 beforeEach가 띄운다)
+ * - 로그인 상태에서 홈 → 관리자는 관리자 홈, 그 밖의 계정은 홈(서비스 소개)을 그대로 본다 (REVISION_05: 수출 로드맵 삭제)
  * - 로그인 상태에서 로그인 화면 → 안전한 redirect 또는 각 계정의 첫 화면
  */
 export function authNavigationTarget(
@@ -263,8 +256,8 @@ export function authNavigationTarget(
   if ((to.meta.requiresAuth || to.meta.requiresAdmin) && !auth.authenticated) {
     return { name: 'login', query: { redirect: to.fullPath } }
   }
-  if (to.meta.requiresAdmin && !admin) return { name: 'roadmap' }
-  if (auth.authenticated && to.name === 'home') return admin ? { name: 'admin-home' } : { name: 'roadmap' }
+  if (to.meta.requiresAdmin && !admin) return { name: 'programs-recommended' }
+  if (admin && to.name === 'home') return { name: 'admin-home' }
   if (auth.authenticated && to.name === 'login') return afterLoginPath(to.query.redirect, router, auth.role)
   return true
 }
@@ -275,7 +268,7 @@ interface RouteNameMeta {
   meta: RouteMeta
 }
 
-/** 관리자가 아닌 계정이 관리자 화면을 열었는지 (수출 로드맵으로 보내며 안내한다) */
+/** 관리자가 아닌 계정이 관리자 화면을 열었는지 (맞춤 추천으로 보내며 안내한다) */
 export function isAdminDenied(to: RouteNameMeta, auth: NavigationAuth): boolean {
   return Boolean(to.meta.requiresAdmin) && auth.authenticated && auth.role !== 'admin'
 }

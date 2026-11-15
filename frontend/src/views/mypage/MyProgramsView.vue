@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * 관심·준비 중·신청완료 사업 — 상태별 탭 하나의 관리 화면.
+ * 나의 사업 관리 (관심·준비 중·신청완료) — 상태별 탭 하나의 관리 화면.
  * 탭은 URL ?tab=interested|preparing|applied 와 동기화한다.
  */
 import { computed } from 'vue'
@@ -39,7 +39,7 @@ const tabs = computed<TabItem<ApplicationTab>[]>(() =>
 <template>
   <div class="page">
     <PageHeader
-      title="관심·준비 중·신청완료 사업"
+      title="나의 사업 관리"
       description="저장한 사업을 상태별로 관리합니다. 기록은 이 기기에만 저장됩니다."
     />
 

@@ -34,7 +34,7 @@ const profileOpen = ref(false)
       <AdminNav class="d-none d-lg-flex" />
 
       <div class="admin-header__right">
-        <RouterLink :to="{ name: 'roadmap' }" class="btn btn-ghost btn-sm d-none d-lg-inline-flex">
+        <RouterLink :to="{ name: 'programs-recommended' }" class="btn btn-ghost btn-sm d-none d-lg-inline-flex">
           사용자 화면 보기
         </RouterLink>
         <ProfileMenu v-model:open="profileOpen" />

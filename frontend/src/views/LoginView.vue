@@ -43,7 +43,7 @@ watch(mode, () => {
 })
 
 /**
- * 로그인이 필요한 화면·동작에서 넘어왔으면 그 화면으로, 아니면 기업 회원은 수출 로드맵,
+ * 로그인이 필요한 화면·동작에서 넘어왔으면 그 화면으로, 아니면 기업 회원은 맞춤 추천,
  * 관리자 계정은 관리자 홈으로 (REVISION_03 §4, REVISION_04 §5.2)
  */
 function destination(): string {
@@ -78,7 +78,7 @@ async function submitLogin() {
         {{ mode === 'signup' ? '회원가입' : '로그인' }}
       </h1>
       <p class="login-card__lead">
-        로그인하면 지원사업 관리에서 관심·준비 중·신청완료 사업과 서류함을 볼 수 있습니다.
+        로그인하면 지원사업 관리에서 나의 사업 관리와 서류함을 볼 수 있습니다.
       </p>
 
       <NoticeBanner v-if="auth.state.errorMessage" tone="warning" class="mt-3">
@@ -173,10 +173,10 @@ async function submitLogin() {
 
       <ul class="login-card__notes">
         <li>
-          수출 로드맵·기업 맞춤 지원사업·전체 지원사업·기업 프로필과 커뮤니티 읽기는 로그인하지 않아도 이용할 수
+          기업 맞춤 지원사업·전체 지원사업·기업 프로필과 커뮤니티 읽기는 로그인하지 않아도 이용할 수
           있습니다.
         </li>
-        <li>기업 회원은 수출 로드맵으로, 관리자 계정은 관리자 홈으로 이동합니다.</li>
+        <li>기업 회원은 맞춤 추천으로, 관리자 계정은 관리자 홈으로 이동합니다.</li>
         <li>입력한 기업정보는 로그인과 관계없이 이 기기에만 저장됩니다.</li>
       </ul>
     </section>

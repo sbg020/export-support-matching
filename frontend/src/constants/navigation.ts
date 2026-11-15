@@ -1,6 +1,6 @@
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 
-export type NavSectionKey = 'roadmap' | 'find' | 'programs' | 'manage' | 'community'
+export type NavSectionKey = 'intro' | 'find' | 'programs' | 'manage' | 'community'
 
 export interface NavItem {
   label: string
@@ -23,15 +23,16 @@ export const APP_NAME = '수출지원사업 매칭'
 export const LOGOUT_MESSAGE = '로그아웃했습니다. 이 기기에 저장한 기업정보는 그대로 남아 있습니다.'
 
 /**
- * 메뉴 정의 (REVISION_03 §3.1). 상단 주 메뉴 5개와 그 아래 하위 메뉴 패널, 모바일 서랍,
+ * 메뉴 정의 (REVISION_03 §3.1, REVISION_05에서 수출 로드맵 삭제). 상단 주 메뉴 5개(서비스 소개 포함)와 그 아래 하위 메뉴 패널, 모바일 서랍,
  * 각 화면 제목 아래의 하위 메뉴 탭(SectionNav)이 모두 이 정의를 쓴다.
  * 주 메뉴를 누르면 그 섹션의 첫 번째 하위 메뉴가 열린다. 메뉴에는 아이콘을 두지 않는다.
  */
 export const NAV_SECTIONS: NavSection[] = [
   {
-    key: 'roadmap',
-    label: '수출 로드맵',
-    items: [{ label: '수출 로드맵', routeName: 'roadmap' }],
+    // 서비스 소개 = 홈(랜딩페이지). 하위 메뉴는 홈 하나 (REVISION_05)
+    key: 'intro',
+    label: '서비스 소개',
+    items: [{ label: '서비스 소개', routeName: 'home' }],
   },
   {
     key: 'find',
@@ -50,7 +51,7 @@ export const NAV_SECTIONS: NavSection[] = [
     key: 'manage',
     label: '지원사업 관리',
     items: [
-      { label: '관심·준비 중·신청완료 사업', routeName: 'manage-programs' },
+      { label: '나의 사업 관리', routeName: 'manage-programs' },
       { label: '서류함', routeName: 'manage-documents' },
     ],
   },
