@@ -1,0 +1,140 @@
+/*
+ * 메인 랜딩페이지 공통 스타일 (REVISION_05). 홈 화면 컴포넌트(components/home/*)만 쓴다.
+ * 큰 타이포그래피, 넉넉한 여백, 블랙·옐로우 대비. 그림자·그라데이션은 쓰지 않는다.
+ */
+.lp {
+  --lp-max: 1240px;
+  --lp-section-y: clamp(88px, 12vw, 160px);
+  --lp-radius: 28px;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  overflow-x: clip;
+}
+
+.lp-container {
+  width: 100%;
+  max-width: calc(var(--lp-max) + var(--page-gutter) * 2);
+  margin: 0 auto;
+  padding: 0 var(--page-gutter);
+}
+
+.lp-section {
+  padding: var(--lp-section-y) 0;
+}
+
+.lp-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 var(--space-5);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+}
+
+.lp-eyebrow::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-yellow);
+  box-shadow: 0 0 0 1px rgba(17, 17, 17, 0.15);
+}
+
+.lp-title {
+  margin: 0;
+  font-size: clamp(2rem, 4.6vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.22;
+  letter-spacing: -0.035em;
+  color: inherit;
+  word-break: keep-all;
+}
+
+.lp-title--md {
+  font-size: clamp(1.875rem, 3.4vw, 2.625rem);
+}
+
+.lp-title--xl {
+  font-size: clamp(2.5rem, 7.4vw, 6rem);
+  line-height: 1.12;
+  letter-spacing: -0.045em;
+}
+
+.lp-lead {
+  margin-top: var(--space-5);
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  line-height: 1.7;
+  color: var(--color-text-muted);
+  word-break: keep-all;
+}
+
+/* 핵심 단어 강조: 블랙 배경에서는 옐로우 글자, 흰 배경에서는 옐로우 밑줄 띠 */
+.lp-mark {
+  color: var(--color-yellow);
+  font-style: normal;
+}
+
+.lp-mark-bar {
+  font-style: normal;
+  background: linear-gradient(transparent 62%, var(--color-yellow) 62%, var(--color-yellow) 92%, transparent 92%);
+}
+
+.lp-btn {
+  --bs-btn-border-radius: var(--radius-pill);
+  --bs-btn-padding-x: 1.6rem;
+  min-height: 56px;
+  font-size: var(--fs-md);
+}
+
+.lp-btn-outline-light {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: rgba(255, 255, 255, 0.4);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: rgba(255, 255, 255, 0.08);
+  --bs-btn-hover-border-color: #fff;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: rgba(255, 255, 255, 0.12);
+  --bs-btn-active-border-color: #fff;
+}
+
+.lp-example-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-yellow);
+  color: var(--color-ink);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+}
+
+.lp-dark :focus-visible {
+  outline-color: var(--color-yellow);
+}
+
+/* 스크롤 등장 (v-reveal). 동작 줄이기 설정에서는 바로 보인다 */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--reveal-delay, 0ms),
+    transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--reveal-delay, 0ms);
+}
+
+.reveal.is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
