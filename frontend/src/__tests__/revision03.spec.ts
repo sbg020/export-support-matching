@@ -72,13 +72,13 @@ afterEach(() => {
 })
 
 describe('로그인 후 첫 화면과 로그인 필요 화면', () => {
-  it('redirect가 없거나 허용되지 않으면 수출 로드맵, 안전한 redirect면 그 화면', () => {
+  it('redirect가 없거나 허용되지 않으면 맞춤 추천(REVISION_05), 안전한 redirect면 그 화면', () => {
     const router = makeRouter()
-    expect(AFTER_LOGIN_PATH).toBe('/roadmap')
-    expect(afterLoginPath(undefined, router)).toBe('/roadmap')
+    expect(AFTER_LOGIN_PATH).toBe('/programs/recommended')
+    expect(afterLoginPath(undefined, router)).toBe('/programs/recommended')
     expect(afterLoginPath('/manage/programs', router)).toBe('/manage/programs')
-    expect(afterLoginPath('https://example.com', router)).toBe('/roadmap')
-    expect(afterLoginPath('/login', router)).toBe('/roadmap')
+    expect(afterLoginPath('https://example.com', router)).toBe('/programs/recommended')
+    expect(afterLoginPath('/login', router)).toBe('/programs/recommended')
   })
 
   it('비로그인으로 지원사업 관리(기존 주소 포함)를 열면 로그인 화면으로 가고 돌아올 주소를 남긴다', async () => {
@@ -93,12 +93,12 @@ describe('로그인 후 첫 화면과 로그인 필요 화면', () => {
     expect((await at(router, '/')).name).toBe('home')
   })
 
-  it('로그인 상태: 홈 → 수출 로드맵, 로그인 화면 → redirect 또는 수출 로드맵', async () => {
+  it('로그인 상태: 홈은 서비스 소개를 그대로 보고(REVISION_05), 로그인 화면 → redirect 또는 맞춤 추천', async () => {
     const router = makeGuardedRouter(() => true)
-    expect((await at(router, '/')).fullPath).toBe('/roadmap')
-    expect((await at(router, '/login')).fullPath).toBe('/roadmap')
+    expect((await at(router, '/')).fullPath).toBe('/')
+    expect((await at(router, '/login')).fullPath).toBe('/programs/recommended')
     expect((await at(router, '/login?redirect=/manage/programs')).fullPath).toBe('/manage/programs')
-    expect((await at(router, '/login?redirect=https://example.com')).fullPath).toBe('/roadmap')
+    expect((await at(router, '/login?redirect=https://example.com')).fullPath).toBe('/programs/recommended')
   })
 
   describe('로그인 화면', () => {
@@ -120,8 +120,8 @@ describe('로그인 후 첫 화면과 로그인 필요 화면', () => {
       return router.currentRoute.value
     }
 
-    it('redirect 없이 로그인하면 수출 로드맵으로 간다', async () => {
-      expect((await loginFrom('/login')).fullPath).toBe('/roadmap')
+    it('redirect 없이 로그인하면 맞춤 추천으로 간다 (역할 없는 응답 = 기업 회원)', async () => {
+      expect((await loginFrom('/login')).fullPath).toBe('/programs/recommended')
     })
 
     it('로그인이 필요한 화면에서 넘어왔으면 그 화면으로 돌아간다', async () => {
@@ -144,11 +144,11 @@ describe('상단 주 메뉴와 하위 메뉴 패널', () => {
   const allHidden = () => subLists().every((ul) => ul.attributes('hidden') !== undefined)
   const noneHidden = () => subLists().every((ul) => ul.attributes('hidden') === undefined)
 
-  it('주 메뉴 5개가 순서·이름대로 있고 아이콘이 없으며, 첫 하위 화면으로 연결된다', () => {
+  it('주 메뉴 5개(서비스 소개 포함, 수출 로드맵 삭제)가 순서·이름대로 있고 아이콘이 없으며, 첫 하위 화면으로 연결된다', () => {
     const links = wrapper.findAll('.top-nav__link')
-    expect(links.map((a) => a.text())).toEqual(['수출 로드맵', '기업 맞춤 지원사업', '전체 지원사업', '지원사업 관리', '커뮤니티'])
+    expect(links.map((a) => a.text())).toEqual(['서비스 소개', '기업 맞춤 지원사업', '전체 지원사업', '지원사업 관리', '커뮤니티'])
     expect(links.map((a) => a.attributes('href'))).toEqual([
-      '/roadmap',
+      '/',
       '/programs/recommended',
       '/programs',
       '/manage/programs',
@@ -159,16 +159,16 @@ describe('상단 주 메뉴와 하위 메뉴 패널', () => {
     expect(wrapper.get('.brand-link').text()).toContain('수출지원사업 매칭')
   })
 
-  it('마우스를 올리면 하위 항목 8개가 보이고 Esc로 다시 숨는다 (기업 진단은 REVISION_04에서 없앰)', async () => {
+  it('마우스를 올리면 하위 항목 8개가 보이고 Esc로 다시 숨는다 (서비스 소개 추가, 수출 로드맵 삭제)', async () => {
     expect(allHidden()).toBe(true)
     await wrapper.get('.top-nav__list').trigger('mouseenter')
     expect(noneHidden()).toBe(true)
     expect(wrapper.findAll('.top-nav__sublink').map((a) => a.text())).toEqual([
-      '수출 로드맵',
+      '서비스 소개',
       '맞춤 추천',
       '전체 공고',
       '공고 달력',
-      '관심·준비 중·신청완료 사업',
+      '나의 사업 관리',
       '서류함',
       '지원사업 후기',
       '지원사업 정보방',
@@ -223,7 +223,7 @@ describe('프로필 팝업과 로그아웃', () => {
     fetchMock = stubAuthApi()
     await useAuth().login('ADMIN', 'test-only')
     router = makeGuardedRouter()
-    await at(router, '/roadmap')
+    await at(router, '/programs/recommended')
     wrapper = mount(AppHeader, { props: { menuOpen: false }, global: { plugins: [router] }, attachTo: document.body })
   })
   afterEach(() => wrapper.unmount())
@@ -267,9 +267,10 @@ describe('프로필 팝업과 로그아웃', () => {
     expect(useAuth().state.status).toBe('anonymous')
     expect(router.currentRoute.value.fullPath).toBe('/')
     expectStorageUnchanged()
-    // 비로그인 헤더의 로그인 버튼은 redirect 없이 로그인 화면으로 간다
-    expect(wrapper.get('a.btn-primary').text()).toBe('로그인')
-    expect(wrapper.get('a.btn-primary').attributes('href')).toBe('/login')
+    // 비로그인 헤더의 로그인 링크는 redirect 없이 로그인 화면으로, 회원가입은 로그인 화면의 회원가입 탭으로 간다 (REVISION_05)
+    expect(wrapper.get('a.profile-menu__login').text()).toBe('로그인')
+    expect(wrapper.get('a.profile-menu__login').attributes('href')).toBe('/login')
+    expect(wrapper.get('a.profile-menu__signup').attributes('href')).toBe('/login?mode=signup')
   })
 })
 
@@ -282,7 +283,7 @@ describe('데이터 보존', () => {
       landed.push((await at(router, path)).name)
     }
     // 비로그인이므로 지원사업 관리 주소는 로그인 화면에서 멈춘다
-    expect(landed).toEqual(['company-profile', 'company-profile', 'company-profile', 'login', 'login', 'roadmap', 'home'])
+    expect(landed).toEqual(['company-profile', 'company-profile', 'company-profile', 'login', 'login', 'programs-recommended', 'home'])
     expectStorageUnchanged()
   })
 })

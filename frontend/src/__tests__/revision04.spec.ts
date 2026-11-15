@@ -22,7 +22,6 @@ import { useToast } from '@/stores/toastStore'
 import App from '@/App.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import AdminHeader from '@/components/layout/AdminHeader.vue'
-import RoadmapView from '@/views/RoadmapView.vue'
 import ProgramRecommendedView from '@/views/programs/ProgramRecommendedView.vue'
 import DiagnoseInputView from '@/views/diagnose/DiagnoseInputView.vue'
 import { blankProgram } from './fixtures'
@@ -80,7 +79,6 @@ const USER_PATHS = [
   '/programs/recommended',
   '/programs/calendar',
   '/programs/P001',
-  '/roadmap',
   '/manage/programs',
   '/manage/documents',
   '/community/reviews',
@@ -150,9 +148,9 @@ describe('공고 데이터 삭제 (§3.3)', () => {
 })
 
 describe('기업 진단 삭제·수출 로드맵 (§4.1~§4.3)', () => {
-  it('/diagnose/result는 수출 로드맵으로 간다 (쿼리·해시 유지)', async () => {
+  it('/diagnose/result는 맞춤 추천으로 간다 (쿼리·해시 유지, REVISION_05에서 로드맵 삭제)', async () => {
     const route = await at(makeRouter(), '/diagnose/result?x=1#top')
-    expect(route.name).toBe('roadmap')
+    expect(route.name).toBe('programs-recommended')
     expect(route.query).toEqual({ x: '1' })
     expect(route.hash).toBe('#top')
     expect(makeRouter().hasRoute('diagnose-result')).toBe(false)
@@ -163,7 +161,7 @@ describe('기업 진단 삭제·수출 로드맵 (§4.1~§4.3)', () => {
     expect(find.items.map((item) => item.label)).toEqual(['맞춤 추천'])
     expect(firstRouteName(find)).toBe('programs-recommended')
     const router = makeRouter()
-    await at(router, '/roadmap')
+    await at(router, '/programs')
     const header = mount(AppHeader, { props: { menuOpen: false }, global: { plugins: [router] } })
     const link = header.findAll('.top-nav__link').find((a) => a.text() === '기업 맞춤 지원사업')
     expect(link?.attributes('href')).toBe('/programs/recommended')
@@ -171,18 +169,13 @@ describe('기업 진단 삭제·수출 로드맵 (§4.1~§4.3)', () => {
     header.unmount()
   })
 
-  it('수출 로드맵: 판정 대상 공고 카드가 있고 단계 가중치 버전 카드·기업 진단 보기 버튼이 없다', async () => {
+  it('수출 로드맵 화면은 없고(REVISION_05), 예전 주소는 맞춤 추천으로 간다', async () => {
     const router = makeRouter()
-    await at(router, '/roadmap')
-    const wrapper = mount(RoadmapView, { global: { plugins: [router] } })
-    await flushPromises()
-    const text = wrapper.text()
-    expect(text).toContain('판정 대상 공고')
-    expect(text).toContain('공고 등록 전')
-    expect(text).not.toContain('단계 가중치 버전')
-    expect(text).not.toContain('기업 진단 보기')
-    expect(text).not.toContain('테스트 데이터 기준')
-    wrapper.unmount()
+    expect(router.hasRoute('roadmap')).toBe(false)
+    const route = await at(router, '/roadmap?tab=x#h')
+    expect(route.name).toBe('programs-recommended')
+    expect(route.query).toEqual({ tab: 'x' })
+    expect(route.hash).toBe('#h')
   })
 
   describe('기업 프로필의 이동', () => {
@@ -197,26 +190,26 @@ describe('기업 진단 삭제·수출 로드맵 (§4.1~§4.3)', () => {
       return { router, wrapper }
     }
 
-    it("입력 완료 후 수출 로드맵으로 간다", async () => {
+    it("입력 완료 후 맞춤 추천으로 간다", async () => {
       // 사업자등록번호는 저장하지 않는 세션 입력이라 테스트 전용 형식 값을 넣는다
       store.replaceProfile({ ...createTestAccountProfile(), businessNumber: '000-00-00000' })
       const { router, wrapper } = await mountInput('/profile?step=6')
       await wrapper.get('form').trigger('submit')
-      await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('roadmap'))
+      await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('programs-recommended'))
       wrapper.unmount()
     })
 
-    it("빠진 항목이 있으면 '입력 중' 상태로 수출 로드맵 보기 버튼이 로드맵을 연다", async () => {
+    it("빠진 항목이 있으면 '입력 중' 상태로 맞춤 추천 보기 버튼이 맞춤 추천을 연다", async () => {
       // 지금 단계(관심 분야)는 채우고 다른 필수 항목은 비워 둔다
       store.replaceProfile({ ...createEmptyProfile(), companyName: '테스트 전용 기업', interestAreas: ['logistics'] })
       const { router, wrapper } = await mountInput('/profile?step=6')
       await wrapper.get('form').trigger('submit')
       await flushPromises()
-      expect(wrapper.text()).toContain('지금 수출 로드맵을 보면')
-      const button = wrapper.findAll('button').find((b) => b.text().includes("'입력 중' 상태로 수출 로드맵 보기"))
+      expect(wrapper.text()).toContain('지금 맞춤 추천을 보면')
+      const button = wrapper.findAll('button').find((b) => b.text().includes("'입력 중' 상태로 맞춤 추천 보기"))
       expect(button).toBeTruthy()
       await button!.trigger('click')
-      await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('roadmap'))
+      await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('programs-recommended'))
       wrapper.unmount()
     })
   })
@@ -306,10 +299,10 @@ describe('이동 규칙 (§5.2)', () => {
     expect(route.query.redirect).toBe('/admin/review?id=x')
   })
 
-  it('관리자가 아닌 계정으로 관리자 화면 → 수출 로드맵 (안내 대상)', async () => {
+  it('관리자가 아닌 계정으로 관리자 화면 → 맞춤 추천 (안내 대상, REVISION_05)', async () => {
     for (const auth of [TEST, MEMBER]) {
       const router = guarded(auth)
-      expect((await at(router, '/admin/settings')).fullPath).toBe('/roadmap')
+      expect((await at(router, '/admin/settings')).fullPath).toBe('/programs/recommended')
       expect(isAdminDenied(router.resolve('/admin/settings'), auth)).toBe(true)
     }
     expect(isAdminDenied(makeRouter().resolve('/admin'), ADMIN)).toBe(false)
@@ -320,18 +313,18 @@ describe('이동 규칙 (§5.2)', () => {
   it('관리자: 홈 → 관리자 홈, 로그인 화면 → redirect 또는 관리자 홈, 사용자 화면도 열 수 있다', async () => {
     const router = guarded(ADMIN)
     expect((await at(router, '/')).fullPath).toBe('/admin')
-    expect((await at(router, '/roadmap')).fullPath).toBe('/roadmap')
+    expect((await at(router, '/programs')).fullPath).toBe('/programs')
     expect((await at(router, '/login')).fullPath).toBe('/admin')
     expect((await at(router, '/login?redirect=/admin/review')).fullPath).toBe('/admin/review')
     expect((await at(router, '/login?redirect=/programs/recommended')).fullPath).toBe('/programs/recommended')
     expect((await at(router, '/login?redirect=https://example.com')).fullPath).toBe('/admin')
   })
 
-  it('그 밖의 계정은 지금 규칙 그대로: 홈·로그인 → 수출 로드맵, 관리자 redirect는 거부', async () => {
+  it('그 밖의 계정: 홈은 서비스 소개, 로그인 → 맞춤 추천, 관리자 redirect는 거부 (REVISION_05)', async () => {
     const router = guarded(TEST)
-    expect((await at(router, '/')).fullPath).toBe('/roadmap')
-    expect((await at(router, '/login')).fullPath).toBe('/roadmap')
-    expect((await at(router, '/login?redirect=/admin/review')).fullPath).toBe('/roadmap')
+    expect((await at(router, '/')).fullPath).toBe('/')
+    expect((await at(router, '/login')).fullPath).toBe('/programs/recommended')
+    expect((await at(router, '/login?redirect=/admin/review')).fullPath).toBe('/programs/recommended')
     expect((await at(router, '/login?redirect=/manage/programs')).fullPath).toBe('/manage/programs')
   })
 
@@ -339,7 +332,7 @@ describe('이동 규칙 (§5.2)', () => {
     const router = makeRouter()
     expect(afterLoginPath(undefined, router, 'admin')).toBe(ADMIN_HOME_PATH)
     expect(afterLoginPath('/admin/kotra', router, 'admin')).toBe('/admin/kotra')
-    expect(afterLoginPath('/roadmap', router, 'admin')).toBe('/roadmap')
+    expect(afterLoginPath('/programs', router, 'admin')).toBe('/programs')
     expect(afterLoginPath('/admin/kotra', router, 'test')).toBe(AFTER_LOGIN_PATH)
     expect(afterLoginPath('/admin/kotra', router)).toBe(AFTER_LOGIN_PATH)
     expect(safeRedirect('/admin', router, 'member')).toBeNull()
@@ -354,7 +347,7 @@ describe('이동 규칙 (§5.2)', () => {
   it('관리자 화면의 탭 제목은 "<제목> | 관리자 | 서비스 이름"', () => {
     const router = makeRouter()
     expect(documentTitle(router.resolve('/admin/kotra'))).toBe('KOTRA CSV 업로드 | 관리자 | 수출지원사업 매칭')
-    expect(documentTitle(router.resolve('/roadmap'))).toBe('수출 로드맵 | 수출지원사업 매칭')
+    expect(documentTitle(router.resolve('/programs'))).toBe('전체 공고 | 수출지원사업 매칭')
   })
 })
 
@@ -372,7 +365,7 @@ describe('관리자 영역 (§5.3·§6~§12)', () => {
     const adminRoutes = new Set(ADMIN_NAV_ITEMS.map((item) => item.routeName))
     expect(NAV_SECTIONS.flatMap((s) => s.items).some((item) => adminRoutes.has(item.routeName))).toBe(false)
     const router = makeRouter()
-    await at(router, '/roadmap')
+    await at(router, '/programs')
     const header = mount(AppHeader, { props: { menuOpen: false }, global: { plugins: [router] } })
     expect(header.findAll('a').some((a) => (a.attributes('href') ?? '').startsWith('/admin'))).toBe(false)
     header.unmount()
@@ -386,7 +379,7 @@ describe('관리자 영역 (§5.3·§6~§12)', () => {
     expect(links.map((a) => a.text())).toEqual(['관리자 홈', '기업마당 수집', 'KOTRA 업로드', '공고 검수', '공고 관리', '기준·설정'])
     expect(header.findAll('[aria-current="page"]').map((a) => a.text())).toEqual(['공고 관리'])
     const userView = header.findAll('a').find((a) => a.text() === '사용자 화면 보기')
-    expect(userView?.attributes('href')).toBe('/roadmap')
+    expect(userView?.attributes('href')).toBe('/programs/recommended')
     expect(header.get('.brand-link').attributes('href')).toBe('/admin')
     header.unmount()
   })
@@ -468,7 +461,7 @@ describe('관리자 프로필 팝업 (§5.2)', () => {
   it('관리자는 사용자 화면에서도 팝업 항목이 관리자 홈 · 로그아웃이다', async () => {
     await useAuth().login('ADMIN', 'test-only')
     const router = makeRouter()
-    await at(router, '/roadmap')
+    await at(router, '/programs')
     const header = mount(AppHeader, { props: { menuOpen: false }, global: { plugins: [router] }, attachTo: document.body })
     const button = header.get('button[aria-label^="계정 메뉴"]')
     button.element.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }))

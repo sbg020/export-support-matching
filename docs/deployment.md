@@ -68,12 +68,12 @@ npx vercel deploy --prod    # 운영 (exportsupportmatching.vercel.app)
 
 아래 주소를 **새 탭에서 직접 열고, 새로고침**해 404 없이 열리는지 확인합니다.
 
-- `/` — 한 줄 소개 → 이용 방법 3단계 → `추천받기`, 상단 한 줄 헤더의 주 메뉴 5개(수출 로드맵 · 기업 맞춤 지원사업 · 전체 지원사업 · 지원사업 관리 · 커뮤니티, 아이콘 없음)와 마우스를 올렸을 때 펼쳐지는 하위 메뉴. 왼쪽 사이드바가 없는지
-- `/login` — 테스트 계정 `TEST` 로그인 후 `/profile`에 `테스트 계정(TEST)의 기업 프로필입니다` 안내와 `EC 테스트식품(주)`, `/roadmap` 현재 단계 `내수`, 소문자 `test` 실패. 로그아웃하면 기기 공용 프로필로 돌아오는지
+- `/` — 메인 랜딩페이지(블랙 Hero → 문제 → 핵심 서비스 → 이용 과정 → 추천 결과 미리보기 → 공고 기관 띠 → 블랙 CTA). 히어로 위 헤더가 투명·흰 글자이고 스크롤하면 흰 배경으로 바뀌는지, CTA가 `/programs/recommended`·`/programs`로 가는지, 예시 UI에 `예시 화면` 표시가 있는지. 주 메뉴 5개(서비스 소개 · 기업 맞춤 지원사업 · 전체 지원사업 · 지원사업 관리 · 커뮤니티)와 `로그인`·`회원가입`
+- `/login` — 테스트 계정 `TEST` 로그인 후 `/profile`에 `테스트 계정(TEST)의 기업 프로필입니다` 안내와 `EC 테스트식품(주)`, 로그인 후 `/programs/recommended`, 소문자 `test` 실패. 로그아웃하면 기기 공용 프로필로 돌아오는지
 - `/login` — 관리자 계정 `ADMIN` 로그인 후 `/admin`(관리자 홈)이 첫 화면인지, 관리자 메뉴 6개 화면, `사용자 화면 보기`, 프로필 팝업(`관리자 홈`·`로그아웃`), 로그아웃 후 홈. 틀린 비밀번호·소문자 아이디 실패, 회원가입 탭은 비활성과 이유 표시
-- `TEST`로 로그인한 상태에서 `/admin`을 열면 `/roadmap`과 안내 `관리자 계정만 볼 수 있는 화면입니다.`. 비로그인 `/admin/review` → 로그인 화면 → `ADMIN`으로 로그인하면 `/admin/review`로 돌아오는지
-- `/programs`, `/programs/recommended`, `/programs/calendar`, `/roadmap` — 테스트 데이터 안내 카드·`초안 기준`이 없고, 공고 없음 빈 상태, 건수 `-`. 맞춤 추천은 `신청 가능 · 확인 필요 · 신청 불가` 탭(건수 `-`)이고 검색창·필터·정렬이 없는지
-- `/programs/P001` — `해당 공고를 찾을 수 없습니다.` / `/diagnose/result` → `/roadmap`, 상단 `기업 맞춤 지원사업`의 하위 메뉴가 맞춤 추천 하나인지
+- `TEST`로 로그인한 상태에서 `/admin`을 열면 `/programs/recommended`와 안내 `관리자 계정만 볼 수 있는 화면입니다.`. 비로그인 `/admin/review` → 로그인 화면 → `ADMIN`으로 로그인하면 `/admin/review`로 돌아오는지
+- `/programs`, `/programs/recommended`, `/programs/calendar` — 테스트 데이터 안내 카드·`초안 기준`이 없고, 공고 없음 빈 상태, 건수 `-`. 맞춤 추천은 `신청 가능 · 확인 필요 · 신청 불가` 탭(건수 `-`)이고 검색창·필터·정렬이 없는지
+- `/programs/P001` — `해당 공고를 찾을 수 없습니다.` / `/diagnose/result`·`/roadmap` → `/programs/recommended`, 상단 `기업 맞춤 지원사업`의 하위 메뉴가 맞춤 추천 하나인지
 - `/admin/kotra` — 양식 내려받기, CSV 미리보기·오류 표시. `/admin/notices#bulk` — 정답세트 xlsx 검사 결과
 - `/profile`(기업 프로필, 로그인 불필요), `/programs`(하단 `#compare`), `/programs/아무-ID`
 - 로그인 후 `/manage/programs?tab=applied`, `/manage/documents` (로그아웃 상태에서는 로그인 화면으로 이동하고, 로그인하면 그 화면으로 돌아옴)

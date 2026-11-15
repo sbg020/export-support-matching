@@ -22,7 +22,6 @@ describe('경로', () => {
       '/programs': 'programs',
       '/programs/calendar': 'programs-calendar',
       '/programs/any-id': 'program-detail',
-      '/roadmap': 'roadmap',
       '/manage/programs': 'manage-programs',
       '/manage/documents': 'manage-documents',
       '/community/reviews': 'community-reviews',
@@ -59,7 +58,6 @@ describe('경로', () => {
       '/programs/recommended',
       '/programs',
       '/programs/calendar',
-      '/roadmap',
       '/community/reviews',
       '/community/info',
       '/community/info/p1',
@@ -73,11 +71,12 @@ describe('경로', () => {
     expect(resolved.params).toEqual({ board: 'info' })
   })
 
-  it('주 메뉴 섹션 값이 화면마다 정해져 있다 (홈·기업 프로필은 없음)', () => {
+  it('주 메뉴 섹션 값이 화면마다 정해져 있다 (홈은 서비스 소개, 기업 프로필은 없음)', () => {
     const router = makeRouter()
-    expect(router.resolve('/').meta.section).toBeUndefined()
+    expect(router.resolve('/').meta.section).toBe('intro')
     expect(router.resolve('/profile').meta.section).toBeUndefined()
-    expect(router.resolve('/roadmap').meta.section).toBe('roadmap')
+    // 수출 로드맵은 REVISION_05에서 없앴다 (예전 주소는 리다이렉트)
+    expect(router.hasRoute('roadmap')).toBe(false)
     expect(router.resolve('/programs/recommended').meta.section).toBe('find')
     expect(router.resolve('/programs/calendar').meta.section).toBe('programs')
     expect(router.resolve('/programs/abc').meta.section).toBe('programs')

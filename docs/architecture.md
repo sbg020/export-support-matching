@@ -19,22 +19,21 @@
 
 | 주 메뉴 (순서) | 하위 메뉴 | 경로 | 이름 | 로그인 |
 |---|---|---|---|---|
-| (홈) | - | `/` (로그인 상태면 `/roadmap`, 관리자는 `/admin`으로 이동) | `home` | 불필요 |
+| 0. 서비스 소개 | 서비스 소개 (메인 랜딩페이지, REVISION_05) | `/` (관리자는 `/admin`으로 이동) | `home` | 불필요 |
 | (로그인) | 로그인 / 회원가입 탭 | `/login` (`?mode=signup`, `?redirect=`) | `login` | - |
 | (프로필 팝업, 섹션 없음) | 기업 프로필 (기업정보 6단계 입력·저장) | `/profile` (`?step=1~6`) | `company-profile` | 불필요 |
-| 1. 수출 로드맵 | 수출 로드맵 | `/roadmap` | `roadmap` | 불필요 |
 | 2. 기업 맞춤 지원사업 | 맞춤 추천 (하위 메뉴 1개, REVISION_04) | `/programs/recommended` (`?tab=eligible\|needs-check\|ineligible`) | `programs-recommended` | 불필요 |
 | 3. 전체 지원사업 | 전체 공고 (둘러보기, 하단 비교 영역 `#compare`) | `/programs` (필터 `q`, `status`, `stage`, `cat`, `agency`, `region`, `method`, `sort`, 비교 `compare`) | `programs` | 불필요 |
 | | 공고 달력 | `/programs/calendar` | `programs-calendar` | 불필요 |
 | | (하위 메뉴 아님) 공고 상세 | `/programs/:id` (`?from=recommended\|calendar\|manage`, 예전 `mypage`도 받음) | `program-detail` | 불필요 |
-| 4. 지원사업 관리 | 관심·준비 중·신청완료 사업 | `/manage/programs` (`?tab=interested\|preparing\|applied`) | `manage-programs` | 필요 |
+| 4. 지원사업 관리 | 나의 사업 관리 (관심·준비 중·신청완료, REVISION_05에서 이름 변경) | `/manage/programs` (`?tab=interested\|preparing\|applied`) | `manage-programs` | 필요 |
 | | 서류함 | `/manage/documents` | `manage-documents` | 필요 |
 | 5. 커뮤니티 | 지원사업 후기 | `/community/reviews` (`q`, `scope`, `sort`, `cat`, `program`, `page`) | `community-reviews` | 읽기 불필요 |
 | | 지원사업 정보방 | `/community/info` (같은 쿼리) | `community-info` | 읽기 불필요 |
 | | (하위 메뉴 아님) 글쓰기 | `/community/:board(reviews\|info)/write` | `community-write` | 필요 |
 | | (하위 메뉴 아님) 글 보기 | `/community/:board(reviews\|info)/:postId` | `community-post` | 불필요 |
 
-내부 섹션 키는 `roadmap`·`find`·`programs`·`manage`·`community`이다(`find`는 화면 이름만 `기업 맞춤 지원사업`으로 바뀌었다). 기업 진단 화면(`diagnose-result`)은 REVISION_04에서 없앴고, 수출단계·다음 단계 조건·기준 안내와 `판정 대상 공고` 수는 수출 로드맵에서 본다.
+내부 섹션 키는 `intro`·`find`·`programs`·`manage`·`community`이다(REVISION_05: 수출 로드맵 `roadmap` 삭제, 서비스 소개 `intro` 추가)(`find`는 화면 이름만 `기업 맞춤 지원사업`으로 바뀌었다). 기업 진단 화면(`diagnose-result`)은 REVISION_04에서 없앴고, 수출단계·다음 단계 조건·기준 안내와 `판정 대상 공고` 수는 수출 로드맵에서 본다.
 
 ### 관리자 영역 (REVISION_04)
 
@@ -52,9 +51,9 @@
 로그인·로그아웃 이동 규칙은 `router/index.ts`의 순수 함수 `authNavigationTarget`과 `lib/redirect.ts`의 `afterLoginPath`에 있다.
 
 - 로그인이 필요한 화면·관리자 화면을 비로그인으로 열면 `/login?redirect=<그 화면>`으로 보낸다. 로그인하면 안전한 redirect(같은 사이트의 앱 경로, 로그인 화면 제외)로, 없거나 거부되면 기업 회원은 `/roadmap`, 관리자는 `/admin`으로 간다.
-- 관리자가 아닌 계정이 `/admin/*`을 열면 `/roadmap`으로 보내고 토스트 `관리자 계정만 볼 수 있는 화면입니다.`를 띄운다(`isAdminDenied`). 관리자가 아닌 계정의 로그인 redirect가 `/admin/*`이면 거부한다.
+- 관리자가 아닌 계정이 `/admin/*`을 열면 `/programs/recommended`로 보내고 토스트 `관리자 계정만 볼 수 있는 화면입니다.`를 띄운다(`isAdminDenied`). 관리자가 아닌 계정의 로그인 redirect가 `/admin/*`이면 거부한다.
 - 관리자는 사용자 화면도 열 수 있다. 사용자 화면에서 관리자의 프로필 팝업은 `관리자 홈`·`로그아웃`이다.
-- 헤더 `로그인` 버튼과 홈의 `추천받기`(비로그인)는 redirect를 붙이지 않는다. 로그인 상태에서 `/`를 열면 `/roadmap`(관리자는 `/admin`), `/login`을 열면 redirect 또는 각 계정의 첫 화면으로 간다.
+- 헤더 `로그인` 버튼과 홈의 `추천받기`(비로그인)는 redirect를 붙이지 않는다. 로그인 상태에서 `/`를 열면 서비스 소개를 그대로 보여 주고(관리자는 `/admin`), `/login`을 열면 redirect 또는 각 계정의 첫 화면으로 간다.
 - 로그아웃(프로필 팝업)은 서버 세션만 끝내고 `/`로 간다. 이 기기에 저장한 값은 지우지 않는다.
 
 기존 주소는 query·hash를 유지한 채 새 위치로 보낸다(`router/index.ts`의 `moved` 함수).
@@ -62,7 +61,8 @@
 | 기존 주소 | 새 주소 |
 |---|---|
 | `/programs/compare?ids=…` | `/programs?compare=…#compare` |
-| `/diagnose/result` | `/roadmap` (REVISION_04) |
+| `/diagnose/result` | `/programs/recommended` (REVISION_04·05) |
+| `/roadmap` | `/programs/recommended` (REVISION_05, 수출 로드맵 삭제) |
 | `/diagnose` · `/diagnose/input` | `/profile` (`?step=` 유지) |
 | `/mypage` · `/mypage/profile` | `/profile` |
 | `/mypage/programs` | `/manage/programs` |
