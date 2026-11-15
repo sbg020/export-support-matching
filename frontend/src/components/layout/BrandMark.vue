@@ -1,27 +1,33 @@
 <script setup lang="ts">
 /**
- * 로고 마크: 블랙 바탕에 옐로우 상승 화살표 (REVISION_05 블랙·옐로우).
- * inverse: 블랙 배경 위에서는 옐로우 바탕에 블랙 화살표로 바꿔 경계가 보이게 한다.
+ * Export Compass 로고 마크 (나침반, 사용자 제공 이미지 public/brand/logo.png).
+ * inverse: 블랙 배경(홈 히어로) 위에서는 검은 부분을 흰색으로 바꾼 이미지를 쓴다(노란 중심은 그대로).
+ * 옆에 서비스 이름 글자가 함께 나오므로 장식 이미지(alt 빈 값)로 둔다.
  */
-withDefaults(defineProps<{ size?: number; inverse?: boolean }>(), { size: 32, inverse: false })
+import { computed } from 'vue'
+
+const props = withDefaults(defineProps<{ size?: number; inverse?: boolean }>(), { size: 32, inverse: false })
+
+/** 원본 비율 (가로 2000 : 세로 1792) */
+const RATIO = 2000 / 1792
+const width = computed(() => Math.round(props.size * RATIO))
 </script>
 
 <template>
-  <svg :width="size" :height="size" viewBox="0 0 32 32" fill="none" aria-hidden="true" focusable="false">
-    <rect width="32" height="32" rx="9" :fill="inverse ? '#FFCF24' : '#111111'" />
-    <path
-      d="M9 21.5 14.5 16l3.5 3.5L23.5 12"
-      :stroke="inverse ? '#111111' : '#FFCF24'"
-      stroke-width="2.6"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    />
-    <path
-      d="M19 11.5h4.8v4.8"
-      :stroke="inverse ? '#111111' : '#FFCF24'"
-      stroke-width="2.6"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    />
-  </svg>
+  <img
+    :src="inverse ? '/brand/logo-inverse.png' : '/brand/logo.png'"
+    :width="width"
+    :height="size"
+    alt=""
+    class="brand-mark"
+    decoding="async"
+  />
 </template>
+
+<style scoped>
+.brand-mark {
+  display: block;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+</style>

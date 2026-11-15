@@ -346,8 +346,8 @@ describe('이동 규칙 (§5.2)', () => {
 
   it('관리자 화면의 탭 제목은 "<제목> | 관리자 | 서비스 이름"', () => {
     const router = makeRouter()
-    expect(documentTitle(router.resolve('/admin/kotra'))).toBe('KOTRA CSV 업로드 | 관리자 | 수출지원사업 매칭')
-    expect(documentTitle(router.resolve('/programs'))).toBe('전체 공고 | 수출지원사업 매칭')
+    expect(documentTitle(router.resolve('/admin/kotra'))).toBe('KOTRA CSV 업로드 | 관리자 | Export Compass')
+    expect(documentTitle(router.resolve('/programs'))).toBe('전체 공고 | Export Compass')
   })
 })
 

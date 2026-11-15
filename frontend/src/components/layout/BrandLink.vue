@@ -17,7 +17,7 @@ withDefaults(defineProps<{ admin?: boolean; inverse?: boolean }>(), { admin: fal
 <template>
   <RouterLink v-slot="{ href, navigate }" :to="admin ? { name: 'admin-home' } : { name: 'home' }" custom>
     <a v-bind="$attrs" :href="href" class="brand-link" :class="{ 'is-inverse': inverse }" @click="navigate">
-      <BrandMark :size="30" :inverse="inverse" />
+      <BrandMark :size="36" :inverse="inverse" />
       <span class="brand-link__name">{{ APP_NAME }}</span>
       <span v-if="admin" class="brand-link__tag">{{ ADMIN_AREA_LABEL }}</span>
     </a>

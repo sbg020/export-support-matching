@@ -156,7 +156,7 @@ describe('상단 주 메뉴와 하위 메뉴 패널', () => {
     ])
     expect(wrapper.get('nav.top-nav').findAll('svg')).toHaveLength(0)
     // 로고(아이콘 + 서비스 이름)는 그대로 있다
-    expect(wrapper.get('.brand-link').text()).toContain('수출지원사업 매칭')
+    expect(wrapper.get('.brand-link').text()).toContain('Export Compass')
   })
 
   it('마우스를 올리면 하위 항목 8개가 보이고 Esc로 다시 숨는다 (서비스 소개 추가, 수출 로드맵 삭제)', async () => {

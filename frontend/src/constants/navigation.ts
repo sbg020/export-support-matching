@@ -17,7 +17,8 @@ export interface NavSection {
   items: NavItem[]
 }
 
-export const APP_NAME = '수출지원사업 매칭'
+/** 서비스 이름 (REVISION_05 이후 'Export Compass') */
+export const APP_NAME = 'Export Compass'
 
 /** 로그아웃 알림. 로그아웃은 서버 세션만 끝내고 이 기기에 저장한 정보는 지우지 않는다 */
 export const LOGOUT_MESSAGE = '로그아웃했습니다. 이 기기에 저장한 기업정보는 그대로 남아 있습니다.'
