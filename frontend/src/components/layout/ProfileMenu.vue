@@ -6,7 +6,7 @@
  *   키보드로 열면 첫 항목에 포커스를 둔다.
  *   Esc(포커스는 버튼으로)·바깥 누르기·항목 선택·화면 이동·Tab으로 밖으로 나갈 때 닫는다.
  *   하위 메뉴 패널이 열리면 AppHeader가 닫는다.
- * - 비로그인: '로그인' 버튼 (redirect 없이 로그인 화면, 로그인 후 수출 로드맵). 로그인 화면에서는 숨긴다.
+ * - 비로그인: '로그인' 버튼 (redirect 없이 로그인 화면, 로그인 후 맞춤 추천). 로그인 화면에서는 숨긴다.
  * - 확인 중: 자리만 비워 둔다 (가짜 아바타·스켈레톤 없음).
  * - 로그아웃은 서버 세션만 끝내고 홈으로 간다. 이 기기에 저장한 기업정보·관리 기록·직접 확인 답·비교 선택은 그대로 둔다.
  */
@@ -133,13 +133,13 @@ async function logout() {
         </ul>
       </div>
     </template>
-    <RouterLink
-      v-else-if="auth.state.status === 'anonymous' && route.name !== 'login'"
-      :to="{ name: 'login' }"
-      class="btn btn-primary btn-sm"
-    >
-      로그인
-    </RouterLink>
+    <div v-else-if="auth.state.status === 'anonymous' && route.name !== 'login'" class="profile-menu__guest">
+      <RouterLink :to="{ name: 'login' }" class="profile-menu__login">로그인</RouterLink>
+      <!-- 회원가입 탭은 로그인 화면에 있다(서버 DB 연결 전에는 준비 중 안내와 비활성 이유를 보여 준다) -->
+      <RouterLink :to="{ name: 'login', query: { mode: 'signup' } }" class="btn btn-primary btn-sm profile-menu__signup">
+        회원가입
+      </RouterLink>
+    </div>
   </div>
 </template>
 
@@ -151,6 +151,32 @@ async function logout() {
   justify-content: flex-end;
   min-width: 40px;
   min-height: 40px;
+}
+
+.profile-menu__guest {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.profile-menu__login {
+  padding: var(--space-2) var(--space-1);
+  color: var(--color-text);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.profile-menu__login:hover {
+  color: var(--color-heading);
+  text-decoration: underline;
+}
+
+.profile-menu__signup {
+  --bs-btn-border-radius: var(--radius-pill);
+  padding-inline: var(--space-4);
 }
 
 .profile-avatar {
@@ -171,15 +197,15 @@ async function logout() {
 
 .profile-avatar:hover,
 .profile-avatar[aria-expanded='true'] {
-  background: var(--color-primary-strong);
+  background: var(--color-ink-hover);
 }
 
 /* 기업 프로필 화면에서는 선택 상태 (테두리 고리로 색 외 표시) */
 .profile-avatar.is-current {
-  background: var(--color-primary-strong);
+  background: var(--color-ink);
   box-shadow:
     0 0 0 3px var(--color-surface),
-    0 0 0 5px var(--color-primary-strong);
+    0 0 0 5px var(--color-ink);
 }
 
 .profile-menu__popup {
@@ -220,7 +246,7 @@ async function logout() {
 
 .profile-menu__item:hover {
   background: var(--color-surface-sunken);
-  color: var(--color-primary-strong);
+  color: var(--color-ink);
 }
 
 .profile-menu__item:focus-visible {

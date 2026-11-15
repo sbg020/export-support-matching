@@ -52,7 +52,7 @@ defineProps<{
 
 .segmented__item.is-active {
   background: var(--color-surface);
-  color: var(--color-primary-strong);
+  color: var(--color-ink);
   box-shadow: var(--shadow-sm);
 }
 </style>

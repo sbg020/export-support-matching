@@ -1,22 +1,27 @@
 <script setup lang="ts">
-import { useId } from 'vue'
-
-withDefaults(defineProps<{ size?: number }>(), { size: 32 })
-
-// 로고가 여러 곳(헤더·모바일 서랍)에 있으므로 그라데이션 id를 인스턴스마다 다르게 한다.
-const gradientId = `brand-gradient-${useId()}`
+/**
+ * 로고 마크: 블랙 바탕에 옐로우 상승 화살표 (REVISION_05 블랙·옐로우).
+ * inverse: 블랙 배경 위에서는 옐로우 바탕에 블랙 화살표로 바꿔 경계가 보이게 한다.
+ */
+withDefaults(defineProps<{ size?: number; inverse?: boolean }>(), { size: 32, inverse: false })
 </script>
 
 <template>
   <svg :width="size" :height="size" viewBox="0 0 32 32" fill="none" aria-hidden="true" focusable="false">
-    <defs>
-      <linearGradient :id="gradientId" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#3478F6" />
-        <stop offset="1" stop-color="#27C2D4" />
-      </linearGradient>
-    </defs>
-    <rect width="32" height="32" rx="9" :fill="`url(#${gradientId})`" />
-    <path d="M9 21.5 14.5 16l3.5 3.5L23.5 12" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
-    <path d="M19 11.5h4.8v4.8" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+    <rect width="32" height="32" rx="9" :fill="inverse ? '#FFCF24' : '#111111'" />
+    <path
+      d="M9 21.5 14.5 16l3.5 3.5L23.5 12"
+      :stroke="inverse ? '#111111' : '#FFCF24'"
+      stroke-width="2.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M19 11.5h4.8v4.8"
+      :stroke="inverse ? '#111111' : '#FFCF24'"
+      stroke-width="2.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
   </svg>
 </template>

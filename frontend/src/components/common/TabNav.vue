@@ -94,8 +94,8 @@ function onKeydown(event: KeyboardEvent, index: number) {
 }
 
 .tab-nav__tab.is-active {
-  color: var(--color-primary-strong);
-  border-bottom-color: var(--color-primary-strong);
+  color: var(--color-ink);
+  border-bottom-color: var(--color-ink);
 }
 
 .tab-nav__tab:focus-visible {
@@ -115,7 +115,7 @@ function onKeydown(event: KeyboardEvent, index: number) {
 }
 
 .tab-nav__tab.is-active .tab-nav__count {
-  background: var(--color-primary-soft);
-  color: var(--color-primary-strong);
+  background: var(--color-yellow);
+  color: var(--color-ink);
 }
 </style>

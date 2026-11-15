@@ -100,32 +100,45 @@ a {
   min-height: 50px;
 }
 
+/* 주 버튼은 블랙, 보조 강조(랜딩 CTA 등)는 옐로우 + 블랙 글자 (REVISION_05) */
 .btn-primary {
   --bs-btn-color: #fff;
-  --bs-btn-bg: var(--color-primary-strong);
-  --bs-btn-border-color: var(--color-primary-strong);
+  --bs-btn-bg: var(--color-ink);
+  --bs-btn-border-color: var(--color-ink);
   --bs-btn-hover-color: #fff;
-  --bs-btn-hover-bg: var(--color-primary-hover);
-  --bs-btn-hover-border-color: var(--color-primary-hover);
+  --bs-btn-hover-bg: var(--color-ink-hover);
+  --bs-btn-hover-border-color: var(--color-ink-hover);
   --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: var(--color-primary-hover);
-  --bs-btn-active-border-color: var(--color-primary-hover);
+  --bs-btn-active-bg: var(--color-ink-hover);
+  --bs-btn-active-border-color: var(--color-ink-hover);
   --bs-btn-disabled-color: #fff;
-  --bs-btn-disabled-bg: var(--color-primary-strong);
-  --bs-btn-disabled-border-color: var(--color-primary-strong);
+  --bs-btn-disabled-bg: var(--color-ink);
+  --bs-btn-disabled-border-color: var(--color-ink);
 }
 
 .btn-outline-primary {
-  --bs-btn-color: var(--color-primary-strong);
-  --bs-btn-border-color: var(--color-primary-strong);
-  --bs-btn-hover-color: var(--color-primary-strong);
-  --bs-btn-hover-bg: var(--color-primary-soft);
-  --bs-btn-hover-border-color: var(--color-primary-strong);
-  --bs-btn-active-color: var(--color-primary-strong);
-  --bs-btn-active-bg: var(--color-primary-soft);
-  --bs-btn-active-border-color: var(--color-primary-strong);
-  --bs-btn-disabled-color: var(--color-primary-strong);
-  --bs-btn-disabled-border-color: var(--color-primary-strong);
+  --bs-btn-color: var(--color-ink);
+  --bs-btn-border-color: var(--color-ink);
+  --bs-btn-hover-color: var(--color-ink);
+  --bs-btn-hover-bg: var(--color-surface-sunken);
+  --bs-btn-hover-border-color: var(--color-ink);
+  --bs-btn-active-color: var(--color-ink);
+  --bs-btn-active-bg: var(--color-surface-sunken);
+  --bs-btn-active-border-color: var(--color-ink);
+  --bs-btn-disabled-color: var(--color-ink);
+  --bs-btn-disabled-border-color: var(--color-ink);
+}
+
+.btn-yellow {
+  --bs-btn-color: var(--color-ink);
+  --bs-btn-bg: var(--color-yellow);
+  --bs-btn-border-color: var(--color-yellow);
+  --bs-btn-hover-color: var(--color-ink);
+  --bs-btn-hover-bg: var(--color-yellow-hover);
+  --bs-btn-hover-border-color: var(--color-yellow-hover);
+  --bs-btn-active-color: var(--color-ink);
+  --bs-btn-active-bg: var(--color-yellow-hover);
+  --bs-btn-active-border-color: var(--color-yellow-hover);
 }
 
 .btn-secondary,

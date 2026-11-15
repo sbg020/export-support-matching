@@ -170,7 +170,7 @@ watch(open, async (value) => {
 
 /* 현재 섹션: 강조 글자색 + 굵은 글씨 + 글자 아래 3px 강조선 (색만으로 구분하지 않음) */
 .top-nav__link.is-current {
-  color: var(--color-primary-strong);
+  color: var(--color-ink);
   font-weight: var(--fw-bold);
 }
 
@@ -182,7 +182,7 @@ watch(open, async (value) => {
   left: var(--top-nav-pad);
   height: 3px;
   border-radius: 3px 3px 0 0;
-  background: var(--color-primary-strong);
+  background: var(--color-ink);
 }
 
 .top-nav__link:focus-visible,
@@ -224,11 +224,11 @@ watch(open, async (value) => {
 }
 
 .top-nav__sublink:hover {
-  color: var(--color-primary-strong);
+  color: var(--color-ink);
 }
 
 .top-nav__sublink.is-current {
-  color: var(--color-primary-strong);
+  color: var(--color-ink);
   font-weight: var(--fw-bold);
 }
 

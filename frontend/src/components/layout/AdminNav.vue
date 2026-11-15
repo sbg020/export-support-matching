@@ -68,7 +68,7 @@ const route = useRoute()
 }
 
 .admin-nav__link.is-current {
-  color: var(--color-primary-strong);
+  color: var(--color-ink);
   font-weight: var(--fw-bold);
 }
 
@@ -80,7 +80,7 @@ const route = useRoute()
   left: var(--admin-nav-pad);
   height: 3px;
   border-radius: 3px 3px 0 0;
-  background: var(--color-primary-strong);
+  background: var(--color-ink);
 }
 
 .admin-nav__link:focus-visible {

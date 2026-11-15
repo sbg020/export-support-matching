@@ -114,7 +114,7 @@ const STATUS_ICON = {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  background: var(--color-ink);
   transition: width 0.25s ease;
 }
 

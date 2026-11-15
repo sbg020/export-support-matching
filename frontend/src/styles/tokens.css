@@ -1,44 +1,55 @@
 /*
- * 디자인 토큰 — CLAUDE.md 7장의 색상·간격·반경 기준.
+ * 디자인 토큰 — CLAUDE.md 7장의 간격·반경 기준, 색상은 REVISION_05(블랙·옐로우·블루).
  * 브랜드 색은 채움·아이콘·강조선에 사용하고, 작은 글자와 흰 글자 버튼에는
  * WCAG AA(4.5:1)를 만족하는 *-strong 변형을 사용한다.
  */
 :root {
-  /* 색상 */
-  --color-bg: #f5f7fb;
+  /*
+   * 색상 (REVISION_05 디자인 시스템): 메인 블랙·옐로우, 보조 블루.
+   * 블루는 적합도 점수·데이터·링크처럼 정보 전달에만 쓰고, 옐로우는 강조·배지에 쓴다.
+   * 옐로우 위 글자는 항상 블랙(대비 13:1), 옐로우 글자는 블랙 배경에서만 쓴다.
+   */
+  --color-ink: #111111;
+  --color-ink-hover: #2b2b2b;
+  --color-yellow: #ffcf24;
+  --color-yellow-hover: #f2c000;
+  --color-yellow-soft: #fff6d6;
+  --color-blue: #2563eb;
+
+  --color-bg: #f5f5f5;
   --color-surface: #ffffff;
-  --color-surface-muted: #f9fafc;
-  --color-surface-sunken: #eef2f8;
+  --color-surface-muted: #fafafa;
+  --color-surface-sunken: #efefef;
 
-  --color-primary: #3478f6;
-  --color-primary-strong: #1f63db; /* 흰 배경 대비 5.4:1 */
-  --color-primary-hover: #1a55bf;
-  --color-primary-soft: #eaf1fe;
+  --color-primary: #2563eb;
+  --color-primary-strong: #1d4ed8; /* 흰 배경 대비 6.7:1 */
+  --color-primary-hover: #1e40af;
+  --color-primary-soft: #eff6ff;
 
-  --color-secondary: #27c2d4;
-  --color-secondary-strong: #0e7c8a;
-  --color-secondary-soft: #e6f8fa;
+  --color-secondary: #1e3a8a;
+  --color-secondary-strong: #1e3a8a;
+  --color-secondary-soft: #e8edf8;
 
-  --color-accent: #6d5dfb;
-  --color-accent-strong: #5b4ae8;
-  --color-accent-soft: #efedff;
+  --color-accent: #ffcf24;
+  --color-accent-strong: #6b5000; /* 연한 옐로우 위 글자 (대비 7:1) */
+  --color-accent-soft: #fff6d6;
 
-  --color-heading: #1f2937;
-  --color-text: #4b5563;
-  --color-text-muted: #667085; /* 작은 보조 글자 (대비 4.97:1) */
-  --color-muted: #8b95a5; /* 아이콘·장식·자리표시 전용 */
+  --color-heading: #111111;
+  --color-text: #3f3f46;
+  --color-text-muted: #61646b; /* 작은 보조 글자 (라이트 그레이 배경에서도 5:1 이상) */
+  --color-muted: #9ca3af; /* 아이콘·장식·자리표시 전용 */
 
-  --color-border: #e5eaf1;
-  --color-border-strong: #8b95a5; /* 입력 요소 경계 (대비 3:1) */
+  --color-border: #e5e5e5;
+  --color-border-strong: #8a8f98; /* 입력 요소 경계 (대비 3:1) */
 
-  --color-success: #22a06b;
-  --color-success-strong: #177a51;
-  --color-success-soft: #e7f6ef;
+  --color-success: #16a34a;
+  --color-success-strong: #15803d;
+  --color-success-soft: #e8f6ee;
   --color-warning: #f59e0b;
   --color-warning-strong: #a15c00;
   --color-warning-soft: #fef4e2;
-  --color-danger: #e5484d;
-  --color-danger-strong: #c93338;
+  --color-danger: #dc2626;
+  --color-danger-strong: #b91c1c;
   --color-danger-soft: #fdecec;
 
   /* 타이포그래피 */
@@ -77,7 +88,7 @@
   --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
   --shadow-md: 0 4px 14px rgba(16, 24, 40, 0.08);
   --shadow-lg: 0 18px 48px rgba(16, 24, 40, 0.18);
-  --focus-ring: 0 0 0 3px rgba(52, 120, 246, 0.35);
+  --focus-ring: 0 0 0 3px rgba(37, 99, 235, 0.35);
 
   /* 레이아웃 */
   --header-height: 64px;
@@ -91,31 +102,31 @@
   --bs-body-font-size: var(--fs-base);
   --bs-body-line-height: var(--lh-base);
   --bs-body-color: var(--color-text);
-  --bs-body-color-rgb: 75, 85, 99;
+  --bs-body-color-rgb: 63, 63, 70;
   --bs-body-bg: var(--color-bg);
   --bs-emphasis-color: var(--color-heading);
   --bs-heading-color: var(--color-heading);
   --bs-secondary-color: var(--color-text-muted);
-  --bs-primary: #3478f6;
-  --bs-primary-rgb: 52, 120, 246;
-  --bs-success: #22a06b;
-  --bs-success-rgb: 34, 160, 107;
+  --bs-primary: #2563eb;
+  --bs-primary-rgb: 37, 99, 235;
+  --bs-success: #16a34a;
+  --bs-success-rgb: 22, 163, 74;
   --bs-warning: #f59e0b;
   --bs-warning-rgb: 245, 158, 11;
-  --bs-danger: #e5484d;
-  --bs-danger-rgb: 229, 72, 77;
-  --bs-info: #27c2d4;
-  --bs-info-rgb: 39, 194, 212;
+  --bs-danger: #dc2626;
+  --bs-danger-rgb: 220, 38, 38;
+  --bs-info: #2563eb;
+  --bs-info-rgb: 37, 99, 235;
   --bs-link-color: var(--color-primary-strong);
-  --bs-link-color-rgb: 31, 99, 219;
+  --bs-link-color-rgb: 29, 78, 216;
   --bs-link-hover-color: var(--color-primary-hover);
-  --bs-link-hover-color-rgb: 26, 85, 191;
+  --bs-link-hover-color-rgb: 30, 64, 175;
   --bs-border-color: var(--color-border);
   --bs-border-radius: var(--radius-sm);
   --bs-border-radius-sm: 6px;
   --bs-border-radius-lg: var(--radius-md);
   --bs-border-radius-xl: var(--radius-lg);
-  --bs-focus-ring-color: rgba(52, 120, 246, 0.35);
+  --bs-focus-ring-color: rgba(37, 99, 235, 0.35);
 }
 
 @media (max-width: 991.98px) {

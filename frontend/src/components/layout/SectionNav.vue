@@ -70,8 +70,8 @@ const section = computed(() => sectionByKey(route.meta.section))
 
 /* 현재 하위 메뉴: 밑줄 + 굵은 글씨 */
 .section-nav__link.is-current {
-  border-bottom-color: var(--color-primary-strong);
-  color: var(--color-primary-strong);
+  border-bottom-color: var(--color-ink);
+  color: var(--color-ink);
   font-weight: var(--fw-bold);
 }
 

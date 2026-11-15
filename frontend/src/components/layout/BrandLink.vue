@@ -10,13 +10,14 @@ import BrandMark from './BrandMark.vue'
 // custom 링크라 부모가 준 class 등을 <a>에 직접 넘긴다.
 defineOptions({ inheritAttrs: false })
 
-withDefaults(defineProps<{ admin?: boolean }>(), { admin: false })
+/** inverse: 블랙 배경(홈 히어로) 위에서 흰 글자와 옐로우 마크로 */
+withDefaults(defineProps<{ admin?: boolean; inverse?: boolean }>(), { admin: false, inverse: false })
 </script>
 
 <template>
   <RouterLink v-slot="{ href, navigate }" :to="admin ? { name: 'admin-home' } : { name: 'home' }" custom>
-    <a v-bind="$attrs" :href="href" class="brand-link" @click="navigate">
-      <BrandMark :size="30" />
+    <a v-bind="$attrs" :href="href" class="brand-link" :class="{ 'is-inverse': inverse }" @click="navigate">
+      <BrandMark :size="30" :inverse="inverse" />
       <span class="brand-link__name">{{ APP_NAME }}</span>
       <span v-if="admin" class="brand-link__tag">{{ ADMIN_AREA_LABEL }}</span>
     </a>
@@ -38,6 +39,15 @@ withDefaults(defineProps<{ admin?: boolean }>(), { admin: false })
 
 .brand-link:hover {
   color: var(--color-heading);
+}
+
+.brand-link.is-inverse,
+.brand-link.is-inverse:hover {
+  color: #fff;
+}
+
+.brand-link {
+  transition: color 0.2s ease;
 }
 
 .brand-link__tag {
