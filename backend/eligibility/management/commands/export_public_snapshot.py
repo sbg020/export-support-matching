@@ -14,9 +14,11 @@ from django.core.management.base import BaseCommand
 
 from eligibility.goldset import REPO_ROOT
 from eligibility.models import Condition, ConditionType, IngestRecord, Notice
+from eligibility.site_date import SITE_TODAY, reception_status
 
 OUT_DIR = REPO_ROOT / "frontend" / "src" / "data" / "published"
-AS_OF = "2026-11-13"
+# 사이트 기준 날짜(고정). 접수 상태는 내보낼 때마다 이 날짜로 다시 계산한다
+AS_OF = SITE_TODAY
 SCHEMA_VERSION = 1
 
 
@@ -35,6 +37,9 @@ def notice_json(n: Notice, conds: list[dict]) -> dict:
     display = dict(n.display or {})
     # v2 자격 규칙(예전 정답세트 rules 시트 형식)은 v3 조건(conditions)으로 대체되어 내보내지 않는다
     display["eligibilityRules"] = None
+    if display.get("applyStart") or display.get("applyEnd"):
+        display["receptionStatus"] = reception_status(display.get("applyStart"), display.get("applyEnd"), AS_OF)
+    display["receptionStatusAsOf"] = AS_OF
     display.update({
         "id": n.program_id,
         "parentId": n.parent_id,

@@ -17,6 +17,7 @@ from django.utils import timezone
 from eligibility.engine import default_importance
 from eligibility.goldset import REPO_ROOT, convert_classification_workbook, read_eligibility_workbook, sha256_of
 from eligibility.models import Condition, ConditionType, Notice
+from eligibility.site_date import SITE_TODAY
 
 OUT_DIR = Path(__file__).resolve().parents[3] / "data" / "eligibility_goldset"
 SOURCE_LABEL = "정답세트(2026-11)"
@@ -39,7 +40,7 @@ class Command(BaseCommand):
         parser.add_argument("--xlsx", type=Path, default=None, help="신청자격 정답세트 엑셀 (기본: 프로젝트 루트의 가장 최근 EC_신청자격_정답세트_150건*.xlsx)")
         parser.add_argument("--classification", type=Path, default=None, help="지원분류 정답세트 엑셀 (기본: 가장 최근 EC_지원분류_정답세트_150건*.xlsx)")
         parser.add_argument("--source-urls", type=Path, default=REPO_ROOT / "수출 지원사업 공고문" / "정답세트" / "source_urls.csv")
-        parser.add_argument("--as-of", default="2026-11-13", help="데이터 기준일 (정답세트 작성일, 시스템 날짜를 쓰지 않는다)")
+        parser.add_argument("--as-of", default=SITE_TODAY, help="데이터 기준일 (사이트 기준 날짜 고정값, 시스템 날짜를 쓰지 않는다)")
 
     def handle(self, *args, **opts):
         xlsx = opts["xlsx"] or latest_default("EC_신청자격_정답세트_150건*.xlsx")

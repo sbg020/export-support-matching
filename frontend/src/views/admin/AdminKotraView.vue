@@ -30,6 +30,7 @@ import { downloadTextFile } from '@/lib/admin/download'
 import { formatDateTime } from '@/lib/display'
 import { adminRepository } from '@/repositories/admin'
 import type { UploadRecord } from '@/types/admin'
+import { siteNow } from '@/lib/siteClock'
 
 const STEPS = ['양식 내려받기 (선택)', '파일 올리기', '미리보기·오류 확인', '반영']
 
@@ -83,7 +84,7 @@ async function onSelect(file: File) {
   }
   const decoded = decodeCsvBytes(new Uint8Array(await file.arrayBuffer()))
   encoding.value = decoded.encoding
-  readAt.value = new Date()
+  readAt.value = siteNow()
   result.value = validateKotraCsv(parseCsv(decoded.text))
 }
 

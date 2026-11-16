@@ -17,6 +17,7 @@ import { useAuth } from '@/stores/authStore'
 import { formatPostDate } from '@/lib/communityDisplay'
 import { programTitleText } from '@/lib/programDisplay'
 import type { CommunityBoard, CommunityComment, CommunityPost } from '@/types/community'
+import { siteNow } from '@/lib/siteClock'
 
 const props = defineProps<{ board: CommunityBoard; postId: string }>()
 
@@ -49,7 +50,7 @@ watch(
 )
 
 const authenticated = computed(() => auth.state.status === 'authenticated')
-const now = new Date()
+const now = siteNow()
 const rootComments = computed(() => comments.value.filter((c) => c.parentId === null))
 const repliesOf = (id: string) => comments.value.filter((c) => c.parentId === id)
 

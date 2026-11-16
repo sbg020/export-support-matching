@@ -1,6 +1,7 @@
 import { inject, provide, type InjectionKey, type Ref } from 'vue'
 import type { CompanyProfile, ProfileField } from '@/types/profile'
 import type { FieldErrors } from '@/lib/profile'
+import { siteNow } from '@/lib/siteClock'
 
 export interface ProfileFormContext {
   /** 편집 중인 프로필 (입력 페이지는 저장소 상태, 수정 모달은 복사본) */
@@ -37,7 +38,7 @@ export function focusProfileField(idPrefix: string, field: ProfileField): void {
 
 /** 연도 선택지 (최근 연도부터). 기본 선택값으로 사용하지 않는다. */
 export function recentYears(count: number, includeNextYear = false): number[] {
-  const current = new Date().getFullYear()
+  const current = siteNow().getFullYear()
   const start = includeNextYear ? current + 1 : current
   return Array.from({ length: count }, (_, i) => start - i)
 }

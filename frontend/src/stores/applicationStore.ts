@@ -16,6 +16,7 @@ import {
   type ApplicationTab,
 } from '@/constants/applicationStatus'
 import { getLocalStorage } from '@/lib/storage'
+import { siteNow } from '@/lib/siteClock'
 
 export const APPLICATION_STORAGE_KEY = 'esm.applicationRecords.v1'
 
@@ -124,7 +125,7 @@ function saveInterested(programId: string): 'added' | 'exists' {
     {
       programId,
       status: 'interested',
-      history: [{ status: 'interested', changedAt: new Date().toISOString() }],
+      history: [{ status: 'interested', changedAt: siteNow().toISOString() }],
       memo: null,
       appliedOn: null,
       resultOn: null,
@@ -142,7 +143,7 @@ function changeStatus(programId: string, status: ApplicationStatus) {
       ? {
           ...record,
           status,
-          history: [...record.history, { status, changedAt: new Date().toISOString() }],
+          history: [...record.history, { status, changedAt: siteNow().toISOString() }],
         }
       : record,
   )

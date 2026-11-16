@@ -10,6 +10,7 @@ import type { CommunityBoard, CommunityPost } from '@/types/community'
 import { COMMUNITY_BOARDS } from '@/constants/community'
 import { formatPostDate } from '@/lib/communityDisplay'
 import EmptyState from '@/components/common/EmptyState.vue'
+import { siteNow } from '@/lib/siteClock'
 
 const props = withDefaults(
   defineProps<{
@@ -22,7 +23,7 @@ const props = withDefaults(
     now?: Date
     compact?: boolean
   }>(),
-  { notices: () => [], firstNumber: null, now: () => new Date(), compact: false },
+  { notices: () => [], firstNumber: null, now: () => siteNow(), compact: false },
 )
 
 const definition = computed(() => COMMUNITY_BOARDS[props.board])

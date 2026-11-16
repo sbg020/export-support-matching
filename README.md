@@ -4,7 +4,7 @@
 
 ## 현재 상태
 
-- **최종 데이터 연결 (REVISION_05).** 완성된 신청 자격·지원분류 정답세트(150건)를 반입해 **게시 공고 159건**(원공고 149 + 세부사업)을 사이트에 연결했습니다. 데이터 기준일은 2026-11-13입니다. 공고는 서버 DB 대신 게시 스냅샷(`frontend/src/data/published/notices.json`, backend `export_public_snapshot`이 만듦)으로 배포하고, 브라우저와 서버 함수가 같은 판정 엔진으로 계산합니다. 공고 폴더 375개 파일은 텍스트화·자동 추출해 **검수 대기 165건 · 추출 불가 35건**으로 관리자 화면에 있습니다(아직 게시하지 않음). 자세한 내용은 [docs/revisions/revision_05_inventory.md](docs/revisions/revision_05_inventory.md).
+- **최종 데이터 연결 (REVISION_05).** 완성된 신청 자격·지원분류 정답세트(150건)를 반입해 **게시 공고 159건**(원공고 149 + 세부사업)을 사이트에 연결했습니다. 데이터 기준일(사이트의 오늘)은 2026-10-20(화)로 고정합니다 (`frontend/src/lib/siteClock.ts`, `backend/eligibility/site_date.py`). 공고는 서버 DB 대신 게시 스냅샷(`frontend/src/data/published/notices.json`, backend `export_public_snapshot`이 만듦)으로 배포하고, 브라우저와 서버 함수가 같은 판정 엔진으로 계산합니다. 공고 폴더 375개 파일은 텍스트화·자동 추출해 **검수 대기 165건 · 추출 불가 35건**으로 관리자 화면에 있습니다(아직 게시하지 않음). 자세한 내용은 [docs/revisions/revision_05_inventory.md](docs/revisions/revision_05_inventory.md).
 - **맞춤 공고 3탭 (REVISION_05).** 모든 게시 공고를 `신청 가능 · 확인 필요 · 신청 불가`로 나눕니다(엄격 판정은 정답세트 `reference_eval.py`와 불일치 0건). 확인 필요 공고는 상세에서 조건을 `충족함`으로 체크하면 탭이 바뀝니다(이 기기에만 저장). 적합도 v1(관심 분야 25 · 업종 20 · 수출단계 25 · 재무 25 · 가점 5, **검증 전 시험값**)은 신청 가능 공고에만 계산합니다. 기업 프로필에 ⑦ `재무·신청 전 확인` 단계를 더했습니다(건너뛰기 가능).
 - **공고 도우미 챗봇 · 공개 API (REVISION_05).** 로그인한 사용자 화면 오른쪽 아래 `공고 도우미`(서버에 `ANTHROPIC_API_KEY`가 없으면 `준비 중`). 공개 API `/api/public/v1/*`(X-API-Key 필요)와 문서 `/api/public/docs`, 안내 화면 `/developers`(바닥글 링크).
 - **관리자 계정 (REVISION_05).** 관리자 영역(`/admin`)은 운영자 계정 `OPS_LOGIN_*`만 엽니다. `DEMO_LOGIN_*`(ADMIN)은 일반 사용자, `TEST`는 테스트 기업 회원입니다.

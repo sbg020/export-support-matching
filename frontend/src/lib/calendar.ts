@@ -3,6 +3,7 @@
  * 공고 기준일이나 D-day 계산에는 사용하지 않는다.
  */
 import type { IsoDate } from '@/types/common'
+import { siteNow } from '@/lib/siteClock'
 
 export const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const
 
@@ -13,7 +14,7 @@ export function toIsoDate(year: number, month: number, day: number): IsoDate {
 }
 
 export function todayIso(): IsoDate {
-  const now = new Date()
+  const now = siteNow()
   return toIsoDate(now.getFullYear(), now.getMonth() + 1, now.getDate())
 }
 

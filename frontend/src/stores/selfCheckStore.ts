@@ -10,6 +10,7 @@ import type { CommonCheckKey } from '@/types/program'
 import type { CommonCheckAnswer, RuleCheckAnswer, RuleCheckEntry, SelfCheckAnswers } from '@/types/selfCheck'
 import { getLocalStorage } from '@/lib/storage'
 import { DEVICE_SCOPE, scopedStorageKey, type StorageScope } from '@/lib/storageScope'
+import { siteNow } from '@/lib/siteClock'
 
 export const SELF_CHECK_STORAGE_KEY = 'esm.selfChecks.v1'
 
@@ -128,7 +129,7 @@ function setProgramAnswer(programId: string, ruleId: string, answer: RuleCheckAn
   const programs = { ...state.answers.programs }
   const rules = { ...programs[programId] }
   if (answer === null) delete rules[ruleId]
-  else rules[ruleId] = { answer, answeredAt: new Date().toISOString() }
+  else rules[ruleId] = { answer, answeredAt: siteNow().toISOString() }
   if (Object.keys(rules).length > 0) programs[programId] = rules
   else delete programs[programId]
   state.answers = { ...state.answers, programs }

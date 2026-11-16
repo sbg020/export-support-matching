@@ -18,6 +18,7 @@ import {
 } from '@/lib/profile'
 import { getLocalStorage } from '@/lib/storage'
 import { DEVICE_SCOPE, scopedStorageKey, type StorageScope } from '@/lib/storageScope'
+import { siteNow } from '@/lib/siteClock'
 
 interface ProfileState {
   profile: CompanyProfile
@@ -67,7 +68,7 @@ function saveToDevice(): boolean {
     state.storageAvailable = false
     return false
   }
-  const savedAt = new Date().toISOString()
+  const savedAt = siteNow().toISOString()
   try {
     storage.setItem(storageKey(), serializeProfile(state.profile, { ...state.meta, lastSavedAt: savedAt }))
     state.meta.lastSavedAt = savedAt

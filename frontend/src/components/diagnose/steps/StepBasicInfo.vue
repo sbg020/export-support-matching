@@ -10,6 +10,7 @@ import TextInput from '@/components/form/TextInput.vue'
 import NumberInput from '@/components/form/NumberInput.vue'
 import SelectInput from '@/components/form/SelectInput.vue'
 import ChoiceCards from '@/components/form/ChoiceCards.vue'
+import { siteNow } from '@/lib/siteClock'
 
 const { profile, errors, fieldId } = useProfileForm()
 
@@ -19,7 +20,7 @@ const factoryOptions = [
 ]
 
 const todayMax = computed(() => {
-  const now = new Date()
+  const now = siteNow()
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
 })

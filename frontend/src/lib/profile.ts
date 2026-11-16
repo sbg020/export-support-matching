@@ -21,6 +21,7 @@ import {
   IP_OPTIONS,
   REGION_OPTIONS,
 } from '@/constants/options'
+import { siteNow } from '@/lib/siteClock'
 
 /** ⑦ 재무·신청 전 확인은 선택 단계다 (REVISION_05 §3). 필수 항목이 없어 입력 상태 판정에 영향을 주지 않는다 */
 export const PROFILE_STEP_IDS: ProfileStepId[] = [1, 2, 3, 4, 5, 6, 7]
@@ -157,7 +158,7 @@ function isValidIsoDate(value: string): boolean {
 
 /** 입력 검증용 오늘 날짜(YYYY-MM-DD). 공고 기준일로는 사용하지 않는다. */
 function todayForValidation(): string {
-  const now = new Date()
+  const now = siteNow()
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
 }

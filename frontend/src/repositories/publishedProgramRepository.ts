@@ -8,10 +8,11 @@ import type { IsoDate } from '@/types/common'
 import type { Program, ProgramListResult, ProgramQuery } from '@/types/program'
 import { filterPrograms, normalizeProgram, sortPrograms, type RawProgram } from '@/lib/programQuery'
 import type { DataSourceStatus, ProgramRepository } from './programRepository'
+import { SITE_TODAY } from '@/lib/siteClock'
 
-/** 스냅샷 기준일·버전 (빌드 시 상수. 스냅샷을 다시 만들면 함께 바꾼다) */
-export const PUBLISHED_AS_OF: IsoDate = '2026-11-13'
-export const PUBLISHED_DATA_VERSION = 'published-2026-11-13'
+/** 스냅샷 기준일·버전 = 사이트 기준 날짜(고정, lib/siteClock.ts). 스냅샷 meta.asOf와 같다 */
+export const PUBLISHED_AS_OF: IsoDate = SITE_TODAY
+export const PUBLISHED_DATA_VERSION = `published-${SITE_TODAY}`
 
 export interface PublishedSnapshot {
   meta: { schemaVersion: number; asOf: IsoDate; dataVersion: string; counts: Record<string, number> }

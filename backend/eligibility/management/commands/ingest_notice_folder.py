@@ -22,7 +22,9 @@ from ml.textify import sha256_of, textify
 
 REPORT = REPO_ROOT / "docs" / "ml" / "batch_report.md"
 SKIP_SUFFIXES = {".zip"}
-AS_OF = "2026-11-13"
+from eligibility.site_date import SITE_TODAY
+
+AS_OF = SITE_TODAY
 
 
 def norm_name(name: str) -> str:

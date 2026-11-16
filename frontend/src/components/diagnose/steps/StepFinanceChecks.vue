@@ -18,6 +18,7 @@ import SelectInput from '@/components/form/SelectInput.vue'
 import ChoiceCards from '@/components/form/ChoiceCards.vue'
 import DataValue from '@/components/common/DataValue.vue'
 import StatusBadge from '@/components/common/StatusBadge.vue'
+import { siteNow } from '@/lib/siteClock'
 
 const { profile, fieldId } = useProfileForm()
 const yearOptions = recentYears(6).map((y) => ({ value: String(y), label: `${y}년` }))
@@ -51,7 +52,7 @@ const baseYear = computed<string | null>({
 const summary = computed(() => financeSummary(profile.value))
 
 function today(): string {
-  const now = new Date()
+  const now = siteNow()
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
 }
