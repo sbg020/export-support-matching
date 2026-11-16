@@ -171,6 +171,7 @@ export const OPENAPI_DOCUMENT = {
                           unmet: { type: 'array', items: { $ref: '#/components/schemas/Condition' } },
                           major_unknown: { type: 'array', items: { $ref: '#/components/schemas/Condition' } },
                           checklist: { type: 'array', items: { $ref: '#/components/schemas/Condition' } },
+                          no_conditions: { type: 'boolean', description: '자격 조건을 찾지 못한 공고 (확인 필요, 원문 확인)' },
                           source_url: { type: ['string', 'null'] },
                         },
                       },

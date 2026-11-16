@@ -16,7 +16,7 @@
  */
 import { createHash, timingSafeEqual } from 'node:crypto'
 import type { AuthEnv } from '../auth/core.js'
-import { classifyTabs, type TabKey } from '../../src/lib/engine/eligibilityV3.js'
+import { classifyTabs, noConditionsTab, type TabKey } from '../../src/lib/engine/eligibilityV3.js'
 import { CATEGORY_NAMES, loadSnapshot, type PublishedNotice, type PublishedSnapshot } from '../published/snapshot.js'
 import { sanitizeAnswers, sanitizeEngineProfile } from '../published/engineInput.js'
 import { OPENAPI_DOCUMENT, swaggerHtml } from './openapi.js'
@@ -211,9 +211,13 @@ async function checkEligibility(request: Request, snapshot: PublishedSnapshot): 
   if (!profile) return json(400, { message: PUBLIC_API_MESSAGES.badRequest })
   const answers = (typeof body.answers === 'object' && body.answers !== null ? body.answers : {}) as Record<string, unknown>
   const ids = Array.isArray(body.notice_ids) ? new Set(body.notice_ids.filter((v): v is string => typeof v === 'string')) : null
-  const notices = snapshot.notices.filter((n) => n.conditions.length > 0 && (!ids || ids.has(n.id)))
+  const notices = snapshot.notices.filter((n) => !ids || ids.has(n.id))
   const results = notices.map((n) => {
-    const r = classifyTabs(n.conditions, profile, n.id, n.parentId, sanitizeAnswers(answers[n.id]))
+    // 자격 조건이 없는 공고는 '확인 필요'(no_conditions = true, 원문 확인)
+    const r =
+      n.conditions.length === 0
+        ? noConditionsTab()
+        : classifyTabs(n.conditions, profile, n.id, n.parentId, sanitizeAnswers(answers[n.id]))
     const byId = new Map(r.outcomes.map((o) => [o.condition.condId, o]))
     const cond = (id: string) => {
       const o = byId.get(id)
@@ -235,6 +239,7 @@ async function checkEligibility(request: Request, snapshot: PublishedSnapshot): 
       unmet: r.fails.map(cond),
       major_unknown: r.majorUnknown.map(cond),
       checklist: r.checklist.map(cond),
+      no_conditions: r.noConditions === true,
       source_url: n.sourceUrl,
     }
   })

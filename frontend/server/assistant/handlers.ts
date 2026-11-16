@@ -209,6 +209,8 @@ interface NoticeContext {
   notice: PublishedNotice
   tab: TabKey | null
   fit: number | null
+  /** 자격 조건이 없는 공고 */
+  noConditions?: boolean
   conditions: { condId: string; kind: string; type: string; state: string; importance: string; evidence: string | null; page: number | null }[]
 }
 
@@ -224,7 +226,8 @@ function buildNoticeContext(
   fit: number | null,
   typeNames: Map<string, string>,
 ): NoticeContext {
-  if (notice.conditions.length === 0) return { notice, tab: null, fit: null, conditions: [] }
+  // 자격 조건을 찾지 못한 공고는 '확인 필요' (원문 확인, 화면과 같은 규칙)
+  if (notice.conditions.length === 0) return { notice, tab: 'needs-check', fit: null, conditions: [], noConditions: true }
   const result = classifyTabs(notice.conditions, profile, notice.id, notice.parentId, answers)
   const priority = new Set([...result.fails, ...result.majorUnknown, ...result.checklist])
   const ordered = [...result.outcomes].sort(
@@ -270,7 +273,8 @@ function noticePayload(c: NoticeContext): Record<string, unknown> {
     접수기간: period(n),
     사업분류: (n.supportCategories ?? []).map((code) => CATEGORY_NAMES[code] ?? code),
     지원규모: n.amountNote,
-    판정_탭: c.tab ? TAB_LABEL[c.tab] : '판정 조건 없음',
+    판정_탭: c.tab ? TAB_LABEL[c.tab] : '-',
+    ...(c.noConditions ? { 자격조건: '자동 추출에서 자격 조건을 찾지 못함. 공고 원문에서 확인 필요' } : {}),
     적합도: c.fit,
     조건: c.conditions.map((x) => ({
       cond_id: x.condId,

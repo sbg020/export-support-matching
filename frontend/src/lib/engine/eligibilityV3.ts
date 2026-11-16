@@ -243,6 +243,23 @@ export interface TabResult {
   outcomes: ConditionOutcome[]
   /** 판정에 쓰지 않는 안내 조건 (affects_verdict = N) */
   notices: NoticeCondition[]
+  /** 자격 조건이 하나도 없는 공고 (자동 추출에서 조건을 찾지 못함) → 확인 필요, 원문에서 직접 확인 */
+  noConditions?: boolean
+}
+
+/** 자격 조건이 없는 공고: 판정할 근거가 없으므로 '확인 필요'로 둔다 (신청 가능·불가로 단정하지 않는다) */
+export function noConditionsTab(): TabResult {
+  return {
+    tab: 'needs-check',
+    strict: '확인 필요',
+    fails: [],
+    majorUnknown: [],
+    checklist: [],
+    userDecided: [],
+    outcomes: [],
+    notices: [],
+    noConditions: true,
+  }
 }
 
 export function classifyTabs(

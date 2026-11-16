@@ -19,7 +19,7 @@ import type {
 import type { SelfCheckAnswers } from '@/types/selfCheck'
 import { CONDITION_TYPE_NAME, CONDITION_TYPE_STEP, PER_NOTICE_TYPES } from '@/constants/conditionTypes'
 import { diagnoseExportStage } from './diagnosis'
-import { classifyTabs, type ConditionAnswer, type ConditionOutcome, type EngineProfile, type TabResult } from './eligibilityV3'
+import { classifyTabs, noConditionsTab, type ConditionAnswer, type ConditionOutcome, type EngineProfile, type TabResult } from './eligibilityV3'
 import { toEngineProfile } from './engineProfile'
 import { computeFitV1Factors, evaluateFitV1, noticeIndustryTags, noticeText } from './fitV1'
 import { evaluateOpportunityCost } from './opportunityCost'
@@ -138,7 +138,8 @@ export function evaluateAll(
   const tabs = new Map<string, TabResult | null>()
   for (const program of programs) {
     if (!program.conditions || program.conditions.length === 0) {
-      tabs.set(program.id, null)
+      // 조건을 찾지 못한 공고도 3탭 중 하나에 넣는다: 원문 확인이 필요한 '확인 필요'
+      tabs.set(program.id, noConditionsTab())
       continue
     }
     const stored = context.selfChecks?.programs[program.id] ?? {}
@@ -225,8 +226,9 @@ export function compareRecommended(
       return fb - fa
     }
   } else if (ra === 1) {
-    const ma = ea?.tab?.majorUnknown.length ?? 0
-    const mb = eb?.tab?.majorUnknown.length ?? 0
+    // 자격 조건이 없는 공고(원문 확인)는 확인 필요 탭의 맨 뒤
+    const ma = ea?.tab?.noConditions ? Number.POSITIVE_INFINITY : (ea?.tab?.majorUnknown.length ?? 0)
+    const mb = eb?.tab?.noConditions ? Number.POSITIVE_INFINITY : (eb?.tab?.majorUnknown.length ?? 0)
     if (ma !== mb) return ma - mb
   }
   return deadlineOrder(a, b) || compareIds(a.id, b.id)

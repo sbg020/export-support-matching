@@ -371,7 +371,11 @@ const formatConditionCount = (n: number) => `${n}개`
           </div>
           <div class="verdict__item">
             <p class="verdict__label">확인 필요 조건</p>
-            <DataValue :value="eligibility?.needsCheckCount ?? null" :format="formatConditionCount" />
+            <DataValue
+              :value="result?.tab?.noConditions ? null : (eligibility?.needsCheckCount ?? null)"
+              :format="formatConditionCount"
+              missing-label="자격 조건 원문 확인"
+            />
           </div>
           <div class="verdict__item">
             <p class="verdict__label">판정 기준일 · 버전</p>

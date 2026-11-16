@@ -100,6 +100,8 @@ function checksLeftText(slot: CompareSlot): string | null {
   const result = slot.eligibility
   if (!result) return null
   const self = result.selfCheckedCount
+  // 자격 조건을 찾지 못한 공고 (확인 필요, 원문 확인)
+  if (result.status === 'needs-check' && result.conditions.length === 0) return '자격 조건 원문 확인'
   if (result.needsCheckCount === 0) return self > 0 ? `없음 (직접 확인 ${self}개 반영)` : '없음'
   return `확인 필요 ${result.needsCheckCount}개 · 직접 확인 ${self}개 반영`
 }

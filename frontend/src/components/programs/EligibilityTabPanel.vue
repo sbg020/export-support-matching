@@ -87,6 +87,15 @@ function labels(o: ConditionOutcome): [string, string] {
       <StatusBadge v-if="program.autoExtracted" label="자동 추출 · 검수 전" tone="warning" />
     </p>
 
+    <!-- 자격 조건이 없는 공고: 원문 확인 -->
+    <section v-if="tab.noConditions" class="tab-panel__block" aria-labelledby="tp-noconds">
+      <h3 id="tp-noconds" class="tab-panel__title">공고 원문에서 신청 자격을 확인해 주세요</h3>
+      <p class="fs-sm mb-0">
+        이 공고는 자동 추출에서 신청 자격 조건을 찾지 못해 '확인 필요'로 분류했습니다. 신청 가능 여부를 판정하지 않았으니
+        공고 원문과 주관기관에서 지원 대상과 제외 대상을 확인해 주세요.
+      </p>
+    </section>
+
     <!-- 신청 불가: 근거 -->
     <section v-if="tab.tab === 'ineligible'" class="tab-panel__block" aria-labelledby="tp-fail">
       <h3 id="tp-fail" class="tab-panel__title">신청할 수 없는 근거</h3>

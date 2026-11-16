@@ -193,6 +193,9 @@ describe('공개 API', () => {
     expect(body.meta.profile_stored).toBe(false)
     const total = body.meta.counts.eligible + body.meta.counts['needs-check'] + body.meta.counts.ineligible
     expect(total).toBe(body.results.length)
+    // 자격 조건이 없는 공고까지 모든 게시 공고가 3탭 중 하나 (조건 없음 → 확인 필요)
+    expect(body.results.length).toBe(loadSnapshot().notices.length)
+    for (const r of body.results.filter((x: { no_conditions: boolean }) => x.no_conditions)) expect(r.tab).toBe('needs-check')
     expect(['eligible', 'needs-check', 'ineligible']).toContain(body.results[0].tab)
   })
 })

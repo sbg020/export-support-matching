@@ -65,9 +65,11 @@ function shortCondition(condId: string | undefined): string | null {
   const text = detail ? `${name}: ${detail}` : name
   return text.length > 80 ? `${text.slice(0, 80)}…` : text
 }
+const NO_CONDITIONS_LINE = '자격 조건을 자동으로 찾지 못했습니다. 공고 원문에서 직접 확인해 주세요.'
 /** 확인 필요: 대표 확인 조건 1개, 신청 불가: 첫 번째 미충족 조건 */
 const tabLine = computed(() => {
   if (!tab.value) return null
+  if (tab.value.noConditions) return NO_CONDITIONS_LINE
   if (tab.value.tab === 'needs-check') return shortCondition(tab.value.majorUnknown[0])
   if (tab.value.tab === 'ineligible') return shortCondition(tab.value.fails[0])
   return null
@@ -132,8 +134,9 @@ async function saveInterested() {
             :label="`확인할 항목 ${tab.checklist.length}개`"
             tone="neutral"
           />
+          <StatusBadge v-if="tab?.noConditions" label="자격 조건 원문 확인" tone="warning" />
           <StatusBadge
-            v-if="tab?.tab === 'needs-check'"
+            v-else-if="tab?.tab === 'needs-check'"
             :label="`확인할 자격 ${tab.majorUnknown.length}개`"
             tone="warning"
           />

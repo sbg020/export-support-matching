@@ -248,6 +248,27 @@ describe('공고 전체 계산과 추천 정렬', () => {
   })
 })
 
+describe('자격 조건이 없는 공고 (자동 추출에서 조건을 찾지 못함)', () => {
+  const withCond = (id: string): NoticeCondition => ({
+    condId: `${id}-R01`, programId: id, parentId: id, scope: null, kind: '필수', group: 'A', condType: 'C01', condTypes: 'C01',
+    affectsVerdict: true, field: null, op: null, valueRaw: null, expr: { check: '확인' }, exprText: null, certainty: '명확',
+    evidence: null, page: null, importance: '주요', confidence: null, source: null, note: null,
+  })
+  const programs = [draftProgram({ id: 'N0', conditions: [] }), draftProgram({ id: 'N1', conditions: [withCond('N1')] })]
+  const set = evaluateAll(programs, profileWith({ companySize: 'sme' }), { asOf: '2030-06-30', selfChecks: null })
+
+  it("'확인 필요' 탭에 넣고, 신청 가능·불가로 단정하지 않으며 적합도도 계산하지 않는다", () => {
+    expect(set.byId.get('N0')?.tab).toMatchObject({ tab: 'needs-check', noConditions: true, fails: [], majorUnknown: [] })
+    expect(set.byId.get('N0')?.eligibility?.status).toBe('needs-check')
+    expect(set.byId.get('N0')?.fit).toBeNull()
+  })
+
+  it('확인 필요 탭 안에서는 조건이 있는 공고 뒤에 둔다', () => {
+    const sorted = [...programs].sort((a, b) => compareRecommended(a, b, set.byId, compareProgramIds))
+    expect(sorted.map((p) => p.id)).toEqual(['N1', 'N0'])
+  })
+})
+
 describe('기회비용', () => {
   it('근거가 없는 공고는 결과 객체 자체가 null', () => {
     const context = { ownedDocumentTypes: null, today: null }
