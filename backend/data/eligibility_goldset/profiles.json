@@ -1,0 +1,520 @@
+[
+ {
+  "profile_id": "T01",
+  "name": "EC 테스트식품(주) [TEST 계정]",
+  "size": "소상공인",
+  "attrs": [
+   "법인사업자"
+  ],
+  "hq": "경기 화성시",
+  "sites": [
+   "경기 이천시"
+  ],
+  "industry": [
+   "제조업",
+   "식품"
+  ],
+  "product": "한식 소스류",
+  "product_hs": [
+   "2103"
+  ],
+  "export_usd": 0,
+  "stage": "내수",
+  "revenue_krw": 420000000,
+  "age": 2.6,
+  "employees": 7,
+  "certs": [
+   "HACCP"
+  ],
+  "debt_ratio": 135,
+  "model": "제조",
+  "issues": [],
+  "intent_export": true,
+  "intent_commit": true
+ },
+ {
+  "profile_id": "T02",
+  "name": "부산 신발부품 제조사",
+  "size": "중기업",
+  "attrs": [
+   "법인사업자"
+  ],
+  "hq": "부산 사하구",
+  "sites": [
+   "부산 사하구"
+  ],
+  "industry": [
+   "제조업",
+   "신발"
+  ],
+  "product": "신발 부분품",
+  "product_hs": [
+   "6406"
+  ],
+  "export_usd": 1500000,
+  "stage": "성장",
+  "revenue_krw": 12000000000,
+  "age": 12,
+  "employees": 45,
+  "certs": [
+   "이노비즈"
+  ],
+  "debt_ratio": 180,
+  "model": "제조",
+  "issues": [],
+  "intent_export": true,
+  "intent_commit": true
+ },
+ {
+  "profile_id": "T03",
+  "name": "구미 자동차부품 제조사 (경북PRIDE)",
+  "size": "중기업",
+  "attrs": [
+   "법인사업자"
+  ],
+  "hq": "경북 구미시",
+  "sites": [
+   "경북 구미시"
+  ],
+  "industry": [
+   "제조업",
+   "자동차부품",
+   "기계"
+  ],
+  "product": "자동차 부품",
+  "product_hs": [
+   "8708"
+  ],
+  "export_usd": 300000,
+  "stage": "유망",
+  "revenue_krw": 25000000000,
+  "age": 9,
+  "employees": 80,
+  "certs": [
+   "경북PRIDE기업",
+   "벤처기업"
+  ],
+  "debt_ratio": 150,
+  "model": "제조",
+  "issues": [],
+  "intent_export": true,
+  "intent_commit": true
+ },
+ {
+  "profile_id": "T04",
+  "name": "청주 화장품 제조사",
+  "size": "소기업",
+  "attrs": [
+   "법인사업자"
+  ],
+  "hq": "충북 청주시",
+  "sites": [
+   "충북 청주시"
+  ],
+  "industry": [
+   "제조업",
+   "화장품"
+  ],
+  "product": "기초 화장품",
+  "product_hs": [
+   "3304"
+  ],
+  "export_usd": 50000,
+  "stage": "초보",
+  "revenue_krw": 3500000000,
+  "age": 4,
+  "employees": 18,
+  "certs": [
+   "벤처기업"
+  ],
+  "debt_ratio": 90,
+  "model": "제조",
+  "issues": [],
+  "intent_export": true,
+  "intent_commit": true
+ },
+ {
+  "profile_id": "T05",
+  "name": "서울 AI 소프트웨어 스타트업",
+  "size": "소기업",
+  "attrs": [
+   "법인사업자"
+  ],
+  "hq": "서울 강남구",
+  "sites": [
+   "서울 강남구"
+  ],
+  "industry": [
+   "ICT·SW"
+  ],
+  "product": "AI 영상분석 SW",
+  "product_hs": [],
+  "export_usd": 0,
+  "stage": "내수",
+  "revenue_krw": 300000000,
+  "age": 2,
+  "employees": 6,
+  "certs": [],
+  "debt_ratio": 60,
+  "model": "서비스",
+  "issues": [],
+  "intent_export": true,
+  "intent_commit": true
+ },
+ {
+  "profile_id": "T06",
+  "name": "원주 의료기기 제조사",
+  "size": "중기업",
+  "attrs": [
+   "법인사업자"
+  ],
+  "hq": "강원 원주시",
+  "sites": [
+   "강원 원주시"
+  ],
+  "industry": [
+   "제조업",
+   "의료기기"
+  ],
+  "product": "진단 의료기기",
+  "product_hs": [
+   "9018"
+  ],
+  "export_usd": 800000,
+  "stage": "유망",
+  "revenue_krw": 18000000000,
+  "age": 15,
+  "employees": 60,
+  "certs": [
+   "이노비즈"
+  ],
+  "debt_ratio": 120,
+  "model": "제조",
+  "issues": [],
+  "intent_export": true,
+  "intent_commit": true
+ },
+ {
+  "profile_id": "T07",
+  "name": "제주 감귤 가공식품 제조사",
+  "size": "소기업",
+  "attrs": [
+   "법인사업자"
+  ],
+  "hq": "제주 제주시",
+  "sites": [
+   "제주 제주시"
+  ],
+  "industry": [
+   "제조업",
+   "식품"
+  ],
+  "product": "감귤 음료",
+  "product_hs": [
+   "2009"
+  ],
+  "export_usd": 20000,
+  "stage": "초보",
+  "revenue_krw": 2000000000,
+  "age": 6,
+  "employees": 12,
+  "certs": [
+   "HACCP"
+  ],
+  "debt_ratio": 140,
+  "model": "제조",
+  "issues": [],
+  "intent_export": true,
+  "intent_commit": true
+ },
+ {
+  "profile_id": "T08",
+  "name": "창원 산업기계 중견기업",
+  "size": "중견기업",
+  "attrs": [
+   "법인사업자"
+  ],
+  "hq": "경남 창원시",
+  "sites": [
+   "경남 창원시",
+   "경남 김해시"
+  ],
+  "industry": [
+   "제조업",
+   "기계"
+  ],
+  "product": "산업용 기계",
+  "product_hs": [
+   "8479"
+  ],
+  "export_usd": 12000000,
+  "stage": "강소",
+  "revenue_krw": 220000000000,
+  "age": 28,
+  "employees": 320,
+  "certs": [],
+  "debt_ratio": 210,
+  "model": "제조",
+  "issues": [],
+  "intent_export": true,
+  "intent_commit": true
+ },
+ {
+  "profile_id": "T09",
+  "name": "목포 김 가공 수출기업",
+  "size": "소기업",
+  "attrs": [
+   "법인사업자"
+  ],
+  "hq": "전남 목포시",
+  "sites": [
+   "전남 목포시"
+  ],
+  "industry": [
+   "제조업",
+   "식품",
+   "해조류"
+  ],
+  "product": "조미김",
+  "product_hs": [
+   "2008"
+  ],
+  "export_usd": 2000000,
+  "stage": "성장",
+  "revenue_krw": 6000000000,
+  "age": 10,
+  "employees": 25,
+  "certs": [
+   "HACCP"
+  ],
+  "debt_ratio": 160,
+  "model": "제조",
+  "issues": [],
+  "intent_export": true,
+  "intent_commit": true
+ },
+ {
+  "profile_id": "T10",
+  "name": "대전 바이오 벤처 (충북 오송 연구소)",
+  "size": "소기업",
+  "attrs": [
+   "법인사업자"
+  ],
+  "hq": "대전 유성구",
+  "sites": [
+   "대전 유성구",
+   "충북 청주시"
+  ],
+  "industry": [
+   "제조업",
+   "바이오·의약"
+  ],
+  "product": "바이오 원료",
+  "product_hs": [
+   "3002"
+  ],
+  "export_usd": 0,
+  "stage": "내수",
+  "revenue_krw": 800000000,
+  "age": 5,
+  "employees": 15,
+  "certs": [
+   "벤처기업"
+  ],
+  "debt_ratio": 70,
+  "model": "제조",
+  "issues": [],
+  "intent_export": true,
+  "intent_commit": true
+ },
+ {
+  "profile_id": "T11",
+  "name": "인천 무역·수출대행 업체",
+  "size": "소기업",
+  "attrs": [
+   "법인사업자"
+  ],
+  "hq": "인천 남동구",
+  "sites": [
+   "인천 남동구"
+  ],
+  "industry": [
+   "도소매·유통·무역"
+  ],
+  "product": "생활용품 수출대행",
+  "product_hs": [],
+  "export_usd": 5000000,
+  "stage": "강소",
+  "revenue_krw": 5000000000,
+  "age": 8,
+  "employees": 9,
+  "certs": [],
+  "debt_ratio": 200,
+  "model": "유통·무역",
+  "issues": [],
+  "intent_export": true,
+  "intent_commit": true
+ },
+ {
+  "profile_id": "T12",
+  "name": "대구 안경테 제조 소상공인",
+  "size": "소상공인",
+  "attrs": [
+   "개인사업자"
+  ],
+  "hq": "대구 북구",
+  "sites": [
+   "대구 북구"
+  ],
+  "industry": [
+   "제조업",
+   "안경"
+  ],
+  "product": "안경테",
+  "product_hs": [
+   "9003"
+  ],
+  "export_usd": 200000,
+  "stage": "유망",
+  "revenue_krw": 900000000,
+  "age": 20,
+  "employees": 8,
+  "certs": [],
+  "debt_ratio": 110,
+  "model": "제조",
+  "issues": [],
+  "intent_export": true,
+  "intent_commit": true
+ },
+ {
+  "profile_id": "T13",
+  "name": "울산 화학 제조사 (지방세 체납 중)",
+  "size": "중기업",
+  "attrs": [
+   "법인사업자"
+  ],
+  "hq": "울산 남구",
+  "sites": [
+   "울산 남구"
+  ],
+  "industry": [
+   "제조업"
+  ],
+  "product": "화학 첨가제",
+  "product_hs": [
+   "3824"
+  ],
+  "export_usd": 4000000,
+  "stage": "성장",
+  "revenue_krw": 30000000000,
+  "age": 18,
+  "employees": 70,
+  "certs": [],
+  "debt_ratio": 250,
+  "model": "제조",
+  "issues": [
+   "B01"
+  ],
+  "intent_export": true,
+  "intent_commit": true
+ },
+ {
+  "profile_id": "T14",
+  "name": "익산 제과 제조사",
+  "size": "소기업",
+  "attrs": [
+   "법인사업자"
+  ],
+  "hq": "전북 익산시",
+  "sites": [
+   "전북 익산시"
+  ],
+  "industry": [
+   "제조업",
+   "식품"
+  ],
+  "product": "과자류",
+  "product_hs": [
+   "1905"
+  ],
+  "export_usd": 100000,
+  "stage": "유망",
+  "revenue_krw": 4000000000,
+  "age": 7,
+  "employees": 20,
+  "certs": [
+   "HACCP"
+  ],
+  "debt_ratio": 130,
+  "model": "제조",
+  "issues": [],
+  "intent_export": true,
+  "intent_commit": true
+ },
+ {
+  "profile_id": "T15",
+  "name": "대기업 계열 전자부품사 (상장)",
+  "size": "대기업(기업집단 소속)",
+  "attrs": [
+   "법인사업자",
+   "상장기업"
+  ],
+  "hq": "서울 중구",
+  "sites": [
+   "경기 평택시"
+  ],
+  "industry": [
+   "제조업",
+   "ICT·SW"
+  ],
+  "product": "반도체 부품",
+  "product_hs": [
+   "8542"
+  ],
+  "export_usd": 300000000,
+  "stage": "강소",
+  "revenue_krw": 1000000000000,
+  "age": 30,
+  "employees": 1500,
+  "certs": [],
+  "debt_ratio": 95,
+  "model": "제조",
+  "issues": [],
+  "intent_export": true,
+  "intent_commit": true
+ },
+ {
+  "profile_id": "T16",
+  "name": "금산 인삼제품 제조사",
+  "size": "소기업",
+  "attrs": [
+   "법인사업자"
+  ],
+  "hq": "충남 금산군",
+  "sites": [
+   "충남 금산군"
+  ],
+  "industry": [
+   "제조업",
+   "식품",
+   "인삼제품"
+  ],
+  "product": "홍삼 농축액",
+  "product_hs": [
+   "1302"
+  ],
+  "export_usd": 300000,
+  "stage": "유망",
+  "revenue_krw": 2500000000,
+  "age": 14,
+  "employees": 11,
+  "certs": [
+   "HACCP"
+  ],
+  "debt_ratio": 150,
+  "model": "제조",
+  "issues": [],
+  "intent_export": true,
+  "intent_commit": true
+ }
+]

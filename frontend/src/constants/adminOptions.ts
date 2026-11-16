@@ -13,7 +13,9 @@ import type {
 export const ADMIN_SOURCE_OPTIONS: Option<AdminNoticeSource>[] = [
   { value: 'bizinfo', label: '기업마당' },
   { value: 'kotra', label: 'KOTRA' },
+  { value: 'kita', label: 'KITA' },
   { value: 'answer-set', label: '정답세트' },
+  { value: 'folder', label: '공고 폴더 적재' },
 ]
 
 export const ADMIN_STATUS_OPTIONS: Option<AdminNoticeStatus>[] = [
@@ -22,16 +24,18 @@ export const ADMIN_STATUS_OPTIONS: Option<AdminNoticeStatus>[] = [
   { value: 'suspended', label: '게시 중지' },
   { value: 'rejected', label: '반려' },
   { value: 'merged', label: '병합됨' },
+  { value: 'text-failed', label: '텍스트 추출 불가' },
 ]
 
 /** 공고 관리 상태 필터: 공고 상태 + 접수 상태 '마감'(closed) */
-export type AdminStatusFilter = 'all' | 'published' | 'pending-review' | 'suspended' | 'rejected' | 'closed'
+export type AdminStatusFilter = 'all' | 'published' | 'pending-review' | 'suspended' | 'rejected' | 'text-failed' | 'closed'
 export const ADMIN_STATUS_FILTERS: { value: AdminStatusFilter; label: string }[] = [
   { value: 'all', label: '전체' },
   { value: 'published', label: '게시 중' },
   { value: 'pending-review', label: '검수 대기' },
   { value: 'suspended', label: '게시 중지' },
   { value: 'rejected', label: '반려' },
+  { value: 'text-failed', label: '텍스트 추출 불가' },
   { value: 'closed', label: '마감' },
 ]
 

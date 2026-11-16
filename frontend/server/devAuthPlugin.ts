@@ -9,8 +9,15 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { loadEnv, type Plugin, type ResolvedConfig } from 'vite'
 import type { AuthEnv } from './auth/core.js'
 import { handleAuthRequest } from './auth/handlers.js'
+import { handleAssistantRequest } from './assistant/handlers.js'
+import { handlePublicApiRequest } from './public/handlers.js'
 
-const API_PREFIX = '/api/auth/'
+/** 개발 서버에서 처리하는 서버 함수 경로 (배포에서는 frontend/api/ 의 Vercel 함수가 같은 핸들러를 쓴다) */
+const ROUTES: { prefix: string; handle: (request: Request, env: AuthEnv) => Promise<Response> }[] = [
+  { prefix: '/api/auth/', handle: handleAuthRequest },
+  { prefix: '/api/assistant/', handle: (request, env) => handleAssistantRequest(request, env) },
+  { prefix: '/api/public/', handle: (request, env) => handlePublicApiRequest(request, env) },
+]
 
 function readBody(req: IncomingMessage): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -44,7 +51,8 @@ async function writeResponse(res: ServerResponse, response: Response): Promise<v
 function createMiddleware(getEnv: () => AuthEnv) {
   return (req: IncomingMessage, res: ServerResponse, next: () => void): void => {
     const url = req.url ?? ''
-    if (!url.startsWith(API_PREFIX)) {
+    const route = ROUTES.find((r) => url.startsWith(r.prefix))
+    if (!route) {
       next()
       return
     }
@@ -57,11 +65,11 @@ function createMiddleware(getEnv: () => AuthEnv) {
           headers: toHeaders(req),
           body,
         })
-        await writeResponse(res, await handleAuthRequest(request, getEnv()))
+        await writeResponse(res, await route.handle(request, getEnv()))
       } catch {
         res.statusCode = 500
         res.setHeader('Content-Type', 'application/json; charset=utf-8')
-        res.end(JSON.stringify({ message: '로그인 처리 중 오류가 발생했습니다.' }))
+        res.end(JSON.stringify({ message: '요청 처리 중 오류가 발생했습니다.' }))
       }
     })()
   }

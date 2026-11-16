@@ -6,6 +6,7 @@ import AdminHeader from '@/components/layout/AdminHeader.vue'
 import MobileNavDrawer from '@/components/layout/MobileNavDrawer.vue'
 import SiteFooter from '@/components/layout/SiteFooter.vue'
 import ToastRegion from '@/components/common/ToastRegion.vue'
+import AssistantWidget from '@/components/assistant/AssistantWidget.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -40,6 +41,8 @@ router.afterEach((to, from) => {
   </div>
   <MobileNavDrawer v-model:open="menuOpen" :variant="adminLayout ? 'admin' : 'user'" />
   <ToastRegion />
+  <!-- 공고 도우미: 로그인한 사용자 화면에만 (REVISION_05 §8) -->
+  <AssistantWidget v-if="!adminLayout" />
 </template>
 
 <style scoped>

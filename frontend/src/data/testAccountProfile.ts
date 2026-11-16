@@ -3,8 +3,8 @@
  *
  * - 가상의 테스트 기업이다. 실제 회사 이름·사업자등록번호·인물을 쓰지 않는다.
  * - 비밀 값이 아니다(비밀번호는 서버 환경변수에만 있다). 기존 프로필 필드에 대응하는 값만 둔다.
- *   대응할 필드가 없는 항목(대표자·재무지표·수출 경험·플랫폼 입점·수출 계획·주원료 원산지·필요 지원·자부담 납부 가능)은
- *   넣지 않는다 — docs/revisions/revision_03_test_account_inventory.md §3.
+ *   대응할 필드가 없는 항목(대표자·수출 경험·플랫폼 입점·주원료 원산지·필요 지원)은 넣지 않는다.
+ *   재무 6개 금액·신청 전 확인·수출 의향·자부담 납부 가능은 REVISION_05 §10에서 ⑦ 단계 항목으로 넣었다.
  * - 사업자등록번호는 자동 저장하지 않는 정책대로 비워 둔다.
  * - 추천 결과·판정·적합도 값은 여기 두지 않는다. 화면이 현재 엔진으로 계산한다.
  */
@@ -49,7 +49,23 @@ const TEST_ACCOUNT_PROFILE: CompanyProfile = {
   // ⑥ 관심 분야 — 조사/일반컨설팅(C02), 해외규격인증(C05), 홍보/광고(C06), 국제운송(C13)
   interestAreas: ['market-research', 'certification', 'marketing', 'logistics'],
   interestUnsure: false,
+  // ⑦ 재무·신청 전 확인 (REVISION_05 §10, 테스트 가상값). 매출액증가율 18.0% · 영업이익률 4.0% · 순이익률 3.0% ·
+  // 부채비율 135% · ROE 10.5% · SGR 10.5%
+  finBaseYear: 2025,
+  revenuePrevKrw: 356_000_000,
+  operatingIncomeKrw: 16_800_000,
+  netIncomeKrw: 12_600_000,
+  totalLiabilitiesKrw: 162_000_000,
+  totalEquityKrw: 120_000_000,
+  preApplyChecks: { B01: 'no', B02: 'no', B03: 'no', B04: 'no', B05: 'no', B08: 'no' },
+  preApplyCheckedAt: null,
+  // 수출 의향·참여 조건 수용: 정답세트 기업프로필 T01(TEST 계정)의 값(Y·Y)
+  intentExport: true,
+  intentCommit: true,
+  // 준비 상태: 자부담 납부 가능
+  selfPaymentReady: true,
 }
+
 
 /**
  * 공통 확인(자기 신고): 휴·폐업 아님, 국세·지방세 체납 없음, 금융 신용불량 없음, 정부지원사업 참여제한 없음.

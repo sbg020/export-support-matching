@@ -1,7 +1,9 @@
 <script setup lang="ts">
 /**
- * 맞춤 추천 카드 (REVISION_04 §4.4.3). 실제 공고(Program)가 있을 때만 렌더링한다.
- * 왼쪽 위: 신청자격·공고명·기관, 오른쪽 위: 적합도 점수(시험용 기준).
+ * 맞춤 추천 카드 (REVISION_04 §4.4.3, REVISION_05 §5.2). 실제 공고(Program)가 있을 때만 렌더링한다.
+ * 모든 카드: 공고 제목 · 신청 마감 · 사업 분류(C01–C15 모두). 자동 추출 공고는 '자동 추출 · 검수 전' 배지.
+ * 탭별: 신청 가능 = 적합도 점수(오른쪽 위)·'확인할 항목 N개' / 확인 필요 = '확인할 자격 N개'·대표 확인 조건 한 줄 /
+ * 신청 불가 = 불가 사유 한 줄(첫 미충족 조건). 확인 필요·신청 불가 카드에는 적합도를 보여 주지 않는다.
  * 정보 4칸: 신청 마감 · 지원 내용 · 지원금 · 자부담. 근거가 없으면 숫자를 만들지 않고 '-'를 보여 준다.
  * '비교에 추가'는 화면을 이동하지 않고 선택만 바꾼다 (하단 비교 바에서 비교 영역으로 간다).
  */
@@ -25,7 +27,10 @@ import { useApplicationStore } from '@/stores/applicationStore'
 import { useAuth } from '@/stores/authStore'
 import { useToast } from '@/stores/toastStore'
 import { statusLabel } from '@/constants/applicationStatus'
+import { CONDITION_TYPE_NAME } from '@/constants/conditionTypes'
 import DataValue from '@/components/common/DataValue.vue'
+import StatusBadge from '@/components/common/StatusBadge.vue'
+import CategoryChips from './CategoryChips.vue'
 import EligibilityBadge from './EligibilityBadge.vue'
 import FitBreakdownTable from './FitBreakdownTable.vue'
 
@@ -47,6 +52,26 @@ const auth = useAuth()
 const toast = useToast()
 
 const eligibility = computed(() => props.evaluation?.eligibility ?? null)
+const tab = computed(() => props.evaluation?.tab ?? null)
+const isEligible = computed(() => tab.value?.tab === 'eligible')
+
+function shortCondition(condId: string | undefined): string | null {
+  if (!condId) return null
+  const outcome = tab.value?.outcomes.find((o) => o.condition.condId === condId)
+  if (!outcome) return null
+  const c = outcome.condition
+  const name = CONDITION_TYPE_NAME[c.condType] ?? c.condType
+  const detail = c.valueRaw ?? c.evidence ?? ''
+  const text = detail ? `${name}: ${detail}` : name
+  return text.length > 80 ? `${text.slice(0, 80)}…` : text
+}
+/** 확인 필요: 대표 확인 조건 1개, 신청 불가: 첫 번째 미충족 조건 */
+const tabLine = computed(() => {
+  if (!tab.value) return null
+  if (tab.value.tab === 'needs-check') return shortCondition(tab.value.majorUnknown[0])
+  if (tab.value.tab === 'ineligible') return shortCondition(tab.value.fails[0])
+  return null
+})
 const fit = computed(() => props.evaluation?.fit ?? null)
 const score = computed(() => (fit.value ? Math.round(fit.value.score) : null))
 const fitMissingReason = computed(() =>
@@ -100,8 +125,21 @@ async function saveInterested() {
           </RouterLink>
         </h3>
         <p class="rec-card__agency"><DataValue :value="agencyText(program)" /></p>
+        <p class="rec-card__badges">
+          <StatusBadge v-if="program.autoExtracted" label="자동 추출 · 검수 전" tone="warning" />
+          <StatusBadge
+            v-if="tab?.tab === 'eligible' && tab.checklist.length > 0"
+            :label="`확인할 항목 ${tab.checklist.length}개`"
+            tone="neutral"
+          />
+          <StatusBadge
+            v-if="tab?.tab === 'needs-check'"
+            :label="`확인할 자격 ${tab.majorUnknown.length}개`"
+            tone="warning"
+          />
+        </p>
       </div>
-      <div class="rec-card__fit">
+      <div v-if="isEligible" class="rec-card__fit">
         <span class="visually-hidden">{{ fitSpoken }}</span>
         <span class="rec-card__fit-label" aria-hidden="true">적합도</span>
         <span class="rec-card__fit-score" aria-hidden="true">
@@ -111,6 +149,13 @@ async function saveInterested() {
         <span class="rec-card__fit-note" aria-hidden="true">{{ score !== null ? '시험용 기준' : fitMissingReason }}</span>
       </div>
     </div>
+
+    <CategoryChips :program="program" />
+
+    <p v-if="tabLine" class="rec-card__tab-line" :class="`is-${tab?.tab}`">
+      <span class="rec-card__tab-line-label">{{ tab?.tab === 'ineligible' ? '불가 사유' : '확인할 조건' }}</span>
+      {{ tabLine }}
+    </p>
 
     <dl class="rec-card__facts">
       <div class="rec-card__fact">
@@ -131,7 +176,7 @@ async function saveInterested() {
       </div>
     </dl>
 
-    <div class="rec-card__basis">
+    <div v-if="isEligible" class="rec-card__basis">
       <button
         type="button"
         class="rec-card__basis-toggle"
@@ -154,7 +199,7 @@ async function saveInterested() {
     </div>
 
     <footer class="rec-card__actions">
-      <RouterLink :to="detailTo" class="btn btn-primary btn-sm">자세히 보기</RouterLink>
+      <RouterLink :to="detailTo" class="btn btn-primary btn-sm">자세히</RouterLink>
       <span v-if="record" class="rec-card__status">관리 상태: {{ statusLabel(record.status) }}</span>
       <button v-else type="button" class="btn btn-secondary btn-sm" @click="saveInterested">
         <IconBookmark :size="16" stroke-width="2" aria-hidden="true" />
@@ -174,6 +219,37 @@ async function saveInterested() {
 </template>
 
 <style scoped>
+.rec-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.rec-card__badges:empty {
+  display: none;
+}
+
+.rec-card__tab-line {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--color-warning);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--color-warning-soft);
+  font-size: var(--fs-sm);
+  color: var(--color-heading);
+}
+
+.rec-card__tab-line.is-ineligible {
+  border-left-color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+.rec-card__tab-line-label {
+  margin-right: var(--space-2);
+  font-weight: var(--fw-bold);
+}
+
 .rec-card {
   display: flex;
   flex-direction: column;

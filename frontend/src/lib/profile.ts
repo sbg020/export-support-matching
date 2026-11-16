@@ -7,6 +7,7 @@ import type {
   ProfileField,
   ProfileIssue,
   ProfileMeta,
+  PreApplyCode,
   ProfileStepId,
 } from '@/types/profile'
 import {
@@ -21,7 +22,8 @@ import {
   REGION_OPTIONS,
 } from '@/constants/options'
 
-export const PROFILE_STEP_IDS: ProfileStepId[] = [1, 2, 3, 4, 5, 6]
+/** ⑦ 재무·신청 전 확인은 선택 단계다 (REVISION_05 §3). 필수 항목이 없어 입력 상태 판정에 영향을 주지 않는다 */
+export const PROFILE_STEP_IDS: ProfileStepId[] = [1, 2, 3, 4, 5, 6, 7]
 
 export function createEmptyProfile(): CompanyProfile {
   return {
@@ -56,6 +58,17 @@ export function createEmptyProfile(): CompanyProfile {
     ipOther: null,
     interestAreas: [],
     interestUnsure: false,
+    finBaseYear: null,
+    revenuePrevKrw: null,
+    operatingIncomeKrw: null,
+    netIncomeKrw: null,
+    totalLiabilitiesKrw: null,
+    totalEquityKrw: null,
+    preApplyChecks: {},
+    preApplyCheckedAt: null,
+    intentExport: null,
+    intentCommit: null,
+    selfPaymentReady: null,
   }
 }
 
@@ -96,6 +109,17 @@ export const FIELD_STEP: Record<ProfileField, ProfileStepId> = {
   ipOther: 5,
   interestAreas: 6,
   interestUnsure: 6,
+  finBaseYear: 7,
+  revenuePrevKrw: 7,
+  operatingIncomeKrw: 7,
+  netIncomeKrw: 7,
+  totalLiabilitiesKrw: 7,
+  totalEquityKrw: 7,
+  preApplyChecks: 7,
+  preApplyCheckedAt: 7,
+  intentExport: 7,
+  intentCommit: 7,
+  selfPaymentReady: 7,
 }
 
 export type FieldErrors = Partial<Record<ProfileField, string>>
@@ -271,6 +295,7 @@ export function validateAll(
     4: validateStep(4, p, options),
     5: validateStep(5, p, options),
     6: validateStep(6, p, options),
+    7: validateStep(7, p, options),
   }
 }
 
@@ -284,6 +309,8 @@ export function hasAnyInput(p: CompanyProfile): boolean {
     const value = p[key]
     if (Array.isArray(value)) return value.length > 0
     if (typeof value === 'boolean') return key === 'interestUnsure' ? value : true
+    // 신청 전 확인 답처럼 객체인 값은 답이 하나라도 있을 때만 입력한 것으로 본다
+    if (typeof value === 'object' && value !== null) return Object.keys(value).length > 0
     return value !== null
   })
 }
@@ -389,6 +416,18 @@ function pickStringArray(value: unknown, allowed?: Set<string>): string[] {
   )
 }
 
+const PRE_APPLY_CODES: PreApplyCode[] = ['B01', 'B02', 'B03', 'B04', 'B05', 'B08']
+
+function pickPreApply(value: unknown): CompanyProfile['preApplyChecks'] {
+  const out: CompanyProfile['preApplyChecks'] = {}
+  if (typeof value !== 'object' || value === null) return out
+  for (const code of PRE_APPLY_CODES) {
+    const answer = (value as Record<string, unknown>)[code]
+    if (answer === 'no' || answer === 'yes' || answer === 'unknown') out[code] = answer
+  }
+  return out
+}
+
 /** 저장된 JSON을 읽는다. 형식이 맞지 않는 값은 버리고 null로 둔다. */
 export function deserializeProfile(raw: string | null): { profile: CompanyProfile; meta: ProfileMeta } | null {
   if (raw === null) return null
@@ -436,6 +475,17 @@ export function deserializeProfile(raw: string | null): { profile: CompanyProfil
     ipOther: pickString(s.ipOther),
     interestAreas: pickStringArray(s.interestAreas, OPTION_VALUES.interest) as CompanyProfile['interestAreas'],
     interestUnsure: s.interestUnsure === true,
+    finBaseYear: pickNumber(s.finBaseYear),
+    revenuePrevKrw: pickNumber(s.revenuePrevKrw),
+    operatingIncomeKrw: pickNumber(s.operatingIncomeKrw),
+    netIncomeKrw: pickNumber(s.netIncomeKrw),
+    totalLiabilitiesKrw: pickNumber(s.totalLiabilitiesKrw),
+    totalEquityKrw: pickNumber(s.totalEquityKrw),
+    preApplyChecks: pickPreApply(s.preApplyChecks),
+    preApplyCheckedAt: pickString(s.preApplyCheckedAt),
+    intentExport: typeof s.intentExport === 'boolean' ? s.intentExport : null,
+    intentCommit: typeof s.intentCommit === 'boolean' ? s.intentCommit : null,
+    selfPaymentReady: typeof s.selfPaymentReady === 'boolean' ? s.selfPaymentReady : null,
   }
 
   const m = record.meta ?? {}
@@ -453,5 +503,6 @@ export function cloneProfile(p: CompanyProfile): CompanyProfile {
     certifications: [...p.certifications],
     ipTypes: [...p.ipTypes],
     interestAreas: [...p.interestAreas],
+    preApplyChecks: { ...p.preApplyChecks },
   }
 }

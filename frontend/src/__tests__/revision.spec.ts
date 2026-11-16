@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { flushPromises, mount } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { routes } from '@/router'
 import { safeRedirect } from '@/lib/redirect'
@@ -128,16 +128,14 @@ describe('추천 카드', () => {
     })
     const text = wrapper.text()
     expect(text).toContain('테스트 전용 공고')
-    for (const label of ['신청 마감', '지원 내용', '지원금', '자부담', '적합도']) expect(text).toContain(label)
+    for (const label of ['신청 마감', '지원 내용', '지원금', '자부담']) expect(text).toContain(label)
+    // REVISION_05 §5.2: 적합도는 '신청 가능' 탭 카드에만 표시한다 (판정 전 카드에는 없음)
+    expect(text).not.toContain('적합도')
     expect(text).not.toContain('추천 이유')
     expect(wrapper.find('a').attributes('href')).toBe('/programs/t2?from=recommended')
 
-    const toggle = wrapper.get('button[aria-controls]')
-    expect(toggle.attributes('aria-expanded')).toBe('false')
-    await toggle.trigger('click')
-    await flushPromises()
-    expect(toggle.attributes('aria-expanded')).toBe('true')
-    expect(wrapper.text()).toContain('아직 계산 근거가 없습니다.')
+    // 판정 전 카드에는 적합도 근거 펼치기가 없고 점수도 없다
+    expect(wrapper.find('button[aria-controls]').exists()).toBe(false)
     expect(wrapper.text()).not.toMatch(/\d+점/)
   })
 })

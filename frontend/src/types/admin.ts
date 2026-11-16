@@ -6,8 +6,9 @@
 import type { IsoDate, IsoDateTime } from './common'
 import type { CommonCheckKey, ExportStage, ReceptionStatus, RuleField, SupportCategoryCode } from './program'
 
-export type AdminNoticeSource = 'bizinfo' | 'kotra' | 'answer-set'
-export type AdminNoticeStatus = 'pending-review' | 'published' | 'suspended' | 'rejected' | 'merged'
+/** 출처: 기업마당·KOTRA·KITA·정답세트·공고 폴더 적재 (REVISION_05) */
+export type AdminNoticeSource = 'bizinfo' | 'kotra' | 'kita' | 'answer-set' | 'folder'
+export type AdminNoticeStatus = 'pending-review' | 'published' | 'suspended' | 'rejected' | 'merged' | 'text-failed'
 
 export interface AdminNoticeSummary {
   id: string
@@ -61,7 +62,7 @@ export interface CollectionRun {
   errors: { noticeRef: string | null; message: string; resolved: boolean }[]
 }
 
-export type UploadKind = 'kotra-csv' | 'answer-set'
+export type UploadKind = 'kotra-csv' | 'kita-csv' | 'answer-set'
 
 export interface UploadRecord {
   id: string

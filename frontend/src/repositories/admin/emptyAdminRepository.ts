@@ -1,6 +1,7 @@
 import type {
   AdminDashboard,
   AdminNoticeList,
+  AdminNoticeQuery,
   AdminNoticeSummary,
   CollectionRun,
   CollectionSettings,
@@ -55,11 +56,13 @@ export class EmptyAdminRepository implements AdminRepository {
     return []
   }
 
-  async getReviewItem(): Promise<ReviewItem | null> {
+  async getReviewItem(id?: string): Promise<ReviewItem | null> {
+    void id
     return null
   }
 
-  async listNotices(): Promise<AdminNoticeList> {
+  async listNotices(query?: AdminNoticeQuery): Promise<AdminNoticeList> {
+    void query
     return { items: [], total: null }
   }
 

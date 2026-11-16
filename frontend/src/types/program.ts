@@ -271,6 +271,14 @@ export interface Program {
   draftNotes: string | null
   review: ProgramReview | null
   dataState: DataState | null
+  /** 신청 자격 조건 v3 (정답세트 '자격조건' 형식, REVISION_05). 원공고 공통 조건 포함. 없으면 null */
+  conditions?: NoticeCondition[] | null
+  /** 게시 출처: answer-set(정답세트) · folder(공고 폴더 적재) · bizinfo · kotra · kita */
+  publishSource?: string | null
+  publishSourceLabel?: string | null
+  /** 자동 추출 공고 (관리자 개별 검수 전이면 '자동 추출 · 검수 전' 배지) */
+  autoExtracted?: boolean
+  publishStatus?: string | null
 }
 
 export type ProgramSort = 'recommended' | 'deadline' | 'amount'
@@ -296,4 +304,47 @@ export interface ProgramListResult {
    * null을 0으로 바꾸어 '0건 매칭'처럼 보이게 하지 않는다.
    */
   total: number | null
+}
+
+/** 판정식 (정답세트 reference_eval.py 형식) */
+export type ConditionExpr =
+  | { true: number }
+  | { check: string }
+  | { flag: string }
+  | { intent: 'export' | 'commit' }
+  | { distributor: string | number | boolean }
+  | { not: ConditionExpr }
+  | { all: ConditionExpr[] }
+  | { any: ConditionExpr[] }
+  | { atom: string; op: string; value: unknown }
+
+/** 신청 자격 조건 (정답세트 '자격조건' 시트와 같은 열) */
+export interface NoticeCondition {
+  condId: string
+  programId: string
+  parentId: string
+  scope: string | null
+  /** 필수 · 제외 */
+  kind: '필수' | '제외'
+  group: string | null
+  /** 조건 유형 A01–C09 */
+  condType: string
+  condTypes: string
+  /** false면 판정에 쓰지 않는 안내 조건 */
+  affectsVerdict: boolean
+  field: string | null
+  op: string | null
+  valueRaw: string | null
+  expr: ConditionExpr
+  exprText: string | null
+  certainty: string | null
+  /** 근거 원문 문장 */
+  evidence: string | null
+  page: number | null
+  /** 주요 · 체크리스트 */
+  importance: '주요' | '체크리스트'
+  /** 자동 추출 분류기 확률 */
+  confidence: number | null
+  source: string | null
+  note: string | null
 }

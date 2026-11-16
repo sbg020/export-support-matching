@@ -2,7 +2,7 @@
  * 테스트 전용 데이터. 앱 코드에서 불러오지 않는다 (tsconfig.app.json이 __tests__를 제외).
  * 모든 값이 null인 '빈 공고'에서 시작해 각 테스트에 필요한 필드만 채운다. 실제 공고가 아니다.
  */
-import type { EligibilityRule, Program } from '@/types/program'
+import type { EligibilityRule, NoticeCondition, Program } from '@/types/program'
 
 export function blankProgram(overrides: Partial<Program> = {}): Program {
   return {
@@ -93,6 +93,34 @@ export function rule(overrides: Partial<EligibilityRule> = {}): EligibilityRule 
     source: testSource,
     note: null,
     review: { author: null, status: null, source: null },
+    ...overrides,
+  }
+}
+
+/** 테스트 전용 판정식 조건 (REVISION_05 3탭 엔진). 기본은 늘 충족하는 조건 */
+export function condition(programId: string, overrides: Partial<NoticeCondition> = {}): NoticeCondition {
+  return {
+    condId: `${programId}-R01`,
+    programId,
+    parentId: programId,
+    scope: null,
+    kind: '필수',
+    group: 'A',
+    condType: 'A01',
+    condTypes: 'A01',
+    affectsVerdict: true,
+    field: null,
+    op: null,
+    valueRaw: null,
+    expr: { true: 1 },
+    exprText: null,
+    certainty: '명확',
+    evidence: null,
+    page: null,
+    importance: '주요',
+    confidence: null,
+    source: null,
+    note: null,
     ...overrides,
   }
 }

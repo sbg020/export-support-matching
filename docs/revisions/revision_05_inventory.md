@@ -1,50 +1,178 @@
-# revision_05 기록 — 수출 로드맵 삭제 · 나의 사업 관리 · 메인 랜딩페이지 리뉴얼
+# REVISION_05 반영 현황 — 신청 자격 3탭 · 적합도 v1 · 최종 데이터 연결 · 챗봇 · 공개 API
 
-> 작업일 2026-11-15 · 작업 브랜치 `revision-05` (`revision-04`에서 분기) · 사용자 요청(채팅)을 기준으로 한다. 별도 개정 문서는 없다.
+> 작업일 2026-11-16 · 브랜치 `revision-05` · 지시 문서 [REVISION_05.md](REVISION_05.md) (충돌 시 지시 문서 우선)
+> 같은 브랜치의 앞선 작업(수출 로드맵 삭제 · 메인 랜딩 · 블랙·옐로우 · Export Compass 이름)은 [revision_05_landing_record.md](revision_05_landing_record.md)에 따로 적었다.
+> 데이터 기준일은 **2026-11-13**으로 고정한다 (시스템 날짜를 쓰지 않는다).
 
-## 1. 요청과 반영
+## 1. 코드 수정 전 현황 조사 (§1)
 
-| 요청 | 반영 |
+| 항목 | 조사 결과 |
 |---|---|
-| 0. 나의 수출 로드맵 기능 삭제 (적합도 계산·원문 대조를 강조) | `views/RoadmapView.vue`, 경로 `roadmap`, 주 메뉴 `수출 로드맵`, 로드맵 전용 상수 `ROADMAP_STAGES` 삭제. 예전 주소 `/roadmap`과 `/diagnose/result`는 맞춤 추천(`/programs/recommended`)으로 리다이렉트(쿼리·해시 유지). 로드맵을 가리키던 이동(로그인 후 첫 화면, 관리자가 아닌 계정의 `/admin` 접근, 기업 프로필 `입력 완료`·`'입력 중' 상태로 보기`, 관리자 `사용자 화면 보기`)은 모두 맞춤 추천으로 바꿨다 |
-| 0. `관심·준비 중·신청완료 사업` 탭 이름 → `나의 사업 관리` | 하위 메뉴·화면 제목·탭 제목·공고 상세의 `목록으로` 이름·로그인 안내를 바꿨다. 경로(`/manage/programs`)와 저장 키·상태 탭(관심·준비 중·신청완료)은 그대로 |
-| 메인 페이지 리뉴얼 (코나비즈카드 구조, 블랙·옐로우·블루) | `views/HomeView.vue`와 `components/home/*` 7개 섹션 (§2) |
-| 상단 내비게이션 | 주 메뉴 5개: `서비스 소개`(홈, 새 섹션 `intro`) · 기업 맞춤 지원사업 · 전체 지원사업 · 지원사업 관리 · 커뮤니티. 비로그인은 `로그인` 링크 + `회원가입`(로그인 화면의 회원가입 탭 `/login?mode=signup`), 로그인하면 기존 프로필 메뉴. 홈 블랙 히어로 위에서는 투명 배경·흰 글자, 히어로를 지나거나 메뉴 패널·팝업·서랍이 열리면 흰 배경 (`AppHeader`) |
-| 기타 페이지 색상 | 디자인 토큰(`styles/tokens.css`)만 바꿔 전체에 적용: 바탕 `#F5F5F5`, 제목 `#111111`, 주 버튼 블랙, 강조 옐로우(`#FFCF24`, 글자는 블랙), 블루(`#2563EB`)는 링크·적합도·정보 표시. 현재 메뉴·탭 표시는 블랙(굵게 + 밑줄), 로고 마크·파비콘은 블랙 바탕 옐로우 화살표. 레이아웃·기능은 바꾸지 않았다 |
+| 1. 판정 엔진 | `frontend/src/lib/engine/eligibility.ts`(v2): 공고의 `eligibilityRules`(필드·연산자·값)를 프로필과 비교. 서버 엔진·정답세트 적재는 없었다. 공고 데이터는 REVISION_04에서 지운 상태(빈 저장소) |
+| 2. 기업 프로필 | `types/profile.ts`의 `CompanyProfile`, 6단계 폼(`DiagnoseInputView` + `components/diagnose/steps/*`). 저장은 브라우저 localStorage(`esm.profile.v1`, 계정별 키). 사업자등록번호는 저장하지 않음. 공통 확인 5개(`tax-arrears`·`closure`·`credit`·`sanction`·`financial-health`)는 `selfCheckStore`(`esm.selfChecks.v1`의 `common`)에 저장 |
+| 3. 적합도 v0 | `lib/engine/fit.ts`(`ACTIVE_FIT_CRITERIA`: 관심분야·단계·내용 유사도 3요소, 가점 ±보정), 표시는 `FitBreakdownTable.vue`·`RecommendationCard.vue` |
+| 4. 맞춤 추천 | `RecommendationList.vue`(탭 3개 신청 가능·확인 필요·신청 불가) · `RecommendationCard.vue` · `ProgramRecommendedView.vue` |
+| 5. 인증·권한 | Vercel 서버 함수 `api/auth/[action].ts` + `server/auth/*` (환경변수 계정, HMAC 서명 쿠키). 역할은 `DEMO_LOGIN_*` = admin, `TEST_LOGIN_*` = test. 라우터 가드 `authNavigationTarget`(meta `requiresAuth`·`requiresAdmin`) |
+| 6. 관리자 영역 | REVISION_04의 `/admin/*` 6개 화면. `AdminRepository`는 빈 구현(`EmptyAdminRepository`)으로 **실제 서버와 연결되어 있지 않았다** |
+| 7. 실행 환경 | **Render 서비스가 없다.** 배포는 Vercel 한 곳(정적 Vue SPA + `frontend/api/` 서버 함수)뿐이고 Django 백엔드는 배포되어 있지 않다. 따라서 영구 디스크·예약 실행도 없다 (§2 아키텍처 결정) |
+| 8. 데이터 파일 | `EC_신청자격_정답세트_150건_최종.xlsx`(시트: 공고목록·자격조건·조건유형·문장라벨·가상프로필·판정정답 등), `EC_지원분류_정답세트_150건_최종.xlsx`(공고별 C01–C15 분류). 공고문 폴더 `수출 지원사업 공고문`: 파일 375개(PDF 374 · PNG 1) + zip 1 + 하위 폴더 `정답세트` 1 |
 
-## 2. 메인 랜딩페이지
+## 2. 아키텍처 결정 (Render 없음 → Vercel 한 곳)
 
-| 섹션 | 구성 | 연결 |
+```
+[로컬]  Django 관리 명령 (SQLite, DJANGO_DB=sqlite)
+        import_eligibility_goldset → ingest_notice_folder → (publish_auto_extracted) → export_public_snapshot
+                                                                                         │
+                                         frontend/src/data/published/notices.json ◀──────┘ (게시 공고 + 판정식)
+                                         frontend/src/data/published/admin-review.json      (검수 대기·추출 불가)
+[Vercel] 정적 SPA ─ 브라우저에서 3탭 판정(eligibilityV3.ts)·적합도 v1(fitV1.ts) 계산
+         서버 함수 ─ /api/auth/*  · /api/assistant/* (챗봇) · /api/public/* (공개 API) — 같은 스냅샷과 같은 판정 엔진 사용
+```
+
+- 공고 데이터는 서버 DB 대신 **게시 스냅샷 JSON**으로 배포한다. 공고 원문에서 정리한 값과 판정식만 들어 있고 사용자 정보는 없다.
+- 판정 엔진은 Python(`backend/eligibility/engine.py`)과 TypeScript(`frontend/src/lib/engine/eligibilityV3.ts`) 두 벌이며, 둘 다 정답세트 `reference_eval.py`와 불일치 0건이다.
+- 지시 문서의 DRF throttle · drf-spectacular · DB 저장 호출 기록은 Django를 배포할 때의 설계다. 지금은 같은 기능을 Vercel 함수로 만들었다 (§9 아래 차이 표).
+
+## 3. 바뀐 부분
+
+| 영역 | 내용 |
+|---|---|
+| 정답세트 반입 (§2.2) | `backend/eligibility/` 앱(모델 `ConditionType`·`Notice`·`Condition`·`IngestRecord`), `import_eligibility_goldset`(두 번 실행해도 중복 없음, 빈 중복 행 P005·삭제 표시 P048 건너뜀), 변환 사본 `backend/data/eligibility_goldset/*.csv·json` |
+| 판정 엔진 (§2.3·§2.4) | 3값 논리(atom·all·any·not·flag·intent·distributor·check·true), 필수 그룹 내 OR·그룹 간 AND, 제외 조건, `affects_verdict = N` 안내 조건. 실제 사용자용 확장: 미입력 값 = 모름, `answered_flags`, 규모 `중소기업` 일반값. 3탭: 미충족 → 신청 불가 / 주요 조건 모름 → 확인 필요 / 체크리스트만 모름 → 신청 가능 + 체크리스트. 기본 중요도 A01–A11·C01·C05·C09 = 주요, 기업 미입력으로 모르는 A 유형도 주요 |
+| 학습·적재 (§2.7) | `backend/ml/train_eligibility.py`(1회, 탐색 없음) → `backend/ml/models/eligibility_v1/`, `ingest_notice_folder`(1회 배치, 해시로 멱등), `publish_auto_extracted`(대상 건수 확인 후 일괄 게시), `export_public_snapshot` |
+| 기업 프로필 (§3) | ⑦ `재무·신청 전 확인` 단계 추가(건너뛰기 가능, 기존 6단계 그대로): 재무 6개 금액(음수 허용)과 비율 6개(계산만 하고 저장하지 않음), 신청 전 확인 6개(B01–B05·B08), 수출 의향·참여 조건·자부담 준비 |
+| 맞춤 공고 (§5) | 탭 `신청 가능 N`/`확인 필요 N`/`신청 불가 N`, 탭별 정렬, 마감 공고 숨김 + `마감 공고 포함` 토글, 카드: 제목·신청 마감·사업 분류 배지 + 탭별 항목(적합도는 신청 가능만), `자동 추출 · 검수 전` 배지 |
+| 상세 (§5.3) | `EligibilityTabPanel.vue`: 조건별 원문 문장·쪽, 확인 필요 조건 `충족함/충족하지 않음` 체크(이 기기에만 저장) → 탭 즉시 이동·취소 가능, 제출 서류 체크리스트, 적합도 계산 방법 |
+| 적합도 v1 (§6) | `fitV1.ts`: 관심 분야 0.25 · 업종 0.20 · 수출단계 0.25 · 재무 0.25 · 가점 0.05, 빠진 요소는 빼고 다시 나눔, 2요소 미만이면 점수 없음, 신청 가능 공고만. 재무 원형은 19개 군집 기준표가 없어 `기준 미등록` → 재무 요소 제외. 화면에 `fit-v1 · 검증 전 시험값`과 재무 가정 문구 |
+| 관리자 (§7) | 역할: `OPS_LOGIN_*` = admin, `DEMO_LOGIN_*`(ADMIN) = member, `TEST_LOGIN_*` = test. 관리자 화면은 스냅샷을 읽기 전용으로 보여 줌(`SnapshotAdminRepository`): 대시보드 건수, 검수 대기 165건·추출 불가 35건, 공고 관리 목록(출처 `공고 폴더 적재`·`KITA` 추가). **KITA 업로드** 화면 추가(KOTRA와 같은 컴포넌트, 출처만 다름). 기준·설정: 적합도 v1 가중치, 매칭표 2개, 재무 원형 기준표 상태, 조건 유형별 기본 중요도, 공개 API 키 안내 |
+| 챗봇 (§8) | `api/assistant/[action].ts` + `server/assistant/handlers.ts`, 화면 `components/assistant/AssistantWidget.vue` |
+| 공개 API (§9) | `api/public/index.ts` + `server/public/*`, 화면 `/developers`(메뉴에 없음, 바닥글 링크) |
+| TEST 계정 (§10) | 테스트 프로필에 ⑦단계 값(2025년 기준 재무, 신청 전 확인 모두 `해당 없음`, 수출 의향·참여 조건·자부담 준비 `예`). 이미 저장된 TEST 프로필에는 ⑦단계 값만 비어 있을 때 채운다 |
+
+### 챗봇·공개 API의 지시 문서와 다른 점 (서버 DB가 없어서)
+
+| 지시 | 지금 구현 | 서버 DB를 붙이면 |
 |---|---|---|
-| 1 Hero | 블랙 배경, `수출지원사업, / 우리 기업에 맞게.`(핵심 문구 옐로우), 서브 카피, 예시 UI(기업 조건 → 자격 상태 탭 → 예시 추천 카드 2개, `예시 화면` 표시) | `맞춤 지원사업 찾기` → `/programs/recommended`, `전체 지원사업 보기` → `/programs` |
-| 2 Problem | 옐로우 배너의 큰 질문, 문제 3개(흩어진 공고 · 복잡한 신청 자격 · 불분명한 지원 전략)가 스크롤하면 위로 쌓이는 장면(CSS sticky). 그림은 이미지 대신 기관 이름·자격 항목·지원 단계로 만든 도식 | - |
-| 3 Solution | 왼쪽 큰 제목 + 이전·다음 버튼, 오른쪽 가로로 넘기는 기능 카드 4개(블랙·옐로우·라이트 그레이·화이트). 카드 안 UI는 실제 기준: 조건 상태 `충족·미충족·확인 필요`, 적합도 가중치 `ACTIVE_FIT_CRITERIA`(0.40·0.30·0.30, ±10, fit-v0 검증 전), 지원 단계 4개와 세부 분야 매핑 `CATEGORIES_BY_PRIMARY_PHASE`. 기업 조건 값만 `입력 예시` | - |
-| 4 How It Works | 큰 가운데 문구, 가로형 3단계(STEP 01~03) 탭 — 방향키·Home·End로 이동, 고른 단계의 설명과 버튼. 767px 이하 세로형 | STEP 01 → `/profile`, 02 → `/programs/recommended`, 03 → `/programs` |
-| 5 Matching Preview | 카드에서 볼 수 있는 6가지(지원사업명·지원기관·수출지원 단계·지원대상 및 주요 요건·자격 충족 여부·적합도 점수). **공고가 연결되어 있고 신청 가능·확인 필요 공고가 있으면 실제 `RecommendationCard`를 그대로 쓴다.** 지금은 공고가 없어 같은 배치의 예시 카드(`예시 화면`) | `맞춤 추천 보기`, 카드의 `자세히 보기` → `/programs/recommended` |
-| 기관 띠 | 코나비즈 고객사 로고 영역 구조. 수출지원사업을 공고하는 기관 이름 16곳(기업마당·KOTRA·KITA·무역투자24·중소벤처기업부 등)을 글자로 두 줄, 반대 방향으로 흐름. 멈춤 버튼(WCAG 2.2.2), 마우스·포커스 시 멈춤, 동작 줄이기 설정에서는 줄바꿈 목록. 문구: `기업마당과 KOTRA 공고 연계를 시작으로 … 넓혀 갑니다` | - |
-| 6 Final CTA | 블랙 띠, `우리 기업의 다음 수출 기회, 지금 발견하세요.` | `맞춤 지원사업 찾기` → `/programs/recommended` |
+| 사용자별 하루 호출 수 (기본 20) | 서버 함수 메모리로 센다. Vercel 인스턴스가 바뀌면 다시 0부터 센다 (근사 제한) | 호출 기록 테이블로 정확히 센다 |
+| 호출 수 집계 기록 (사용자·시각·토큰 수), 모델명·프롬프트 버전 기록 | Vercel 함수 로그에 한 줄 JSON(`assistant_call`)으로 남긴다. 질문·답변 본문은 남기지 않는다 | DB 테이블 |
+| DRF throttle | 키별 분당 호출 수 `PUBLIC_API_RATE_PER_MINUTE`(기본 60), 메모리 기준 | DRF throttle |
+| 관리자가 `/admin/settings`에서 키 발급·폐기 | 환경변수 `PUBLIC_API_KEYS`(쉼표로 여러 개)로 관리, 화면에는 안내와 비활성 버튼 | 키 테이블 + 화면 발급 |
+| drf-spectacular `/api/public/docs` | 같은 주소에 OpenAPI 3.1 문서 + Swagger UI(서버 함수) | drf-spectacular |
+| 프로필로 판정 (서버) | 챗봇·공개 API 모두 서버에서 같은 TS 엔진으로 판정. 챗봇의 적합도는 브라우저가 계산한 값을 신청 가능 공고에만 붙인다 | Python 엔진 |
 
-- 예시 데이터(`constants/landing.ts`)의 공고명은 `예시 공고 A·B·C`, 기관은 `지원기관 (예시)`로 실제 사업으로 오해하지 않게 했고, 점수는 예시 카드에만 있으며 항상 `예시 화면 · 실제 공고·점수가 아닙니다` 표시와 함께 나온다. 통계·건수는 만들지 않았다.
-- 애니메이션: 스크롤 등장(`composables/useReveal.ts`, IntersectionObserver), 카드 호버, 기관 띠 흐름. 모두 `prefers-reduced-motion`에서 끈다. 새 의존성 없음(외부 라이브러리·이미지 없음).
-- 브랜드 로고·아이콘·이미지는 참고 사이트에서 가져오지 않았다.
+챗봇 흐름: 질문 → 게시 공고 TF-IDF(글자 2-gram) 최대 5개 → 서버에서 이 기업의 3탭·확인할 조건·근거 문장·쪽·제출 서류 계산 → Claude API(모델 `ASSISTANT_MODEL`, 기본 `claude-sonnet-5-5`, JSON 스키마 출력, 서버 측 대체 모델 `fallbacks: "default"`) → 형식 오류면 1번 다시 요청 → 답변의 공고명·탭·적합도·근거 문장·쪽은 서버가 판정 값으로 다시 채움(모델이 바꿀 수 없음, 전달하지 않은 공고는 버림). 보내는 기업 정보는 판정 항목만(사업자등록번호·대표자명·연락처 없음). 키가 없으면 버튼이 `준비 중`이고 비활성.
 
-## 3. 바뀐 파일
+## 4. 기존 공통 확인 5개 항목을 옮긴 결과 (§12-2)
 
-- 삭제: `views/RoadmapView.vue`
-- 새 파일: `components/home/HomeHero.vue`·`HomeProblem.vue`·`HomeSolution.vue`·`HomeHowItWorks.vue`·`HomePreview.vue`·`HomeAgencies.vue`·`HomeFinalCta.vue`·`ExampleMatchCard.vue`, `constants/landing.ts`, `composables/useReveal.ts`, `styles/landing.css`, `__tests__/revision05.spec.ts`
-- 수정: `views/HomeView.vue`, `router/index.ts`, `lib/redirect.ts`, `constants/navigation.ts`, `constants/options.ts`, `constants/adminNavigation.ts`(주석), `components/layout/AppHeader.vue`·`BrandLink.vue`·`BrandMark.vue`·`ProfileMenu.vue`·`TopNav.vue`·`SectionNav.vue`·`SidebarNav.vue`·`AdminNav.vue`·`AdminHeader.vue`, `components/common/TabNav.vue`·`SegmentedControl.vue`, `components/diagnose/StepProgress.vue`(그라데이션 → 단색), `styles/tokens.css`·`app.css`(버튼), `views/diagnose/DiagnoseInputView.vue`, `views/LoginView.vue`, `views/mypage/MyProgramsView.vue`, `views/programs/ProgramDetailView.vue`, `views/admin/AdminSettingsView.vue`(문구), `composables/useProgramEvaluations.ts`(주석), `index.html`(theme-color·설명), `public/favicon.svg`
-- 테스트: `app.spec.ts`, `revision.spec.ts`, `revision03.spec.ts`, `revision04.spec.ts`의 로드맵·메뉴·로그인 후 이동 기대값을 바꿨고, `revision05.spec.ts`(로드맵 삭제, 메뉴, 나의 사업 관리, 로그인/회원가입 링크, 랜딩 섹션·CTA 연결·예시 표시·실제 가중치·이용 과정 탭 키보드·기관 띠 멈춤·미리보기)를 더했다.
+| 기존 공통 확인 (selfChecks.common) | 신청 전 확인 코드 |
+|---|---|
+| `tax-arrears` 세금 체납 | B01 |
+| `closure` 휴·폐업 | B02 |
+| `credit` 신용 | B04 |
+| `sanction` 참여 제한·제재 | B05 |
+| `financial-health` 재무 상태 | 옮기지 않음 (결격 문항이 아니며 ⑦단계 재무 금액으로 대체) |
 
-## 4. 결정과 남은 일
+- **저장값은 복사·삭제하지 않았다.** 프로필의 `preApplyChecks`가 비어 있으면 판정할 때 기존 공통 확인 답을 위 표대로 읽는다(`engineProfile.ts`의 `preApplyAnswers`). 사용자가 ⑦단계에서 답하면 그 값이 우선한다. 기존 `esm.selfChecks.v1`의 `common`은 그대로 남아 있다.
+- B03(파산·회생)·B08(사회적 물의)은 기존 항목에 없어 새로 묻는다.
 
-- 로그인한 기업 회원이 `/`를 열면 이전에는 수출 로드맵으로 보냈으나, 로드맵이 없어졌으므로 서비스 소개(랜딩)를 그대로 보여 준다. **관리자 계정의 `/` → `/admin` 규칙(REVISION_04)은 바꾸지 않았다.** 그래서 관리자가 사용자 화면의 `서비스 소개`를 누르면 관리자 홈으로 간다.
-- 기타 페이지 참고 디자인(`EC(Export Compass) 웹서비스 와이어프레임` 아티팩트)은 claude.ai 로그인이 필요해 열람하지 못했다. 그래서 요청에 적힌 디자인 시스템(블랙·옐로우·블루)을 토큰에 반영하는 범위로 맞췄다. 와이어프레임의 세부 레이아웃은 반영하지 않았다.
-- 회원가입은 서버 DB가 없어 지금처럼 로그인 화면의 회원가입 탭(준비 중 안내)으로 연결한다.
-- 수출단계 진단 엔진(`diagnoseExportStage`)과 관리자 `기준·설정`의 수출단계 기준은 적합도 계산에 쓰이므로 남겼다(로드맵 화면만 삭제).
+## 5. 판정 엔진 테스트 결과 (§12-3)
 
-## 5. 서비스 이름·로고 변경 (2026-11-15 추가 요청)
+- 엄격 판정 회귀: 가상 프로필 16개 × 정답세트 공고 = **2,544조합, `reference_eval.py`와 불일치 0건** (Python `backend/eligibility/tests.py`, TypeScript `frontend/src/__tests__/revision05.engine.spec.ts`). `reference_eval.py`는 엑셀 `판정정답`을 그대로 재현한다.
+- 3탭 분류 단위 테스트(§2.6): Python 6건 · TypeScript 4건 통과.
+- 백엔드 `manage.py test` 18건 통과, 프론트엔드 vitest 299건 통과 (§8).
 
-- 서비스 이름 `수출지원사업 매칭` → **`Export Compass`** (`constants/navigation.ts`의 `APP_NAME` 한 곳 — 헤더 로고 글자, 관리자 헤더, 모바일 서랍, 바닥글, 브라우저 탭 제목 `<화면> | Export Compass`). `index.html`의 기본 제목·설명도 바꿨다. 히어로의 소개 문구 `수출지원사업 매칭 플랫폼`은 서비스 설명이라 그대로 두었다.
-- 로고: 사용자가 첨부한 나침반 이미지(2000×1792, 투명 배경)를 `public/brand/logo.png`(높이 144px, 화면 36px의 4배)로 줄여 쓴다. 블랙 히어로 위 헤더에서는 검은 부분만 흰색으로 바꾼 `logo-inverse.png`(노란 중심 그대로)를 쓴다. 원본 비율을 지키고 모양은 바꾸지 않았다. `BrandMark.vue`는 SVG 대신 이 이미지를 그린다(장식 이미지, 옆에 서비스 이름 글자).
-- 파비콘: 이전 `favicon.svg`를 지우고 같은 로고로 `favicon-32.png`, `apple-touch-icon.png`(흰 바탕 180px), `brand/logo-512.png`를 만들었다.
+## 6. 사이킷런 추출기 평가 (§12-4)
 
+[docs/ml/eligibility_eval.md](../ml/eligibility_eval.md) — 학습 dev, 평가 test(평가용 원공고 30건 · 세부사업 포함 문장 단위). 지시 문서의 '평가용 33건'은 세부사업 행 기준이며 원공고 단위로는 30건이다.
+
+| 과제 | 결과 |
+|---|---|
+| 문장 라벨 5종 | Macro F1 **0.677**, 자격 문장 재현율 0.727 (자격-필수 0.584 · 자격-제외 0.750 · 가점 0.400 · 제출서류 0.692 · 기타 0.959) |
+| 조건 유형 | Macro F1 **0.424**, 정확도 0.494 (26개 유형) |
+| 공고 분야 C01–C15 | Micro F1 **0.500**, Macro F1 0.225 |
+
+판정은 규칙으로만 하며, 분류기는 자격 문장 찾기·유형·분야에만 쓴다. 최종 모델은 dev+test로 1번 다시 학습해 저장했다.
+
+## 7. 공고 폴더 적재 결과 (§12-5)
+
+[docs/ml/batch_report.md](../ml/batch_report.md) — 1회 배치.
+
+| 항목 | 건수 |
+|---|---|
+| 실제 파일 | 375 (PDF 374 · PNG 1, zip·하위 폴더 제외) |
+| 정답세트와 겹침 (정답세트 데이터 사용) | 149 |
+| 같은 내용 중복 파일 (해시 동일) | 26 |
+| 신규 자동 추출 → 검수 대기 | 165 (조건 1,328개, 평균 confidence 0.284) |
+| 추출 실패 (텍스트 추출 불가) | 35 |
+
+다시 실행해도 공고 359건 · 조건 2,611개 · 적재 기록 375건 그대로(중복 없음). **사이트에 게시된 공고는 정답세트 159건**(원공고 149 + 세부사업)이다. 자동 추출 165건은 검수 대기이며 아직 게시하지 않았다 (평균 confidence가 낮아 일괄 게시는 사용자가 결정, §11).
+
+## 8. TEST 계정 기준 결과 (§12-6)
+
+데이터 기준일 2026-11-13, TEST 프로필 + ⑦단계 값, 직접 확인 답 없음.
+
+| 탭 | 전체 159건 | 기본 화면 (마감 공고 숨김, 114건) |
+|---|---|---|
+| 신청 가능 | 12 | 4 |
+| 확인 필요 | 6 | 4 |
+| 신청 불가 | 141 | 106 |
+| 합계 | **159 = 게시 공고 수** | 114 |
+
+적합도 상위 5개 (전체 기준, 재무 요소는 원형 기준표 미등록으로 제외):
+
+| 순위 | 공고 | 적합도 | 접수 |
+|---|---|---|---|
+| 1 | P002 미국 동부 K-Food 유통망 입점지원 사업 | 100 | 마감 |
+| 2 | P006 해외 온라인 플랫폼 입점지원 사업 참여 소상공인 모집(2차) | 71 | 마감 |
+| 3 | P008 해외 온라인 플랫폼 활용지원 사업 참여 소상공인 모집(3차) | 71 | 마감 |
+| 4 | P037 2026년 수출 패키지 지원 참가기업 모집 | 67 | 마감 |
+| 5 | P034 2026년 이천시 해외규격인증 지원사업(5차) | 60 | 마감 |
+
+기본 화면(마감 숨김)의 신청 가능 4건: P001 일반 물류바우처(2차) 46 · P063 중소기업 해외세일즈 개별 출장 지원 24 · P053 FTA 맞춤형 컨설팅 13 · P060 원산지확인서 제3자 확인 컨설팅 13.
+
+## 9. 완료 체크리스트 (§11)
+
+| 항목 | 결과 |
+|---|---|
+| 정답세트 두 번 반입해도 중복 없음 | 통과 (`import_eligibility_goldset` 2회) |
+| 엄격 판정 회귀 불일치 0건 | 통과 (2,544조합) |
+| 3탭 분류 단위 테스트 | 통과 |
+| 학습 1회 + 평가 문서 | 통과 (`docs/ml/eligibility_eval.md`) |
+| 적재 1회 + 보고서, 재실행 중복 없음 | 통과 (`docs/ml/batch_report.md`) |
+| TEST 맞춤 공고: 모든 게시 공고가 3탭 중 하나, 합 = 게시 공고 수 | 통과 (12 + 6 + 141 = 159) |
+| 카드: 제목·신청 마감·사업 분류, 적합도는 신청 가능만 | 통과 (테스트 + 브라우저) |
+| 신청 가능 상세: 적합도 계산 방법·자격 체크리스트·제출 서류 | 통과 |
+| 확인 필요 → 주요 조건 모두 충족함 → 신청 가능, 취소하면 복귀 | 통과 (브라우저) |
+| 신청 불가 상세: 미충족 조건 원문 문장·쪽 | 통과 |
+| `자동 추출 · 검수 전` 배지는 일괄 게시 공고에만 | 통과 (게시된 자동 추출 공고 0건 → 배지 0개) |
+| 기존 6단계 그대로 + ⑦ 건너뛰기 | 통과 |
+| 재무 금액 하나라도 비면 `재무 미입력`, 재무 요소 제외 | 통과 |
+| 적합도 화면 5요소 값·비중·이유, 빠진 요소 사유, 버전, `검증 전 시험값`, 재무 가정 문구 | 통과 |
+| `/admin`은 운영자 계정만 (ADMIN·TEST 불가) | 통과 (역할 테스트). 운영 사이트는 `OPS_LOGIN_*` 설정 전까지 관리자 화면에 들어갈 계정이 없다 |
+| 키 없으면 챗봇 `준비 중` | 통과 (로컬·배포) |
+| `/developers`, `/api/public/docs` 열림, 키 없이 `401` | 통과 (로컬·배포) |
+| `dist`·Git 이력에 키·비밀번호 없음, 서버 변수에 `VITE_` 없음 | 통과 (아래 §10) |
+| 빌드·타입 검사·린트·백엔드 테스트 각 1번 | 통과 |
+
+## 10. 보안 확인
+
+- 서버 전용 변수(`OPS_LOGIN_*`, `DEMO_LOGIN_*`, `TEST_LOGIN_*`, `AUTH_SESSION_SECRET`, `ANTHROPIC_API_KEY`, `ASSISTANT_*`, `PUBLIC_API_KEYS`, `PUBLIC_API_RATE_PER_MINUTE`, `BIZINFO_API_KEY`)에 `VITE_` 접두사가 없다.
+- `frontend/dist`에서 위 변수 이름·키 형식(`sk-ant-`)을 찾아 0건임을 확인했다.
+- 기업마당 API 키는 서버 전용이라 브라우저에서 설정 여부를 알 수 없다. 관리자 화면은 수집 기능 자체가 서버 저장소 연결 전이라 `미연동`으로 표시한다.
+
+## 11. 사용자가 직접 할 일 (§12-7)
+
+지시 문서의 'Render 대시보드'는 지금 배포 구조에서 **Vercel 프로젝트 설정 → Environment Variables (Production·Preview)** 이다. 넣은 뒤 다시 배포해야 적용된다.
+
+1. `OPS_LOGIN_ID`, `OPS_LOGIN_PASSWORD` — 운영자 계정. **넣기 전에는 운영 사이트의 `/admin`에 들어갈 수 있는 계정이 없다** (`ADMIN` 계정은 이번 개정으로 일반 사용자가 됨).
+2. `ANTHROPIC_API_KEY` (필요하면 `ASSISTANT_MODEL`, `ASSISTANT_DAILY_LIMIT`) — 넣으면 챗봇 버튼의 `준비 중`이 사라진다.
+3. `PUBLIC_API_KEYS` — 공개 API를 쓸 키(16자 이상, 쉼표로 여러 개). 예: `openssl rand -hex 24`.
+4. `BIZINFO_API_KEY` — 기업마당 수집은 서버 저장소 연결 후에 쓴다.
+5. `/admin/settings`의 재무 원형 기준표(19개 군집) CSV 준비 — 서버 저장소가 없어 지금은 화면에서 등록할 수 없다. 파일을 주면 `ARCHETYPE_REFERENCE`(코드)로 넣어 배포할 수 있다.
+6. 자동 추출 공고 165건: 개별 검수할지, `python manage.py publish_auto_extracted`로 일괄 게시할지 결정 (일괄 게시하면 `자동 추출 · 검수 전` 배지가 붙은 채 사용자 화면에 나온다).
+
+## 12. 남은 일 (서버 저장소가 필요한 것)
+
+- 관리자 쓰기 동작(승인·반려·일괄 게시·수집·업로드 반영·키 발급) — 지금은 로컬 관리 명령 + 스냅샷 재배포.
+- KOTRA·KITA 업로드의 §7.4 새 열 구성(`source_notice_id, title, organizer, operator, posted_at, apply_start, apply_end, source_url, file_name, memo`)과 공고문 파일 연결 — 지금 화면은 REVISION_04 양식으로 미리보기만 한다.
+- 챗봇 호출 수·공개 API 호출 제한의 정확한 집계(DB).

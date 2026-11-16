@@ -587,6 +587,7 @@ def convert(args) -> tuple[dict, dict]:
     warnings_list: list[str] = []
     warn = warnings_list.append
     excluded: list[str] = []
+    deleted_programs: set[str] = set()
 
     sources_meta = []
     sheet_rows: dict[str, list[dict]] = {name: [] for name in SHEETS}
@@ -601,6 +602,8 @@ def convert(args) -> tuple[dict, dict]:
             for record in records:
                 if clean(record.get("review_status")) == "삭제":
                     excluded.append(f"{path.name} [{name}] {record.get(key)} (검수상태 '삭제')")
+                    if name == "programs" and clean(record.get("program_id")):
+                        deleted_programs.add(clean(record.get("program_id")))
                     continue
                 kept.append(record)
             counts[name] = len(records)
@@ -616,6 +619,10 @@ def convert(args) -> tuple[dict, dict]:
     for row in sheet_rows["programs"]:
         program_id = clean(row.get("program_id"))
         if program_id in programs_by_id:
+            # 공고명 등 값이 하나도 없는 빈 중복 행은 건너뛴다 (최종 정답세트 P005의 빈 행)
+            if not clean(row.get("title")) and not clean(row.get("file")):
+                warn(f"{row['_file']} programs {program_id}: 값이 없는 중복 행을 건너뜁니다.")
+                continue
             raise ConversionError(f"program_id '{program_id}'가 두 번 나옵니다 ({row['_file']}).")
         programs_by_id[program_id] = row
     parent_ids = {clean(r.get("parent_id")) or clean(r.get("program_id")) for r in programs_by_id.values()}
@@ -624,13 +631,17 @@ def convert(args) -> tuple[dict, dict]:
         split = clean((inventory.get(parent) or {}).get("split"))
         if split is None:
             warn(f"{parent}: inventory_150에 없는 공고입니다.")
-        elif "test" in split:
+        elif "test" in split and not getattr(args, "allow_test", False):
             raise ConversionError(f"{parent}: 최종 평가용 test 공고(split '{split}')는 사이트 데이터에 넣을 수 없습니다.")
 
     def targets_for(program_id: str, sheet: str) -> list[str]:
         if program_id in programs_by_id:
             return [program_id]
         children = [pid for pid, row in programs_by_id.items() if (clean(row.get("parent_id")) or pid) == program_id]
+        if not children and program_id in deleted_programs:
+            # 공고가 '삭제'(중복 공고 등)로 표시되면 그 공고의 규칙·서류·가점도 넣지 않는다
+            warn(f"[{sheet}] 삭제된 공고 '{program_id}'의 행을 건너뜁니다.")
+            return []
         if not children:
             raise ConversionError(f"[{sheet}] 없는 공고 '{program_id}'를 가리키는 행이 있습니다.")
         return children
@@ -1002,6 +1013,8 @@ def parse_args(argv=None):
     parser.add_argument("--as-of", required=True, help="데이터 기준일 (YYYY-MM-DD)")
     parser.add_argument("--out", type=Path, required=True, help="출력 JSON")
     parser.add_argument("--report", type=Path, required=True, help="변환 보고서 (Markdown)")
+    parser.add_argument("--allow-test", action="store_true",
+                        help="평가용 test 공고도 넣는다 (REVISION_05: 서비스 데이터는 150건 모두 게시, 학습에서만 test를 뺀다)")
     args = parser.parse_args(argv)
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", args.as_of):
         parser.error("--as-of는 YYYY-MM-DD 형식이어야 합니다.")

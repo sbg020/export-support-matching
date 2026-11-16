@@ -86,7 +86,8 @@ const USER_PATHS = [
   '/community/reviews/write',
   '/community/reviews/p1',
 ]
-const ADMIN_PATHS = ['/admin', '/admin/bizinfo', '/admin/kotra', '/admin/review', '/admin/notices', '/admin/settings']
+// REVISION_05 §7.4: KITA 업로드 추가 (KOTRA와 같은 화면)
+const ADMIN_PATHS = ['/admin', '/admin/bizinfo', '/admin/kotra', '/admin/kita', '/admin/review', '/admin/notices', '/admin/settings']
 const FORBIDDEN = ['테스트 데이터', 'PoC 데이터 기준', '초안 기준', '샘플 데이터']
 /** 참고 화면의 예시 값 (§1 제약 2) */
 const REFERENCE_EXAMPLES = ['샘플', '김샘플', '이샘플', '214', 'samplekey', 'kotra_notices_1106', 'B2C 해외쇼핑몰']
@@ -193,16 +194,16 @@ describe('기업 진단 삭제·수출 로드맵 (§4.1~§4.3)', () => {
     it("입력 완료 후 맞춤 추천으로 간다", async () => {
       // 사업자등록번호는 저장하지 않는 세션 입력이라 테스트 전용 형식 값을 넣는다
       store.replaceProfile({ ...createTestAccountProfile(), businessNumber: '000-00-00000' })
-      const { router, wrapper } = await mountInput('/profile?step=6')
+      const { router, wrapper } = await mountInput('/profile?step=7')
       await wrapper.get('form').trigger('submit')
       await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('programs-recommended'))
       wrapper.unmount()
     })
 
     it("빠진 항목이 있으면 '입력 중' 상태로 맞춤 추천 보기 버튼이 맞춤 추천을 연다", async () => {
-      // 지금 단계(관심 분야)는 채우고 다른 필수 항목은 비워 둔다
+      // 마지막 단계는 ⑦ 재무·신청 전 확인 (REVISION_05 §3). 관심 분야는 채우고 다른 필수 항목은 비워 둔다
       store.replaceProfile({ ...createEmptyProfile(), companyName: '테스트 전용 기업', interestAreas: ['logistics'] })
-      const { router, wrapper } = await mountInput('/profile?step=6')
+      const { router, wrapper } = await mountInput('/profile?step=7')
       await wrapper.get('form').trigger('submit')
       await flushPromises()
       expect(wrapper.text()).toContain('지금 맞춤 추천을 보면')
@@ -352,7 +353,7 @@ describe('이동 규칙 (§5.2)', () => {
 })
 
 describe('관리자 영역 (§5.3·§6~§12)', () => {
-  it('관리자 경로 6개가 관리자 레이아웃·메뉴·관리자 전용으로 등록되어 있다', () => {
+  it('관리자 경로 7개가 관리자 레이아웃·메뉴·관리자 전용으로 등록되어 있다', () => {
     const router = makeRouter()
     expect(ADMIN_PATHS.map((path) => router.resolve(path).name)).toEqual(ADMIN_NAV_ITEMS.map((item) => item.routeName))
     for (const path of ADMIN_PATHS) {
@@ -371,12 +372,12 @@ describe('관리자 영역 (§5.3·§6~§12)', () => {
     header.unmount()
   })
 
-  it('관리자 헤더: 메뉴 6개, 현재 화면 aria-current, 사용자 화면 보기', async () => {
+  it('관리자 헤더: 메뉴 7개 (REVISION_05: KITA 업로드 추가), 현재 화면 aria-current, 사용자 화면 보기', async () => {
     const router = makeRouter()
     await at(router, '/admin/notices')
     const header = mount(AdminHeader, { props: { menuOpen: false }, global: { plugins: [router] } })
     const links = header.findAll('.admin-nav__link')
-    expect(links.map((a) => a.text())).toEqual(['관리자 홈', '기업마당 수집', 'KOTRA 업로드', '공고 검수', '공고 관리', '기준·설정'])
+    expect(links.map((a) => a.text())).toEqual(['관리자 홈', '기업마당 수집', 'KOTRA 업로드', 'KITA 업로드', '공고 검수', '공고 관리', '기준·설정'])
     expect(header.findAll('[aria-current="page"]').map((a) => a.text())).toEqual(['공고 관리'])
     const userView = header.findAll('a').find((a) => a.text() === '사용자 화면 보기')
     expect(userView?.attributes('href')).toBe('/programs/recommended')

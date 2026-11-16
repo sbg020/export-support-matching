@@ -17,6 +17,7 @@ function stepHasInput(step: ProfileStepId, p: CompanyProfile): boolean {
       const value = p[field]
       if (Array.isArray(value)) return value.length > 0
       if (field === 'interestUnsure') return value === true
+      if (typeof value === 'object' && value !== null) return Object.keys(value).length > 0
       return value !== null
     })
 }
@@ -25,8 +26,9 @@ function stepHasInput(step: ProfileStepId, p: CompanyProfile): boolean {
 export function getStepStatus(step: ProfileStepId, p: CompanyProfile, meta: ProfileMeta): StepStatus {
   const touched = stepHasInput(step, p)
   const valid = !hasErrors(validateStep(step, p, { requireSessionFields: false }))
-  if (step === 5) {
-    if (!touched) return meta.skippedSteps.includes(5) ? 'skipped' : 'optional'
+  // ⑤ 가점 요소와 ⑦ 재무·신청 전 확인은 선택 단계다
+  if (step === 5 || step === 7) {
+    if (!touched) return meta.skippedSteps.includes(step) ? 'skipped' : 'optional'
     return valid ? 'complete' : 'incomplete'
   }
   if (touched && valid) return 'complete'

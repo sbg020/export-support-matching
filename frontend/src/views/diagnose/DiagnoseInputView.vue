@@ -25,6 +25,7 @@ import StepExportStatus from '@/components/diagnose/steps/StepExportStatus.vue'
 import StepMainProduct from '@/components/diagnose/steps/StepMainProduct.vue'
 import StepBonusFactors from '@/components/diagnose/steps/StepBonusFactors.vue'
 import StepInterests from '@/components/diagnose/steps/StepInterests.vue'
+import StepFinanceChecks from '@/components/diagnose/steps/StepFinanceChecks.vue'
 import { PROFILE_STEPS } from '@/constants/options'
 import { focusProfileField, provideProfileForm } from '@/composables/useProfileForm'
 import { useProfileStore } from '@/stores/profileStore'
@@ -47,6 +48,7 @@ const STEP_COMPONENTS: Record<ProfileStepId, Component> = {
   4: StepMainProduct,
   5: StepBonusFactors,
   6: StepInterests,
+  7: StepFinanceChecks,
 }
 
 const ID_PREFIX = 'pf'
@@ -68,7 +70,8 @@ function parseStep(value: unknown): ProfileStepId {
 const currentStep = computed(() => parseStep(route.query.step))
 const stepDef = computed(() => PROFILE_STEPS.find((s) => s.id === currentStep.value) ?? PROFILE_STEPS[0]!)
 const isFirst = computed(() => currentStep.value === 1)
-const isLast = computed(() => currentStep.value === 6)
+/** ⑦ 재무·신청 전 확인(선택)이 마지막 단계다 (REVISION_05 §3) */
+const isLast = computed(() => currentStep.value === 7)
 
 const statuses = computed(
   () =>
@@ -161,13 +164,13 @@ function saveDraft() {
 
 async function complete() {
   const all = validateAll(store.state.profile, { requireSessionFields: true })
-  if (hasErrors(all[6])) {
-    await showErrors(all[6])
+  if (hasErrors(all[7])) {
+    await showErrors(all[7])
     return
   }
   errors.value = {}
-  store.clearStepSkipped(6)
-  const issues = PROFILE_STEP_IDS.filter((step) => step !== 6 && hasErrors(all[step])).map((step) => ({
+  store.clearStepSkipped(7)
+  const issues = PROFILE_STEP_IDS.filter((step) => step !== 7 && hasErrors(all[step])).map((step) => ({
     step,
     title: PROFILE_STEPS.find((s) => s.id === step)?.title ?? `${step}단계`,
     messages: Object.values(all[step]),

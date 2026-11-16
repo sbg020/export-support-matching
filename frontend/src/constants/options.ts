@@ -308,6 +308,12 @@ export const PROFILE_STEPS: ProfileStepDefinition[] = [
     description: '도움받고 싶은 분야를 모두 골라 주세요.',
     optional: false,
   },
+  {
+    id: 7,
+    title: '재무·신청 전 확인',
+    description: '재무제표 금액과 공통 결격 사유를 알려 주세요. 선택 입력이며, 입력하면 신청 자격과 적합도를 더 정확하게 계산합니다.',
+    optional: true,
+  },
 ]
 
 export function optionLabel<T extends string>(options: Option<T>[], value: T | null | undefined): string | null {

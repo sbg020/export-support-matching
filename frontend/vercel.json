@@ -4,7 +4,21 @@
   "installCommand": "npm ci",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "functions": {
+    "api/assistant/[action].ts": {
+      "includeFiles": "src/data/published/notices.json",
+      "maxDuration": 60
+    },
+    "api/public/index.ts": {
+      "includeFiles": "src/data/published/notices.json"
+    }
+  },
   "rewrites": [
+    { "source": "/api/public/v1/notices", "destination": "/api/public?route=notices" },
+    { "source": "/api/public/v1/notices/:id", "destination": "/api/public?route=notice&id=:id" },
+    { "source": "/api/public/v1/eligibility/check", "destination": "/api/public?route=check" },
+    { "source": "/api/public/openapi.json", "destination": "/api/public?route=openapi" },
+    { "source": "/api/public/docs", "destination": "/api/public?route=docs" },
     {
       "source": "/((?!api/).*)",
       "destination": "/index.html"

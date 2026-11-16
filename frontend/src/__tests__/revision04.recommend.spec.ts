@@ -11,6 +11,8 @@ import type { Program } from '@/types/program'
 import { routes } from '@/router'
 import RecommendationList from '@/components/programs/RecommendationList.vue'
 import { draftProgram } from './fixtures'
+import { useProfileStore } from '@/stores/profileStore'
+import { createTestAccountProfile } from '@/data/testAccountProfile'
 
 const fake = vi.hoisted(() => ({
   programs: [] as Program[],
@@ -36,12 +38,20 @@ vi.mock('@/composables/useProgramEvaluations', async () => {
   }
 })
 
+/** 테스트 전용 3탭 결과 (REVISION_05: 카드와 탭은 evaluation.tab을 쓴다) */
+function testTab(status: EligibilityStatus): NonNullable<ProgramEvaluation['tab']> {
+  const tab = status === 'eligible' ? 'eligible' : status === 'ineligible' ? 'ineligible' : 'needs-check'
+  const strict = tab === 'eligible' ? '신청 가능' : tab === 'ineligible' ? '신청 불가' : '확인 필요'
+  return { tab, strict, fails: [], majorUnknown: [], checklist: [], userDecided: [], outcomes: [], notices: [] }
+}
+
 /** 테스트 전용 판정 결과 */
 function evaluation(status: EligibilityStatus | null, score: number | null): ProgramEvaluation {
   return {
     eligibility: status
       ? ({ status, selfCheckedCount: 0, basisDate: null, conditions: [], groups: [] } as unknown as ProgramEvaluation['eligibility'])
       : null,
+    tab: status ? testTab(status) : null,
     fit: score === null ? null : ({ score, reasons: [], basisDate: null } as unknown as ProgramEvaluation['fit']),
     fitFactors: [],
     opportunity: null,
@@ -49,6 +59,8 @@ function evaluation(status: EligibilityStatus | null, score: number | null): Pro
 }
 
 function setData(entries: [Program, ProgramEvaluation][]) {
+  // REVISION_05 §5.1: 기업 프로필이 비어 있으면 탭 대신 입력 안내를 보여 주므로 테스트 프로필을 넣어 둔다
+  useProfileStore().replaceProfile(createTestAccountProfile())
   fake.programs = entries.map(([program]) => program)
   fake.evaluations = new Map(entries.map(([program, value]) => [program.id, value]))
 }
@@ -158,13 +170,14 @@ describe('맞춤 추천 카드 (§4.4.3)', () => {
     await router.replace({ query: { tab: 'ineligible' } })
     await flushPromises()
     const ineligible = wrapper.get('.rec-card')
-    expect(ineligible.get('.rec-card__fit-note').text()).toBe('신청 불가 공고는 계산하지 않습니다')
+    // REVISION_05 §5.2: 적합도는 신청 가능 탭 카드에만 (신청 불가 카드에는 적합도 칸이 없다)
+    expect(ineligible.find('.rec-card__fit').exists()).toBe(false)
   })
 
-  it('버튼: 자세히 보기·관심사업 저장·비교에 추가', async () => {
+  it('버튼: 자세히·관심사업 저장·비교에 추가 (REVISION_05 §5.2 `자세히`)', async () => {
     setData([[draftProgram({ id: 'E1', title: '가능 A' }), evaluation('eligible', 50)]])
     const { wrapper } = await mountAt('/programs/recommended')
     const labels = wrapper.findAll('.rec-card__actions a, .rec-card__actions button').map((el) => el.text())
-    expect(labels).toEqual(['자세히 보기', '관심사업 저장', '비교에 추가'])
+    expect(labels).toEqual(['자세히', '관심사업 저장', '비교에 추가'])
   })
 })

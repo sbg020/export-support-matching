@@ -55,3 +55,12 @@ Thumbs.db
 수출 지원사업 공고문/정답세트/EC_정답세트_초안(2).xlsx
 # 엑셀 잠금 파일
 ~$*.xlsx
+
+# ── REVISION_05 데이터 파이프라인 ──
+# 공고 텍스트 캐시(다시 만들 수 있음). 학습한 모델(backend/ml/models/eligibility_v1/)은 커밋한다
+backend/data/cache/
+# 채팅으로 받은 첨부 원본 (커밋하는 사본: docs/revisions/REVISION_0x.md, backend/data/eligibility_goldset/)
+/REVISION_04.md
+/REVISION_05.md
+/10.09중간발표.pdf
+/EC_*_정답세트_150건_최종.xlsx

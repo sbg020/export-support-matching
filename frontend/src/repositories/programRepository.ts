@@ -1,14 +1,19 @@
 /*
  * 공고 데이터 읽기 경계.
  *
- * 화면은 이 인터페이스만 사용한다. 구현은 두 가지다.
+ * 화면은 이 인터페이스만 사용한다. 구현은 세 가지다.
+ * - PublishedProgramRepository: 게시 공고 스냅샷 (REVISION_05, 정답세트 + 게시된 자동 추출 공고. 기본값)
+ * - HttpProgramRepository: 관리자가 검수·게시한 공고 API (VITE_API_BASE_URL)
  * - EmptyProgramRepository: 빈 배열 ('실제 공고 데이터가 아직 없음'. 예시 공고가 아니다)
- * - HttpProgramRepository: 관리자가 검수·게시한 공고 API
  */
 import type { IsoDate } from '@/types/common'
 import type { Program, ProgramListResult, ProgramQuery } from '@/types/program'
 
-export type DataSourceStatus = { kind: 'not-connected' } | { kind: 'api'; baseUrl: string }
+export type DataSourceStatus =
+  | { kind: 'not-connected' }
+  | { kind: 'api'; baseUrl: string }
+  /** 게시 공고 스냅샷: 데이터 기준일과 버전 (backend export_public_snapshot) */
+  | { kind: 'published'; asOf: IsoDate; dataVersion: string }
 
 export interface ProgramRepository {
   readonly source: DataSourceStatus
@@ -25,12 +30,11 @@ export function isSourceConnected(source: DataSourceStatus): boolean {
 }
 
 /**
- * 접수상태·마감 여유를 계산하는 데이터 기준일. 지금은 항상 null이다(시스템 날짜로 대신하지 않는다).
- * 다음 개정에서 API 응답의 기준일(meta.asOf)을 돌려주도록 바꾼다 (REVISION_04 §3.3, §13.2).
+ * 접수상태·마감 여유·업력을 계산하는 데이터 기준일. 시스템 날짜로 대신하지 않는다.
+ * 게시 스냅샷이면 스냅샷 기준일(정답세트 작성일), API·미연결이면 null.
  */
 export function dataBasisDate(source: DataSourceStatus): IsoDate | null {
-  void source
-  return null
+  return source.kind === 'published' ? source.asOf : null
 }
 
 export function createEmptyQuery(): ProgramQuery {

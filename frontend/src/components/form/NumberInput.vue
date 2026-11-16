@@ -15,8 +15,10 @@ const props = withDefaults(
     placeholder?: string
     unit?: string
     maxDigits?: number
+    /** 음수 허용 (영업이익·당기순이익·자본총계). 맨 앞의 '-'만 받는다 */
+    allowNegative?: boolean
   }>(),
-  { describedby: undefined, invalid: false, placeholder: undefined, unit: undefined, maxDigits: 15 },
+  { describedby: undefined, invalid: false, placeholder: undefined, unit: undefined, maxDigits: 15, allowNegative: false },
 )
 
 const focused = ref(false)
@@ -40,10 +42,12 @@ function onFocus() {
 
 function onInput(event: Event) {
   const input = event.target as HTMLInputElement
+  const negative = props.allowNegative && input.value.trim().startsWith('-')
   const digits = input.value.replace(/\D/g, '').slice(0, props.maxDigits)
-  draft.value = digits
-  input.value = digits
-  model.value = digits === '' ? null : Number(digits)
+  const text = negative ? `-${digits}` : digits
+  draft.value = text
+  input.value = text
+  model.value = digits === '' ? null : Number(text)
 }
 
 function onBlur() {

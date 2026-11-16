@@ -1,0 +1,10 @@
+{
+ "version": "eligibility_v1",
+ "trained_on": "dev+test (최종), 평가 수치는 dev만으로 학습한 모델",
+ "date": "2026-11-16",
+ "counts": {
+  "sentences": 18782,
+  "conditions": 1278,
+  "documents": 140
+ }
+}

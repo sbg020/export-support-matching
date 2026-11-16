@@ -1,10 +1,11 @@
 <script setup lang="ts">
 /**
- * KOTRA CSV 업로드 (REVISION_04 §9).
+ * KOTRA·KITA CSV 업로드 (REVISION_04 §9, REVISION_05 §7.4). 두 화면은 이 컴포넌트를 같이 쓰고 출처(route.meta.uploadSource)만 다르다.
  * 지금 동작: 양식 내려받기, 파일 고르기(브라우저 안에서만 읽음), 인코딩 판별, 행 검사·미리보기·보기 선택, 선택 지우기.
  * 저장소 연결 후: 반영, 업로드 이력, 되돌리기.
  */
 import { computed, onMounted, ref, shallowRef } from 'vue'
+import { useRoute } from 'vue-router'
 import { IconCircleCheck, IconCircleX, IconCopy, IconDownload } from '@tabler/icons-vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import SectionCard from '@/components/common/SectionCard.vue'
@@ -32,6 +33,11 @@ import type { UploadRecord } from '@/types/admin'
 
 const STEPS = ['양식 내려받기 (선택)', '파일 올리기', '미리보기·오류 확인', '반영']
 
+/** 출처: KOTRA(기본) · KITA */
+const route = useRoute()
+const source = computed<'kotra' | 'kita'>(() => (route.meta.uploadSource === 'kita' ? 'kita' : 'kotra'))
+const sourceName = computed(() => (source.value === 'kita' ? 'KITA' : 'KOTRA'))
+
 /** '다른 파일 선택'용 숨긴 입력 (보이는 버튼이 연다) */
 const replaceInput = ref<HTMLInputElement | null>(null)
 const fileName = ref<string | null>(null)
@@ -44,14 +50,15 @@ const view = ref<ViewFilter>('all')
 const uploads = shallowRef<UploadRecord[]>([])
 
 onMounted(async () => {
-  uploads.value = await adminRepository.listUploads('kotra-csv')
+  uploads.value = await adminRepository.listUploads(source.value === 'kita' ? 'kita-csv' : 'kotra-csv')
 })
 
 /** 지금 단계 (0부터): 파일을 고르기 전 1, 검사가 끝나면 2. 반영(3)은 저장소 연결 후에만 */
 const currentStep = computed(() => (result.value && !result.value.fileError ? 2 : 1))
 
 function downloadTemplate() {
-  downloadTextFile(KOTRA_TEMPLATE_FILE_NAME, buildKotraTemplateCsv())
+  const name = source.value === 'kita' ? KOTRA_TEMPLATE_FILE_NAME.replace('kotra', 'kita') : KOTRA_TEMPLATE_FILE_NAME
+  downloadTextFile(name, buildKotraTemplateCsv())
 }
 
 function clearSelection() {
@@ -109,8 +116,8 @@ const timeText = (date: Date) => date.toLocaleTimeString('ko-KR', { hour: '2-dig
 <template>
   <div class="page">
     <PageHeader
-      title="KOTRA CSV 업로드"
-      description="KOTRA 공고는 정해진 양식의 CSV 파일로 직접 올립니다. 올린 공고는 검수 대기로 들어갑니다."
+      :title="`${sourceName} CSV 업로드`"
+      :description="`${sourceName} 공고는 API가 없어 정해진 양식의 CSV 파일로 직접 올립니다. 올린 공고는 검수 대기로 들어갑니다.`"
     />
 
     <div class="stack">
@@ -140,7 +147,7 @@ const timeText = (date: Date) => date.toLocaleTimeString('ko-KR', { hour: '2-dig
             CSV 양식 내려받기
           </button>
         </template>
-        <AdminTable label="KOTRA CSV 양식의 열" :columns="['열', '필수', '쓰는 법', '저장 필드']" :row-count="KOTRA_COLUMNS.length">
+        <AdminTable :label="`${sourceName} CSV 양식의 열`" :columns="['열', '필수', '쓰는 법', '저장 필드']" :row-count="KOTRA_COLUMNS.length">
           <tr v-for="column in KOTRA_COLUMNS" :key="column.name">
             <th scope="row">{{ column.name }}</th>
             <td>{{ column.required ? '필수' : '선택' }}</td>
@@ -242,7 +249,7 @@ const timeText = (date: Date) => date.toLocaleTimeString('ko-KR', { hour: '2-dig
         description="반영을 되돌리면 그 파일로 들어온 공고가 모두 검수 대기와 게시에서 빠집니다."
       >
         <AdminTable
-          label="KOTRA 업로드 이력"
+          :label="`${sourceName} 업로드 이력`"
           :columns="['일시', '파일', '반영 건수', '올린 사람', '상태', '되돌리기']"
           :row-count="uploads.length"
           empty-title="업로드 기록이 없습니다"

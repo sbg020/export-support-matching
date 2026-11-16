@@ -7,7 +7,7 @@ import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 import { routes } from '@/router'
 import { NAV_SECTIONS } from '@/constants/navigation'
 import { AGENCY_ROWS, EXAMPLE_LABEL } from '@/constants/landing'
-import { ACTIVE_FIT_CRITERIA } from '@/lib/engine/fit'
+import { FIT_V1_VERSION, FIT_V1_WEIGHTS } from '@/constants/fitV1'
 import { useAuth } from '@/stores/authStore'
 import HomeView from '@/views/HomeView.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
@@ -140,8 +140,10 @@ describe('메인 랜딩페이지', () => {
 
   it('적합도 카드는 코드의 실제 가중치를 보여 준다', () => {
     const values = wrapper.findAll('.ui-fit__value').map((v) => v.text())
-    expect(values).toEqual(Object.values(ACTIVE_FIT_CRITERIA.weights).map((w) => w.toFixed(2)))
-    expect(wrapper.text()).toContain(ACTIVE_FIT_CRITERIA.version)
+    // REVISION_05 §6.4 적합도 v1: 관심 분야 25 / 업종 20 / 수출단계 25 / 재무 25 / 가점 5
+    expect(values).toEqual(Object.values(FIT_V1_WEIGHTS).map((w) => w.toFixed(2)))
+    expect(values).toEqual(['0.25', '0.20', '0.25', '0.25', '0.05'])
+    expect(wrapper.text()).toContain(FIT_V1_VERSION)
   })
 
   it('이용 과정 탭: 방향키로 단계를 옮기고 패널과 버튼 연결 화면이 바뀐다', async () => {

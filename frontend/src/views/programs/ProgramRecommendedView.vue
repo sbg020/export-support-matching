@@ -9,15 +9,16 @@ import CommonChecksPanel from '@/components/programs/CommonChecksPanel.vue'
 import CompareDock from '@/components/programs/CompareDock.vue'
 import ProfileStatusBadge from '@/components/diagnose/ProfileStatusBadge.vue'
 import { useProfileStore } from '@/stores/profileStore'
-import { ACTIVE_FIT_CRITERIA } from '@/lib/engine/fit'
-import { CATEGORY_PHASE_VERSION, STAGE_PHASE_VERSION } from '@/constants/categories'
+import { FIT_V1_LABEL, FIT_V1_STATUS_LABEL, FIT_V1_VERSION, FIT_V1_WEIGHTS, FINANCE_ASSUMPTION_NOTE, FIT_V1_MAPPING_VERSIONS, type FitV1FactorKey } from '@/constants/fitV1'
 import { isSourceConnected, programRepository } from '@/repositories'
 
 const store = useProfileStore()
 const status = computed(() => store.assessment.value.status)
 const companyName = computed(() => store.state.profile.companyName)
-const criteria = ACTIVE_FIT_CRITERIA
-const weightText = `관심분야 ${criteria.weights.interest.toFixed(2)} · 단계 ${criteria.weights.stage.toFixed(2)} · 내용 유사도 ${criteria.weights.text.toFixed(2)}`
+/** 적합도 v1 가중치 (REVISION_05 §6.4) */
+const weightText = (Object.keys(FIT_V1_WEIGHTS) as FitV1FactorKey[])
+  .map((key) => `${FIT_V1_LABEL[key]} ${Math.round(FIT_V1_WEIGHTS[key] * 100)}`)
+  .join(' · ')
 const connected = isSourceConnected(programRepository.source)
 </script>
 
@@ -73,17 +74,15 @@ const connected = isSourceConnected(programRepository.source)
                 적합도
               </h2>
               <p class="split__text">
-                신청 자격과는 별개로 관심분야 일치도, 단계 일치도(수출단계 × 지원 단계), 내용 유사도(시험용)를 가중
-                평균하고, 공고가 인정한 가점·감점 중 프로필로 확인된 항목만 보정합니다(최대 ±{{ criteria.bonusCap }}점).
-                신청 불가 공고는 계산하지 않고, 반영할 수 있는 항목이 2개 미만이면 점수를 만들지 않습니다. 재무 상태는
-                쓰지 않습니다. 카드의 '계산 근거 보기'에서 항목별 근거를 확인할 수 있습니다.
+                신청 가능 공고에만 계산합니다. 관심 분야, 업종, 수출단계, 재무 원형, 가점의 5개 요소를 가중 평균합니다.
+                값이 없는 요소는 빼고 남은 비중으로 다시 나누며, 계산할 수 있는 요소가 2개 미만이면 점수를 만들지
+                않습니다. 공고 상세의 '적합도 계산 방법'에서 요소별 값·비중·이유를 확인할 수 있습니다.
               </p>
               <p class="split__slot">
-                적합도 기준 <strong><DataValue :value="criteria.version" /></strong> (시험용 · 검증 전) · 가중치 {{ weightText }}
+                적합도 기준 <strong>{{ FIT_V1_VERSION }}</strong> ({{ FIT_V1_STATUS_LABEL }}) · 가중치 {{ weightText }}
               </p>
               <p class="split__note">
-                단계 매핑 {{ CATEGORY_PHASE_VERSION }}, {{ STAGE_PHASE_VERSION }} (가설). 시험용 기준으로 계산한 점수이며,
-                사람 평가(Precision@5)로 검증한 뒤 확정합니다.
+                매칭표 {{ FIT_V1_MAPPING_VERSIONS.join(', ') }} (가설). {{ FINANCE_ASSUMPTION_NOTE }}
               </p>
             </section>
             <section class="split__col" aria-labelledby="criteria-cost">

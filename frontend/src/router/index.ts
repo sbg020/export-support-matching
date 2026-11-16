@@ -30,6 +30,8 @@ declare module 'vue-router' {
     adminMenu?: AdminMenuKey
     /** 관리자 계정만 볼 수 있는 화면 */
     requiresAdmin?: boolean
+    /** KOTRA·KITA 업로드 화면의 출처 */
+    uploadSource?: 'kotra' | 'kita'
   }
 }
 
@@ -171,6 +173,11 @@ export const routes: RouteRecordRaw[] = [
   adminRoute('/admin', 'admin-home', '관리자 홈', 'home', () => import('@/views/admin/AdminHomeView.vue')),
   adminRoute('/admin/bizinfo', 'admin-bizinfo', '기업마당 API 수집', 'bizinfo', () => import('@/views/admin/AdminBizinfoView.vue')),
   adminRoute('/admin/kotra', 'admin-kotra', 'KOTRA CSV 업로드', 'kotra', () => import('@/views/admin/AdminKotraView.vue')),
+  // KITA: KOTRA와 같은 화면, 출처만 다르다 (REVISION_05 §7.4)
+  {
+    ...adminRoute('/admin/kita', 'admin-kita', 'KITA CSV 업로드', 'kita', () => import('@/views/admin/AdminKotraView.vue')),
+    meta: { title: 'KITA CSV 업로드', layout: 'admin', adminMenu: 'kita', requiresAdmin: true, uploadSource: 'kita' },
+  },
   adminRoute('/admin/review', 'admin-review', '공고 검수', 'review', () => import('@/views/admin/AdminReviewView.vue')),
   adminRoute('/admin/notices', 'admin-notices', '공고 관리', 'notices', () => import('@/views/admin/AdminNoticesView.vue')),
   adminRoute('/admin/settings', 'admin-settings', '기준·설정', 'settings', () => import('@/views/admin/AdminSettingsView.vue')),
@@ -184,6 +191,14 @@ export const routes: RouteRecordRaw[] = [
   { path: '/mypage/preparation', redirect: moved('manage-programs', { tab: 'preparing' }) },
   { path: '/mypage/history', redirect: moved('manage-programs', { tab: 'applied' }) },
   { path: '/mypage/calendar', redirect: moved('programs-calendar') },
+
+  // 공개 API 안내 (REVISION_05 §9). 메뉴에는 넣지 않고 바닥글 링크로 연다
+  {
+    path: '/developers',
+    name: 'developers',
+    component: () => import('@/views/DevelopersView.vue'),
+    meta: { title: '개발자 안내 (공개 API)' },
+  },
 
   {
     path: '/:pathMatch(.*)*',

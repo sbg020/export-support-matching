@@ -73,6 +73,12 @@ const query = computed<AdminNoticeQuery>(() => ({
   page: page.value,
 }))
 
+/** 일괄 게시 대상 수 (검수 대기 자동 추출 공고) */
+const pendingCount = ref<number | null>(null)
+void adminRepository.getDashboard().then((d) => {
+  pendingCount.value = d.pendingReview
+})
+
 const list = shallowRef<AdminNoticeList>({ items: [], total: null })
 watch(
   query,
@@ -111,6 +117,22 @@ const countNumber = (n: number) => n.toLocaleString('ko-KR')
 
     <div class="stack">
       <AdminStoreNotice />
+
+      <SectionCard
+        title="자동 추출 공고 일괄 게시"
+        heading-id="notices-bulk-publish-title"
+        description="공고 폴더 적재·수집으로 들어온 '검수 대기' 자동 추출 공고를 한꺼번에 게시합니다. 게시된 공고에는 '자동 추출 · 검수 전' 배지가 붙고, 개별 검수해 승인하면 배지가 사라집니다."
+      >
+        <p class="mb-2">
+          게시 대상: 자동 추출 · 검수 대기 공고 <strong><DataValue :value="pendingCount" :format="(n: number) => `${n}건`" /></strong>
+          (텍스트 추출 불가 공고는 게시하지 않습니다)
+        </p>
+        <StoreButton
+          label="자동 추출 공고 일괄 게시"
+          variant="primary"
+          reason="서버 저장소가 없어 화면에서 게시할 수 없습니다. 로컬에서 'python manage.py publish_auto_extracted'(대상 건수 확인 후 실행)로 게시하고 스냅샷을 다시 배포합니다."
+        />
+      </SectionCard>
 
       <SectionCard title="공고 목록" heading-id="notices-list-title">
         <div class="filters">

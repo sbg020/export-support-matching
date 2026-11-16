@@ -15,7 +15,7 @@ import { SELF_CHECK_STORAGE_KEY, useSelfChecks } from '@/stores/selfCheckStore'
 import { useAuth } from '@/stores/authStore'
 import { deriveSupportAreas, deriveSupportPhases } from '@/constants/categories'
 import type { SupportCategoryCode } from '@/types/program'
-import { draftProgram, rule } from './fixtures'
+import { condition, draftProgram, rule } from './fixtures'
 
 const TEST_USER = { id: 'TEST', role: 'test' } as const
 const TEST_PROFILE_KEY = `${PROFILE_STORAGE_KEY}:account:TEST`
@@ -48,14 +48,14 @@ describe('테스트 프로필 (§4)', () => {
 
 describe('테스트 계정 — 공고 데이터 삭제 후 (REVISION_04 §3.3)', () => {
   const selfChecks = { common: createTestAccountCommonChecks(), programs: {} }
-  /** 테스트 전용 공고: 직접 확인 조건 하나(확인 필요)와 세부 분야 */
+  /** 테스트 전용 공고: 늘 충족하는 조건 하나(신청 가능 — REVISION_05 적합도는 신청 가능 공고만)와 세부 분야 */
   const program = (id: string, categories: SupportCategoryCode[]) =>
     draftProgram({
       id,
       supportCategories: categories,
       supportPhases: deriveSupportPhases(categories),
       supportAreas: deriveSupportAreas(categories),
-      eligibilityRules: [rule({ id: `${id}-R1` })],
+      conditions: [condition(id)],
     })
 
   it('공고가 없어도 수출단계는 내수: 기준일이 없으면 기준표 연도의 직전 연도(2025년)로 진단한다', () => {
@@ -75,7 +75,7 @@ describe('테스트 계정 — 공고 데이터 삭제 후 (REVISION_04 §3.3)',
     })
     const interest = (id: string) => set.byId.get(id)?.fitFactors.find((f) => f.key === 'interest')?.value
     const score = (id: string) => set.byId.get(id)?.fit?.score ?? null
-    expect(set.byId.get('MATCH')?.eligibility?.status).toBe('needs-check')
+    expect(set.byId.get('MATCH')?.tab?.tab).toBe('eligible')
     expect(interest('MATCH')).toBe(1)
     expect(interest('OTHER')).toBeLessThan(1)
     expect(score('MATCH')).not.toBeNull()

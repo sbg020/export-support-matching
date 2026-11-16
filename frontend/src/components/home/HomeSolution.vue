@@ -2,17 +2,16 @@
 /**
  * Section 3. Solution — 왼쪽 큰 제목과 이전·다음 버튼, 오른쪽 가로로 넘기는 기능 카드 4개.
  * 카드 안 작은 UI는 서비스의 실제 기준을 그대로 보여 준다:
- * 적합도 가중치(ACTIVE_FIT_CRITERIA), 조건 판정 상태 3가지, 지원 단계 4개와 세부 분야 매핑.
+ * 적합도 v1 가중치(FIT_V1_WEIGHTS, REVISION_05 §6.4), 조건 판정 상태 3가지, 지원 단계 4개와 세부 분야 매핑.
  * 기업 조건 값만 예시다(예시 표시).
  */
 import { ref } from 'vue'
 import { IconArrowLeft, IconArrowRight, IconCircleCheck, IconCircleX, IconHelpCircle } from '@tabler/icons-vue'
 import { CONDITION_STATUS_OPTIONS, STAGE_OPTIONS, optionLabel } from '@/constants/options'
 import { CATEGORIES_BY_PRIMARY_PHASE, categoryName } from '@/constants/categories'
-import { ACTIVE_FIT_CRITERIA, FIT_FACTOR_LABEL } from '@/lib/engine/fit'
+import { FIT_V1_LABEL, FIT_V1_STATUS_LABEL, FIT_V1_VERSION, FIT_V1_WEIGHTS, type FitV1FactorKey } from '@/constants/fitV1'
 import { EXAMPLE_COMPANY } from '@/constants/landing'
 import { vReveal } from '@/composables/useReveal'
-import type { FitFactorKey } from '@/types/results'
 
 const trackRef = ref<HTMLElement | null>(null)
 
@@ -31,10 +30,10 @@ const eligibilityRows = [
   { condition: '업종 제외 대상', status: 'needs-check' },
 ] as const
 
-const fitRows = (Object.keys(ACTIVE_FIT_CRITERIA.weights) as FitFactorKey[]).map((key) => ({
+const fitRows = (Object.keys(FIT_V1_WEIGHTS) as FitV1FactorKey[]).map((key) => ({
   key,
-  label: FIT_FACTOR_LABEL[key],
-  weight: ACTIVE_FIT_CRITERIA.weights[key],
+  label: FIT_V1_LABEL[key],
+  weight: FIT_V1_WEIGHTS[key],
 }))
 
 const phaseRows = CATEGORIES_BY_PRIMARY_PHASE.map((row) => ({
@@ -110,7 +109,7 @@ function scrollBy(direction: 1 | -1) {
                 </li>
               </ul>
               <p class="ui-caption">
-                현재 가중치 {{ ACTIVE_FIT_CRITERIA.version }} · 가점·감점 보정 ±{{ ACTIVE_FIT_CRITERIA.bonusCap }} · 검증 전
+                현재 가중치 {{ FIT_V1_VERSION }} · {{ FIT_V1_STATUS_LABEL }} · 신청 가능 공고만 계산
               </p>
             </template>
 

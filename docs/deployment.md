@@ -36,12 +36,20 @@ git push -u origin main
 
    | 이름 | 값 | 비고 |
    |---|---|---|
-   | `DEMO_LOGIN_ID` | 관리자 계정 아이디 (`ADMIN`) | 대소문자 구분. 이 계정의 역할이 `admin`이다 (관리자 영역 `/admin`) |
-   | `DEMO_LOGIN_PASSWORD` | 관리자 계정 비밀번호 | 문서·커밋에 적지 않음 |
+   | `OPS_LOGIN_ID` | 운영자 계정 아이디 | REVISION_05 §7.1. 이 계정만 역할 `admin`(관리자 영역 `/admin`). **없으면 관리자 화면에 들어갈 계정이 없다** |
+   | `OPS_LOGIN_PASSWORD` | 운영자 계정 비밀번호 | 문서·커밋에 적지 않음 |
+   | `DEMO_LOGIN_ID` | `ADMIN` | 대소문자 구분. REVISION_05부터 일반 사용자(`member`) |
+   | `DEMO_LOGIN_PASSWORD` | ADMIN 계정 비밀번호 | 문서·커밋에 적지 않음 |
    | `TEST_LOGIN_ID` | `TEST` | 테스트 계정 (대소문자 구분) |
    | `TEST_LOGIN_PASSWORD` | 테스트 계정 비밀번호 | 문서·커밋에 적지 않음. 둘 중 하나라도 없으면 테스트 계정만 로그인 불가 |
    | `AUTH_SESSION_SECRET` | `openssl rand -base64 32` 결과 | Production과 Preview에 **서로 다른 값** |
-   | `VITE_API_BASE_URL` | (공고 API가 생기면) | 지금은 넣지 않음. 비우면 공고 없음 상태로 빌드 |
+   | `ANTHROPIC_API_KEY` | Claude API 키 | 챗봇(공고 도우미). 없으면 버튼이 `준비 중` |
+   | `ASSISTANT_MODEL` | (선택) 기본 `claude-sonnet-5-5` | |
+   | `ASSISTANT_DAILY_LIMIT` | (선택) 기본 `20` | 사용자별 하루 질문 수 (서버 메모리 기준 근사 제한) |
+   | `PUBLIC_API_KEYS` | 공개 API 키, 쉼표로 여러 개 (각 16자 이상) | 예: `openssl rand -hex 24`. 없으면 공개 API는 모두 `401` |
+   | `PUBLIC_API_RATE_PER_MINUTE` | (선택) 기본 `60` | 키별 분당 호출 수 |
+   | `BIZINFO_API_KEY` | 기업마당 API 키 | 수집 기능은 서버 저장소 연결 후 |
+   | `VITE_API_BASE_URL` | (공고 API가 생기면) | 지금은 넣지 않음. 비우면 게시 스냅샷(`src/data/published/notices.json`)을 씀 |
 
    `VITE_DATA_SOURCE`는 REVISION_04에서 지웠습니다(Production·Preview 모두). 앱은 이 값을 더 읽지 않습니다.
 
@@ -53,6 +61,10 @@ git push -u origin main
 ```json
 { "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }] }
 ```
+
+공개 API 주소(`/api/public/v1/notices`, `/api/public/v1/notices/{id}`, `/api/public/v1/eligibility/check`, `/api/public/openapi.json`, `/api/public/docs`)는 같은 파일의 rewrite가 서버 함수 `api/public/index.ts`(`?route=…`)로 보냅니다. 챗봇·공개 API 함수는 `functions.includeFiles`로 게시 스냅샷 JSON을 함께 싣습니다.
+
+**게시 공고 데이터를 바꿀 때** (로컬, `backend/`): `DJANGO_DB=sqlite`로 `import_eligibility_goldset` → `ingest_notice_folder` → (필요하면 `publish_auto_extracted`) → `export_public_snapshot`을 실행하면 `frontend/src/data/published/*.json`이 다시 만들어집니다. 커밋하고 다시 배포하면 사이트에 반영됩니다. 데이터 파이프라인 패키지는 `backend/requirements-data.txt`에 있습니다.
 
 CLI로 배포할 때는 프로젝트의 Root Directory가 `frontend`이므로 **저장소 루트**에서 실행합니다. 루트의 `.vercelignore`가 비밀값·로컬 파일(`.env.local`, 원본 개정 문서)과 `backend/`·`node_modules/`, 루트의 정답세트 xlsx·발표 PDF·`별첨자료2_구현결과/` 등을 업로드에서 뺍니다.
 
@@ -70,7 +82,8 @@ npx vercel deploy --prod    # 운영 (exportsupportmatching.vercel.app)
 
 - `/` — 메인 랜딩페이지(블랙 Hero → 문제 → 핵심 서비스 → 이용 과정 → 추천 결과 미리보기 → 공고 기관 띠 → 블랙 CTA). 히어로 위 헤더가 투명·흰 글자이고 스크롤하면 흰 배경으로 바뀌는지, CTA가 `/programs/recommended`·`/programs`로 가는지, 예시 UI에 `예시 화면` 표시가 있는지. 주 메뉴 5개(서비스 소개 · 기업 맞춤 지원사업 · 전체 지원사업 · 지원사업 관리 · 커뮤니티)와 `로그인`·`회원가입`
 - `/login` — 테스트 계정 `TEST` 로그인 후 `/profile`에 `테스트 계정(TEST)의 기업 프로필입니다` 안내와 `EC 테스트식품(주)`, 로그인 후 `/programs/recommended`, 소문자 `test` 실패. 로그아웃하면 기기 공용 프로필로 돌아오는지
-- `/login` — 관리자 계정 `ADMIN` 로그인 후 `/admin`(관리자 홈)이 첫 화면인지, 관리자 메뉴 6개 화면, `사용자 화면 보기`, 프로필 팝업(`관리자 홈`·`로그아웃`), 로그아웃 후 홈. 틀린 비밀번호·소문자 아이디 실패, 회원가입 탭은 비활성과 이유 표시
+- (REVISION_05) `/programs/recommended` — TEST 로그인 후 `신청 가능 4 · 확인 필요 4 · 신청 불가 106`(마감 숨김), `마감 공고 포함`이면 `12 · 6 · 141`(합 159). 신청 가능 카드에만 적합도. 오른쪽 아래 `공고 도우미`(키 없으면 `준비 중`). `/developers`, `/api/public/docs`가 열리고 `/api/public/v1/notices`를 키 없이 부르면 `401`
+- `/login` — 운영자 계정(`OPS_LOGIN_ID`) 로그인 후 `/admin`(관리자 홈)이 첫 화면인지 (`ADMIN`·`TEST`는 관리자 화면에 못 들어감), 관리자 메뉴 6개 화면, `사용자 화면 보기`, 프로필 팝업(`관리자 홈`·`로그아웃`), 로그아웃 후 홈. 틀린 비밀번호·소문자 아이디 실패, 회원가입 탭은 비활성과 이유 표시
 - `TEST`로 로그인한 상태에서 `/admin`을 열면 `/programs/recommended`와 안내 `관리자 계정만 볼 수 있는 화면입니다.`. 비로그인 `/admin/review` → 로그인 화면 → `ADMIN`으로 로그인하면 `/admin/review`로 돌아오는지
 - `/programs`, `/programs/recommended`, `/programs/calendar` — 테스트 데이터 안내 카드·`초안 기준`이 없고, 공고 없음 빈 상태, 건수 `-`. 맞춤 추천은 `신청 가능 · 확인 필요 · 신청 불가` 탭(건수 `-`)이고 검색창·필터·정렬이 없는지
 - `/programs/P001` — `해당 공고를 찾을 수 없습니다.` / `/diagnose/result`·`/roadmap` → `/programs/recommended`, 상단 `기업 맞춤 지원사업`의 하위 메뉴가 맞춤 추천 하나인지

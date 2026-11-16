@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "core",
     "programs",
     "matching",
+    "eligibility",
 ]
 
 MIDDLEWARE = [
@@ -83,6 +84,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
 # PostgreSQL. 설정 확인(check)과 DB가 필요 없는 테스트는 DB 서버 없이도 실행된다.
+# DJANGO_DB=sqlite 이면 로컬 데이터 처리(정답세트 적재·공고 폴더 적재·스냅샷 내보내기)용 SQLite 파일을 쓴다 (REVISION_05).
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -94,6 +96,13 @@ DATABASES = {
         "CONN_MAX_AGE": int(os.environ.get("POSTGRES_CONN_MAX_AGE", "60")),
     }
 }
+if os.environ.get("DJANGO_DB", "").strip().lower() == "sqlite":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.environ.get("SQLITE_PATH", str(BASE_DIR / "data" / "local.sqlite3")),
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},

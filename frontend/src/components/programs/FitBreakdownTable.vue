@@ -8,6 +8,7 @@ import { computed } from 'vue'
 import type { EligibilityStatus, FitFactorResult, FitScoreResult } from '@/types/results'
 import { ACTIVE_FIT_CRITERIA, FIT_UNAVAILABLE_REASON } from '@/lib/engine/fit'
 import { CATEGORY_PHASE_VERSION, STAGE_PHASE_VERSION } from '@/constants/categories'
+import { FINANCE_ASSUMPTION_NOTE, FIT_V1_STATUS_LABEL, FIT_V1_VERSION } from '@/constants/fitV1'
 import DataValue from '@/components/common/DataValue.vue'
 
 const props = defineProps<{
@@ -19,6 +20,9 @@ const props = defineProps<{
   /** 표 캡션·제목 구분용 */
   idPrefix: string
 }>()
+
+/** 적합도 v1(5요소, REVISION_05) 결과인지 */
+const isV1 = computed(() => props.factors.some((f) => f.key === 'finance' || f.key === 'industry'))
 
 const usableWeight = computed(() =>
   props.factors.filter((f) => f.value !== null).reduce((sum, f) => sum + f.weight, 0),
@@ -36,8 +40,8 @@ const formatSigned = (value: number) => (value > 0 ? `+${value}` : `${value}`)
 
 <template>
   <div class="fit-breakdown">
-    <p v-if="eligibilityStatus === 'ineligible'" class="fit-breakdown__empty">
-      신청 불가 공고는 적합도를 계산하지 않습니다.
+    <p v-if="eligibilityStatus === 'ineligible' || eligibilityStatus === 'needs-check'" class="fit-breakdown__empty">
+      적합도는 신청 가능 공고에만 보여 드립니다. {{ eligibilityStatus === 'ineligible' ? '신청 불가' : '확인 필요' }} 공고는 계산하지 않습니다.
     </p>
     <p v-else-if="factors.length === 0" class="fit-breakdown__empty">
       아직 계산 근거가 없습니다. 공고 규칙과 적합도 기준이 연결되면 항목별 근거가 표시됩니다.
@@ -47,7 +51,7 @@ const formatSigned = (value: number) => (value > 0 ? `+${value}` : `${value}`)
         적합도
         <strong><DataValue :value="fit?.score ?? null" :format="(n: number) => `${n}점 / 100점`" /></strong>
         <span v-if="!fit" class="fit-breakdown__reason">{{ FIT_UNAVAILABLE_REASON }}</span>
-        <span class="fit-breakdown__tag">시험용 기준 v0 · 검증 전</span>
+        <span class="fit-breakdown__tag">{{ isV1 ? `${FIT_V1_VERSION} · ${FIT_V1_STATUS_LABEL}` : '시험용 기준 v0 · 검증 전' }}</span>
       </p>
       <div class="scroll-x">
         <table class="data-table fit-breakdown__table">
@@ -73,7 +77,19 @@ const formatSigned = (value: number) => (value > 0 ? `+${value}` : `${value}`)
         </table>
       </div>
 
-      <div v-if="fit" class="fit-breakdown__bonus">
+      <template v-if="isV1">
+        <p class="fit-breakdown__meta">
+          최종 점수 = Σ(비중 × 요소값) ÷ (계산된 요소의 비중 합) × 100, 반올림. 계산된 요소가 2개 미만이면 점수를 내지 않습니다.
+          빠진 요소는 표에 '제외'와 사유를 적었습니다.
+        </p>
+        <p class="fit-breakdown__meta">{{ FINANCE_ASSUMPTION_NOTE }}</p>
+        <p class="fit-breakdown__meta">
+          가중치 버전 {{ fit?.criteriaVersion ?? FIT_V1_VERSION }} ({{ FIT_V1_STATUS_LABEL }}) · 매칭표
+          {{ fit?.mappingVersions.join(', ') ?? 'stage-category-v1, archetype-category-v1' }} · 계산 기준일 <DataValue :value="basisDate" />
+        </p>
+      </template>
+
+      <div v-if="fit && !isV1" class="fit-breakdown__bonus">
         <p class="mb-1">
           가점·감점 보정: <strong>{{ formatSigned(fit.bonusAdjustment) }}점</strong>
           <span class="fit-breakdown__muted">(보정 전 {{ fit.baseScore }}점, 최대 ±{{ ACTIVE_FIT_CRITERIA.bonusCap }}점)</span>
@@ -93,7 +109,7 @@ const formatSigned = (value: number) => (value > 0 ? `+${value}` : `${value}`)
         </details>
       </div>
 
-      <p class="fit-breakdown__meta">
+      <p v-if="!isV1" class="fit-breakdown__meta">
         기준 {{ fit?.criteriaVersion ?? ACTIVE_FIT_CRITERIA.version }} (검증 전) · 단계 매핑 {{ CATEGORY_PHASE_VERSION }},
         {{ STAGE_PHASE_VERSION }} · 계산 기준일 <DataValue :value="basisDate" />
       </p>

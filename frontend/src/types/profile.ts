@@ -99,11 +99,41 @@ export interface CompanyProfile {
   // 6. 관심 분야
   interestAreas: InterestArea[]
   interestUnsure: boolean
+
+  // 7. 재무·신청 전 확인 (선택, REVISION_05 §3). 예전에 저장한 프로필에는 없으며 null로 읽는다.
+  /** 재무 기준연도 */
+  finBaseYear: number | null
+  /** 전기 매출액 (원). 당기 매출액은 revenueKrw를 그대로 쓴다 */
+  revenuePrevKrw: number | null
+  /** 영업이익 (원, 음수 허용) */
+  operatingIncomeKrw: number | null
+  /** 당기순이익 (원, 음수 허용) */
+  netIncomeKrw: number | null
+  /** 부채총계 (원) */
+  totalLiabilitiesKrw: number | null
+  /** 자본총계 (원, 0 이하 = 자본잠식) */
+  totalEquityKrw: number | null
+  /** 신청 전 확인(공통 결격 사유 6개) 답. 답하지 않은 코드는 없다 */
+  preApplyChecks: Partial<Record<PreApplyCode, PreApplyAnswer>>
+  /** 신청 전 확인에 답한 날짜 */
+  preApplyCheckedAt: IsoDate | null
+  /** 수출 계획(희망)이 있는지 (B09 수출 의향) */
+  intentExport: boolean | null
+  /** 자부담·일정 참여 등 참여 조건을 받아들일 수 있는지 (B09 참여 의사) */
+  intentCommit: boolean | null
+  /** 준비 상태: 자부담 납부 가능 (결격 사유가 아니다) */
+  selfPaymentReady: boolean | null
 }
+
+/** 신청 전 확인(공통 결격 사유) 코드: 정답세트 조건 유형 B01·B02·B03·B04·B05·B08 */
+export type PreApplyCode = 'B01' | 'B02' | 'B03' | 'B04' | 'B05' | 'B08'
+
+/** 해당 없음 · 해당 · 모르겠음 */
+export type PreApplyAnswer = 'no' | 'yes' | 'unknown'
 
 export type ProfileField = keyof CompanyProfile
 
-export type ProfileStepId = 1 | 2 | 3 | 4 | 5 | 6
+export type ProfileStepId = 1 | 2 | 3 | 4 | 5 | 6 | 7
 
 export interface ProfileMeta {
   /** 사용자가 '건너뛰기'로 넘어간 단계 */

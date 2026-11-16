@@ -9,7 +9,7 @@ import { deriveSupportPhases, deriveSupportAreas, recommendedPhases } from '@/co
 import { compareProgramIds } from '@/lib/programQuery'
 import { createEmptyProfile } from '@/lib/profile'
 import type { CompanyProfile } from '@/types/profile'
-import type { BonusItem } from '@/types/program'
+import type { BonusItem, NoticeCondition } from '@/types/program'
 import { blankProgram, draftProgram, rule } from './fixtures'
 
 const profileWith = (overrides: Partial<CompanyProfile>): CompanyProfile => ({ ...createEmptyProfile(), ...overrides })
@@ -198,17 +198,42 @@ describe('적합도 v0', () => {
 })
 
 describe('공고 전체 계산과 추천 정렬', () => {
-  const eligibleRule = [rule({ op: 'no-limit' })]
+  /** 테스트 전용 판정식 조건 (REVISION_05 3탭 엔진 입력) */
+  const cond = (programId: string, expr: NoticeCondition['expr'], condType = 'A01'): NoticeCondition => ({
+    condId: `${programId}-R01`,
+    programId,
+    parentId: programId,
+    scope: null,
+    kind: '필수',
+    group: 'A',
+    condType,
+    condTypes: condType,
+    affectsVerdict: true,
+    field: null,
+    op: null,
+    valueRaw: null,
+    expr,
+    exprText: null,
+    certainty: '명확',
+    evidence: null,
+    page: null,
+    importance: '주요',
+    confidence: null,
+    source: null,
+    note: null,
+  })
   const programs = [
-    draftProgram({ id: 'X3', eligibilityRules: [rule({ field: 'company_type', op: 'in', value: ['중소기업'] })] }),
-    draftProgram({ id: 'X1', eligibilityRules: eligibleRule, supportCategories: ['C01'], supportPhases: ['market-entry'] }),
-    draftProgram({ id: 'X2', eligibilityRules: [rule({ field: 'manual_check' })], supportCategories: ['C01'] }),
+    draftProgram({ id: 'X3', conditions: [cond('X3', { atom: 'company_type', op: 'in', value: ['중소기업'] })] }),
+    draftProgram({ id: 'X1', conditions: [cond('X1', { true: 1 })], supportCategories: ['C01'], supportPhases: ['market-entry'] }),
+    draftProgram({ id: 'X2', conditions: [cond('X2', { check: '확인' }, 'C01')], supportCategories: ['C01'] }),
   ]
   const profile = profileWith({ companySize: 'large', interestAreas: ['exhibition'], exportUsdLastYear: 0 })
   const set = evaluateAll(programs, profile, { asOf: '2030-06-30', selfChecks: null })
 
   it('신청 불가 공고는 적합도를 계산하지 않는다', () => {
-    expect(set.byId.get('X3')?.eligibility?.status).toBe('ineligible')
+    expect(set.byId.get('X3')?.tab?.tab).toBe('ineligible')
+    expect(set.byId.get('X2')?.tab?.tab).toBe('needs-check')
+    expect(set.byId.get('X1')?.tab?.tab).toBe('eligible')
     expect(set.byId.get('X3')?.fit).toBeNull()
     expect(set.byId.get('X3')?.fitFactors).toEqual([])
   })

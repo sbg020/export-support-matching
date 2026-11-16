@@ -97,8 +97,26 @@ function activateScope(scope: StorageScope, seed: (() => CompanyProfile) | null)
     state.profile = seed()
     state.meta = createEmptyMeta()
     saveToDevice()
+    return
   }
+  // 이미 저장된 프로필: 새로 생긴 ⑦ 단계 항목이 비어 있을 때만 seed 값으로 채운다 (REVISION_05 §10, 기존 값은 덮어쓰지 않는다)
+  const seeded = seed()
+  let changed = false
+  for (const key of STEP7_SEED_KEYS) {
+    const current = state.profile[key]
+    const empty = current === null || (typeof current === 'object' && Object.keys(current).length === 0)
+    if (empty && seeded[key] !== null) {
+      ;(state.profile as unknown as Record<string, unknown>)[key] = seeded[key]
+      changed = true
+    }
+  }
+  if (changed) saveToDevice()
 }
+
+const STEP7_SEED_KEYS = [
+  'finBaseYear', 'revenuePrevKrw', 'operatingIncomeKrw', 'netIncomeKrw', 'totalLiabilitiesKrw', 'totalEquityKrw',
+  'preApplyChecks', 'intentExport', 'intentCommit', 'selfPaymentReady',
+] as const satisfies readonly (keyof CompanyProfile)[]
 
 function replaceProfile(next: CompanyProfile): void {
   state.profile = cloneProfile(next)

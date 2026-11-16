@@ -32,7 +32,7 @@ import StatusBadge from '@/components/common/StatusBadge.vue'
 import ActionButton from '@/components/common/ActionButton.vue'
 import DisabledReason from '@/components/common/DisabledReason.vue'
 import EligibilityBadge from '@/components/programs/EligibilityBadge.vue'
-import EligibilityConditions from '@/components/programs/EligibilityConditions.vue'
+import EligibilityTabPanel from '@/components/programs/EligibilityTabPanel.vue'
 import FitBreakdownTable from '@/components/programs/FitBreakdownTable.vue'
 import CategoryChips from '@/components/programs/CategoryChips.vue'
 import DocumentChecklist from '@/components/programs/DocumentChecklist.vue'
@@ -379,17 +379,14 @@ const formatConditionCount = (n: number) => `${n}개`
           </div>
         </div>
 
-        <template v-if="eligibility && p">
-          <NoticeBanner class="mt-4" tone="neutral">
-            직접 확인한 답은 이 기기에만 저장되며, 판정 결과에 '직접 확인'으로 표시됩니다. 휴·폐업·체납·신용·제재·재무
-            상태는
-            <RouterLink :to="{ name: 'programs-recommended', hash: '#common-checks' }">맞춤 추천의 공통 확인 사항</RouterLink>에서
-            한 번에 답할 수 있습니다.
-            <template v-if="selfChecks.hasAny.value" #actions>
+        <template v-if="eligibility && p && result?.tab">
+          <EligibilityTabPanel class="mt-4" :program="p" :evaluation="result" />
+          <NoticeBanner v-if="selfChecks.hasAny.value" class="mt-4" tone="neutral">
+            직접 확인한 답은 이 기기에만 저장되며, 판정 결과에 '기업 확인'으로 표시됩니다.
+            <template #actions>
               <button type="button" class="btn btn-secondary btn-sm" @click="clearSelfChecks">직접 확인 모두 지우기</button>
             </template>
           </NoticeBanner>
-          <EligibilityConditions class="mt-4" :program-id="p.id" :result="eligibility" />
         </template>
         <EmptyState
           v-else
@@ -413,7 +410,7 @@ const formatConditionCount = (n: number) => `${n}개`
         id="section-fit"
         title="얼마나 잘 맞나요?"
         heading-id="section-fit-title"
-        description="신청 자격과는 별개로 계산합니다. 시험용 기준으로 계산한 점수이며, 사람 평가(Precision@5)로 검증한 뒤 확정합니다."
+        description="신청 자격과는 별개로 계산하며, 신청 가능 공고에만 보여 드립니다. 5개 요소(관심 분야·업종·수출단계·재무·가점)의 검증 전 시험값입니다."
         :icon="IconTargetArrow"
       >
         <FitBreakdownTable
@@ -423,9 +420,6 @@ const formatConditionCount = (n: number) => `${n}개`
           :basis-date="fit?.basisDate ?? evaluation.asOf"
           id-prefix="detail-fit"
         />
-        <p v-if="fit" class="fs-sm text-muted-strong mt-3 mb-0">
-          재무 상태는 적합도에 쓰지 않습니다.
-        </p>
       </SectionCard>
 
       <!-- 5. 신청 준비 -->

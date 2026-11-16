@@ -39,9 +39,10 @@ describe('설정', () => {
   })
 
   it('테스트 계정은 아이디·비밀번호가 둘 다 있을 때만 추가된다', () => {
-    expect(readAuthConfig(ENV)?.accounts.map((a) => a.role)).toEqual(['admin'])
+    // REVISION_05 §7.1: DEMO_LOGIN_*(ADMIN)은 일반 사용자(member), 운영자는 OPS_LOGIN_*
+    expect(readAuthConfig(ENV)?.accounts.map((a) => a.role)).toEqual(['member'])
     expect(readAuthConfig(ENV_WITH_TEST)?.accounts.map((a) => [a.loginId, a.role])).toEqual([
-      ['TESTUSER', 'admin'],
+      ['TESTUSER', 'member'],
       ['TEST', 'test'],
     ])
     expect(readAuthConfig({ ...ENV_WITH_TEST, TEST_LOGIN_PASSWORD: '' })?.accounts).toHaveLength(1)
@@ -50,14 +51,26 @@ describe('설정', () => {
     expect(readAuthConfig(testOnly)?.accounts.map((a) => a.role)).toEqual(['test'])
     // 아이디가 데모 계정과 같으면 테스트 계정을 쓰지 않는다
     expect(readAuthConfig({ ...ENV_WITH_TEST, TEST_LOGIN_ID: 'TESTUSER' })?.accounts.map((a) => a.role)).toEqual([
-      'admin',
+      'member',
     ])
+  })
+})
+
+describe('운영자 계정 (REVISION_05 §7.1)', () => {
+  it('OPS_LOGIN_* 만 관리자(admin)이고, 아이디가 겹치면 운영자 계정을 먼저 쓴다', () => {
+    const ops = { ...ENV_WITH_TEST, OPS_LOGIN_ID: 'OPS', OPS_LOGIN_PASSWORD: 'ops-test-only-password' }
+    expect(readAuthConfig(ops)?.accounts.map((a) => [a.loginId, a.role])).toEqual([
+      ['OPS', 'admin'],
+      ['TESTUSER', 'member'],
+      ['TEST', 'test'],
+    ])
+    expect(readAuthConfig({ ...ops, OPS_LOGIN_ID: 'TESTUSER' })?.accounts.map((a) => a.role)).toEqual(['admin', 'test'])
   })
 })
 
 describe('자격 증명', () => {
   it('아이디는 대소문자를 구분한다', () => {
-    expect(verifyCredentials(config, 'TESTUSER', 'test-only-password')?.role).toBe('admin')
+    expect(verifyCredentials(config, 'TESTUSER', 'test-only-password')?.role).toBe('member')
     expect(verifyCredentials(config, 'testuser', 'test-only-password')).toBeNull()
     expect(verifyCredentials(config, 'TESTUSER', 'wrong')).toBeNull()
   })
@@ -70,7 +83,7 @@ describe('자격 증명', () => {
     expect(verifyCredentials(both, 'TEST', 'test-only-password')).toBeNull()
     expect(verifyCredentials(both, 'TESTUSER', 'test-account-only-password')).toBeNull()
     // 데모 계정은 그대로 로그인된다
-    expect(verifyCredentials(both, 'TESTUSER', 'test-only-password')?.role).toBe('admin')
+    expect(verifyCredentials(both, 'TESTUSER', 'test-only-password')?.role).toBe('member')
   })
 })
 
@@ -146,7 +159,7 @@ describe('인증 API', () => {
       ENV,
       NOW + 10,
     )
-    expect(await me.json()).toEqual({ authenticated: true, user: { id: 'TESTUSER', role: 'admin' } })
+    expect(await me.json()).toEqual({ authenticated: true, user: { id: 'TESTUSER', role: 'member' } })
 
     const anonymous = await handleAuthRequest(new Request('http://localhost:5173/api/auth/me'), ENV, NOW)
     expect(await anonymous.json()).toEqual({ authenticated: false })

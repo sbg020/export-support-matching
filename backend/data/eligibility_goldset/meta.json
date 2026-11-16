@@ -1,0 +1,15 @@
+{
+ "eligibility_xlsx": {
+  "file": "EC_신청자격_정답세트_150건_최종.xlsx",
+  "sha256": "462eb9a44b08119d05b4cd16033b370ddbd7e8a73b7a57ee0c8bf22d478ebba0"
+ },
+ "classification_xlsx": {
+  "file": "EC_지원분류_정답세트_150건_최종.xlsx",
+  "sha256": "8b44854ff0b652ad5d240f026769618a3b144207f7a1a43180ec35a69ca95e2b"
+ },
+ "counts": {
+  "conditions": 1283,
+  "profiles": 16,
+  "sentences": 22875
+ }
+}

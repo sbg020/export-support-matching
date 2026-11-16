@@ -90,6 +90,8 @@ Vue Router history 모드이므로 배포 환경에서는 `/api/`를 제외한 �
 
 ## 4. 공고 데이터 접근 경계
 
+> **REVISION_05:** 기본 저장소는 게시 스냅샷(`PublishedProgramRepository`, `src/data/published/notices.json`, 데이터 기준일 `PUBLISHED_AS_OF = 2026-11-13`)이다. `VITE_API_BASE_URL`이 있으면 API, 테스트(`VITE_PUBLISHED_SNAPSHOT=off`)는 빈 저장소. 관리자 화면은 `SnapshotAdminRepository`(게시·검수 스냅샷 읽기 전용). 스냅샷은 backend `export_public_snapshot`이 만든다. 전체 흐름은 [revisions/revision_05_inventory.md](revisions/revision_05_inventory.md) §2.
+
 `frontend/src/repositories/`
 
 ```ts
@@ -111,6 +113,8 @@ interface ProgramRepository {
 - 화면은 저장소 인터페이스만 사용하므로, 공고 수집 파이프라인이 준비되면 API만 연결하면 됩니다.
 
 ## 5. 판정 엔진
+
+> **REVISION_05:** 신청 자격은 `lib/engine/eligibilityV3.ts`(정답세트 판정식, 3값 논리, `classifyTabs`로 3탭)와 같은 규칙의 Python `backend/eligibility/engine.py`가 맡는다. 적합도는 `lib/engine/fitV1.ts`(5요소, `constants/fitV1.ts`). 아래 v2·v0 설명은 기존 함수(비교·회귀용으로 남김)에 대한 것이다. 서버 함수(챗봇·공개 API)도 `eligibilityV3.ts`를 그대로 쓴다.
 
 `frontend/src/lib/engine/` (백엔드 `backend/matching/engine.py`는 아직 revision_01 계약이며, revision_02 규칙은 `docs/contracts/engine-cases.json`으로 맞춘다)
 

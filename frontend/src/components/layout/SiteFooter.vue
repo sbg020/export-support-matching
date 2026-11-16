@@ -9,7 +9,13 @@ import { APP_NAME } from '@/constants/navigation'
       <p>
         이 서비스는 공고 원문을 대신하지 않습니다. 실제 신청 전에는 반드시 공고 원문을 확인해 주세요.
       </p>
-      <p>입력한 기업정보는 서버로 전송되지 않고 이 브라우저에만 저장됩니다. (사업자등록번호 제외)</p>
+      <p>
+        입력한 기업정보는 이 브라우저에만 저장됩니다. (사업자등록번호 제외) 공고 도우미에 질문할 때만 판정에 쓰는 항목을
+        함께 보내며, 서버에 저장하지 않습니다.
+      </p>
+      <p class="site-footer__links">
+        <RouterLink to="/developers">개발자 안내 (공개 API)</RouterLink>
+      </p>
     </div>
   </footer>
 </template>
@@ -29,6 +35,11 @@ import { APP_NAME } from '@/constants/navigation'
   padding: var(--space-6) var(--page-gutter);
   font-size: var(--fs-xs);
   color: var(--color-text-muted);
+}
+
+.site-footer__links a {
+  color: var(--color-text);
+  text-decoration: underline;
 }
 
 .site-footer__name {

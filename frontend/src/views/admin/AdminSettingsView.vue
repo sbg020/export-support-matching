@@ -15,7 +15,22 @@ import AdminStoreNotice from '@/components/admin/AdminStoreNotice.vue'
 import AdminTable from '@/components/admin/AdminTable.vue'
 import StoreButton from '@/components/admin/StoreButton.vue'
 import { ACTIVE_EXPORT_STAGE_CRITERIA, bandText } from '@/lib/engine/diagnosis'
-import { ACTIVE_FIT_CRITERIA, FIT_FACTOR_LABEL } from '@/lib/engine/fit'
+import {
+  ARCHETYPE_CATEGORY,
+  ARCHETYPE_GUIDE,
+  ARCHETYPE_REFERENCE,
+  FINANCE_ASSUMPTION_NOTE,
+  FIT_V1_LABEL,
+  FIT_V1_MAPPING_VERSIONS,
+  FIT_V1_STATUS_LABEL,
+  FIT_V1_VERSION,
+  FIT_V1_WEIGHTS,
+  STAGE_CATEGORY_MATRIX,
+  type Archetype,
+  type FitV1FactorKey,
+} from '@/constants/fitV1'
+import { CONDITION_TYPE_NAME } from '@/constants/conditionTypes'
+import { defaultImportance } from '@/lib/engine/eligibilityV3'
 import {
   CATEGORY_PHASES,
   CATEGORY_PHASE_VERSION,
@@ -30,7 +45,6 @@ import { FIT_WEIGHT_STEP, STRATEGY_COLUMNS, STRATEGY_TEMPLATE_FILE_NAME, buildSt
 import { downloadTextFile } from '@/lib/admin/download'
 import { dataBasisDate, programRepository } from '@/repositories'
 import type { CommonCheckKey } from '@/types/program'
-import type { FitFactorKey } from '@/types/results'
 
 const uid = useId()
 
@@ -42,16 +56,18 @@ const exportYear = computed(() =>
   basisDate ? Number(basisDate.slice(0, 4)) - 1 : ACTIVE_EXPORT_STAGE_CRITERIA.programYear - 1,
 )
 
-/* 12.3 적합도 가중치 */
-const criteria = ACTIVE_FIT_CRITERIA
-const FIT_KEYS = Object.keys(criteria.weights) as FitFactorKey[]
-const weights = reactive<Record<FitFactorKey, number | null>>({ ...criteria.weights })
+/* 적합도 가중치 v1 (REVISION_05 §6.4) */
+const FIT_KEYS = Object.keys(FIT_V1_WEIGHTS) as FitV1FactorKey[]
+const weights = reactive<Record<FitV1FactorKey, number | null>>({ ...FIT_V1_WEIGHTS })
 const weightCheck = computed(() => checkFitWeights({ ...weights }))
-function onWeightInput(key: FitFactorKey, event: Event) {
+function onWeightInput(key: FitV1FactorKey, event: Event) {
   const raw = (event.target as HTMLInputElement).value
   weights[key] = raw.trim() === '' ? null : Number(raw)
 }
-const weightStatus = criteria.status === 'hypothesis' ? '검증 전 가설' : '확정'
+const ARCHETYPES = Object.keys(ARCHETYPE_CATEGORY) as Archetype[]
+const TYPE_CODES = Object.keys(CONDITION_TYPE_NAME)
+const archetypeCell = (a: Archetype, code: (typeof SUPPORT_CATEGORIES)[number]['code']) =>
+  ARCHETYPE_CATEGORY[a].core.includes(code) ? '핵심 1.0' : ARCHETYPE_CATEGORY[a].support.includes(code) ? '보조 0.6' : '0.3'
 const STAGE_SYMBOL = (value: number) => (value === 1 ? '◎ 1' : value === 0.5 ? '○ 0.5' : `· ${value}`)
 const stageLabel = (value: (typeof SUPPORT_STAGE_ORDER)[number]) => optionLabel(STAGE_OPTIONS, value) ?? value
 
@@ -117,14 +133,14 @@ function downloadStrategyTemplate() {
       <SectionCard
         title="적합도 가중치"
         heading-id="settings-fit-title"
-        :description="`기준 버전 ${criteria.version} · 상태 ${weightStatus} · 가점·감점 보정 상한 ±${criteria.bonusCap}점`"
+        :description="`가중치 버전 ${FIT_V1_VERSION} · ${FIT_V1_STATUS_LABEL} · 5개 요소 (REVISION_05 §6.4)`"
       >
         <AdminTable label="적합도 가중치" :columns="['항목', '현재 가중치', '바꿀 가중치']" :row-count="FIT_KEYS.length">
           <tr v-for="key in FIT_KEYS" :key="key">
-            <th scope="row">{{ FIT_FACTOR_LABEL[key] }}</th>
-            <td>{{ criteria.weights[key].toFixed(2) }}</td>
+            <th scope="row">{{ FIT_V1_LABEL[key] }}</th>
+            <td>{{ FIT_V1_WEIGHTS[key].toFixed(2) }}</td>
             <td>
-              <label :for="`${uid}-w-${key}`" class="visually-hidden">{{ FIT_FACTOR_LABEL[key] }} 가중치</label>
+              <label :for="`${uid}-w-${key}`" class="visually-hidden">{{ FIT_V1_LABEL[key] }} 가중치</label>
               <input
                 :id="`${uid}-w-${key}`"
                 class="form-control form-control-sm weight-input"
@@ -157,7 +173,59 @@ function downloadStrategyTemplate() {
           "
         />
 
-        <h3 class="settings-subtitle">단계 가중치 ({{ STAGE_PHASE_VERSION }}, 읽기 전용)</h3>
+        <p class="fs-sm text-muted-strong mt-2 mb-0">{{ FINANCE_ASSUMPTION_NOTE }}</p>
+
+        <h3 class="settings-subtitle">수출단계 × 사업 분류 매칭표 ({{ FIT_V1_MAPPING_VERSIONS[0] }})</h3>
+        <AdminTable
+          label="수출단계 × 사업 분류 매칭표"
+          :columns="['사업 분류', ...EXPORT_STAGE_OPTIONS.map((o) => o.label)]"
+          :row-count="SUPPORT_CATEGORIES.length"
+        >
+          <tr v-for="category in SUPPORT_CATEGORIES" :key="category.code">
+            <th scope="row">{{ category.code }} {{ category.name }}</th>
+            <td v-for="stage in EXPORT_STAGE_OPTIONS" :key="stage.value">{{ STAGE_CATEGORY_MATRIX[category.code][stage.value] }}</td>
+          </tr>
+        </AdminTable>
+        <p class="fs-sm text-muted-strong mt-2 mb-0">◎ 핵심 1.0 · ○ 권장 0.6 · △ 선택 0.3. 공고 분류가 여러 개면 가장 높은 값을 씁니다.</p>
+
+        <h3 class="settings-subtitle">재무 원형 × 사업 분류 매칭표 ({{ FIT_V1_MAPPING_VERSIONS[1] }})</h3>
+        <AdminTable
+          label="재무 원형 × 사업 분류 매칭표"
+          :columns="['사업 분류', ...ARCHETYPES]"
+          :row-count="SUPPORT_CATEGORIES.length"
+        >
+          <tr v-for="category in SUPPORT_CATEGORIES" :key="category.code">
+            <th scope="row">{{ category.code }} {{ category.name }}</th>
+            <td v-for="a in ARCHETYPES" :key="a">{{ archetypeCell(a, category.code) }}</td>
+          </tr>
+        </AdminTable>
+        <details class="settings-details mt-3">
+          <summary>재무 원형 설명표 (화면 안내용)</summary>
+          <AdminTable label="재무 원형 설명" :columns="['원형', '특징', '주로 나타나는 단계', 'Higgins SGR 해석', '전략 방향', '주요 근거']" :row-count="ARCHETYPE_GUIDE.length">
+            <tr v-for="g in ARCHETYPE_GUIDE" :key="g.name">
+              <th scope="row">{{ g.name }}</th>
+              <td>{{ g.feature }}</td>
+              <td>{{ g.stages }}</td>
+              <td>{{ g.sgr }}</td>
+              <td>{{ g.strategy }}</td>
+              <td>{{ g.basis }}</td>
+            </tr>
+          </AdminTable>
+        </details>
+
+        <h3 class="settings-subtitle">재무 원형 기준표 (19개 군집)</h3>
+        <p class="mb-2">
+          상태:
+          <StatusBadge :label="ARCHETYPE_REFERENCE ? '등록됨' : '기준 미등록'" :tone="ARCHETYPE_REFERENCE ? 'success' : 'warning'" />
+          — 등록 전에는 원형을 판정하지 않고 적합도에서 재무 요소를 뺍니다. 임의의 기준값을 넣지 않습니다.
+        </p>
+        <p class="fs-sm text-muted-strong">
+          CSV 내용: 4개 변수(매출액증가율·매출액영업이익률·부채비율·매출액순이익률)의 평균·표준편차(KSIC 중분류별이면 중분류 열),
+          19개 군집 중심값, 군집 → 원형 대응.
+        </p>
+        <StoreButton label="기준표 CSV 등록" reason="서버 저장소를 연결한 뒤 사용할 수 있습니다. 팀의 군집 분석 결과를 등록하면 버전과 변경자를 남깁니다." />
+
+        <h3 class="settings-subtitle">단계 가중치 ({{ STAGE_PHASE_VERSION }}, 읽기 전용 · 적합도 v0 비교용)</h3>
         <AdminTable
           label="단계 가중치: 수출단계 × 지원 단계"
           :columns="['수출단계', ...SUPPORT_STAGE_ORDER.map(stageLabel)]"
@@ -180,6 +248,33 @@ function downloadStrategyTemplate() {
             </tr>
           </AdminTable>
         </details>
+      </SectionCard>
+
+      <SectionCard
+        title="조건 유형별 기본 중요도"
+        heading-id="settings-importance-title"
+        description="3탭 분류에 쓰는 기본값입니다 (REVISION_05 §2.4). 주요 조건이 모름이면 '확인 필요', 체크리스트만 모름이면 '신청 가능'입니다."
+      >
+        <AdminTable label="조건 유형별 기본 중요도" :columns="['유형', '이름', '기본 중요도']" :row-count="TYPE_CODES.length">
+          <tr v-for="code in TYPE_CODES" :key="code">
+            <th scope="row">{{ code }}</th>
+            <td>{{ CONDITION_TYPE_NAME[code] }}</td>
+            <td>{{ defaultImportance(code) }}</td>
+          </tr>
+        </AdminTable>
+        <StoreButton class="mt-3" label="중요도 저장" reason="서버 저장소를 연결한 뒤 사용할 수 있습니다. 변경은 버전과 변경자를 남깁니다." />
+      </SectionCard>
+
+      <SectionCard
+        title="공개 API 키"
+        heading-id="settings-api-keys-title"
+        description="공개 API(/api/public/v1/*)는 X-API-Key 헤더로 인증합니다 (REVISION_05 §9)."
+      >
+        <p class="mb-2">
+          지금은 서버 저장소가 없어 키를 서버 환경변수 <code>PUBLIC_API_KEYS</code>(쉼표로 여러 개)로 관리합니다. 화면에는 키 값을 보여 주지 않습니다.
+          <RouterLink :to="{ name: 'developers' }">API 안내 보기</RouterLink>
+        </p>
+        <StoreButton label="키 발급" reason="서버 저장소를 연결한 뒤 화면에서 발급·폐기할 수 있습니다. 그 전에는 Vercel 환경변수에서 관리합니다." />
       </SectionCard>
 
       <SectionCard title="제외코드" heading-id="settings-exclusion-title">

@@ -29,6 +29,11 @@ function ensureAllPrograms(): Promise<void> {
   return loading
 }
 
+/** 전체 공고를 다 읽을 때까지 기다린다 (챗봇처럼 필요할 때만 읽는 화면용) */
+export function loadAllPrograms(): Promise<void> {
+  return ensureAllPrograms()
+}
+
 export function useProgramEvaluations() {
   void ensureAllPrograms()
   const profileStore = useProfileStore()
@@ -49,6 +54,8 @@ export function useProgramEvaluations() {
     asOf,
     programs: computed(() => allPrograms.value ?? []),
     diagnosis: computed(() => set.value.diagnosis),
+    /** 판정 엔진 입력 (사업자등록번호·대표자명·연락처 없음) */
+    engineProfile: computed(() => set.value.engineProfile),
     evaluations: computed(() => set.value.byId),
     get: (id: string): ProgramEvaluation | undefined => set.value.byId.get(id),
   }

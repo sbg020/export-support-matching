@@ -4,7 +4,7 @@
  */
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 
-export type AdminMenuKey = 'home' | 'bizinfo' | 'kotra' | 'review' | 'notices' | 'settings'
+export type AdminMenuKey = 'home' | 'bizinfo' | 'kotra' | 'kita' | 'review' | 'notices' | 'settings'
 
 export interface AdminNavItem {
   key: AdminMenuKey
@@ -17,6 +17,7 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { key: 'home', label: '관리자 홈', routeName: 'admin-home' },
   { key: 'bizinfo', label: '기업마당 수집', routeName: 'admin-bizinfo' },
   { key: 'kotra', label: 'KOTRA 업로드', routeName: 'admin-kotra' },
+  { key: 'kita', label: 'KITA 업로드', routeName: 'admin-kita' },
   { key: 'review', label: '공고 검수', routeName: 'admin-review' },
   { key: 'notices', label: '공고 관리', routeName: 'admin-notices' },
   { key: 'settings', label: '기준·설정', routeName: 'admin-settings' },

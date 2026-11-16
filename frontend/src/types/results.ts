@@ -86,7 +86,8 @@ export interface EligibilityResult {
 export type FitFactorKey = 'interest' | 'stage' | 'text'
 
 export interface FitFactorResult {
-  key: FitFactorKey
+  /** v0: interest·stage·text · v1(REVISION_05): interest·industry·stage·finance·bonus */
+  key: FitFactorKey | 'industry' | 'finance' | 'bonus'
   label: string
   weight: number
   /** 0~1 반영값. 계산할 수 없으면 null (제외) */
