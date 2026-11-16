@@ -23,12 +23,16 @@ interface RefVerdict {
 }
 const profiles = JSON.parse(readFileSync(resolve(GOLD, 'profiles.json'), 'utf-8')) as (EngineProfile & { profile_id: string })[]
 const reference = JSON.parse(readFileSync(resolve(GOLD, 'reference_verdicts.json'), 'utf-8')) as RefVerdict[]
-const notices = (snapshot as unknown as { notices: { id: string; parentId: string; conditions: NoticeCondition[] }[] }).notices
+const allNotices = (snapshot as unknown as {
+  notices: { id: string; parentId: string; publishSource: string | null; conditions: NoticeCondition[] }[]
+}).notices
+/** 정답이 있는 것은 정답세트 공고뿐이다 (자동 추출 공고는 reference_eval 비교 대상이 아니다) */
+const notices = allNotices.filter((n) => n.publishSource === 'answer-set')
 
 describe('엄격 판정 회귀 (reference_eval.py와 비교)', () => {
-  it('가상 기업 16곳 × 게시 세부사업 전체가 불일치 0건이다', () => {
+  it('가상 기업 16곳 × 게시된 정답세트 세부사업 전체가 불일치 0건이다', () => {
     expect(profiles).toHaveLength(16)
-    expect(notices.length).toBeGreaterThan(150)
+    expect(notices).toHaveLength(159)
     const refMap = new Map(reference.map((r) => [`${r.profile_id}|${r.program_id}`, r]))
     const mismatches: string[] = []
     for (const p of profiles) {
