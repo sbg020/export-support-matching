@@ -1,5 +1,5 @@
 /*
- * 둘러보기: 새로 올라온 공고 · 많이 본 공고 (순수 함수). REVISION_02 §9
+ * 새로 올라온 공고(메인 화면 공고 미리보기) · 많이 본 공고(전체 지원사업 조회순) 계산 (순수 함수). REVISION_02 §9
  *
  * - 새로 올라온 공고: 게시일 기준 데이터 기준일 이전 30일, 접수중·접수예정만, 같은 원공고·같은 그룹은 1줄.
  *   모자라도 기간 밖 공고로 채우지 않는다.
@@ -86,7 +86,12 @@ function groupPrograms(programs: readonly Program[]): Program[][] {
   return Array.from(groups.values())
 }
 
-export function selectNewPrograms(programs: readonly Program[], asOf: IsoDate | null): NewProgramsResult {
+/** limit: 메인 화면 미리보기는 2건 */
+export function selectNewPrograms(
+  programs: readonly Program[],
+  asOf: IsoDate | null,
+  limit: number = HIGHLIGHT_LIMIT,
+): NewProgramsResult {
   const excludedNoDate = programs.filter((p) => p.sourcePublishedAt === null).length
   if (asOf === null) return { items: [], excludedNoDate }
   const inWindow = programs.filter((p) => {
@@ -106,7 +111,7 @@ export function selectNewPrograms(programs: readonly Program[], asOf: IsoDate | 
       }
     })
     .sort((a, b) => compareNew(a.program, b.program))
-    .slice(0, HIGHLIGHT_LIMIT)
+    .slice(0, limit)
   return { items, excludedNoDate }
 }
 

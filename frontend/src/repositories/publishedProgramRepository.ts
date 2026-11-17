@@ -9,6 +9,7 @@ import type { Program, ProgramListResult, ProgramQuery } from '@/types/program'
 import { filterPrograms, normalizeProgram, sortPrograms, type RawProgram } from '@/lib/programQuery'
 import type { DataSourceStatus, ProgramRepository } from './programRepository'
 import { SITE_TODAY } from '@/lib/siteClock'
+import { viewEventSink } from './viewEventSink'
 
 /** 스냅샷 기준일·버전 = 사이트 기준 날짜(고정, lib/siteClock.ts). 스냅샷 meta.asOf와 같다 */
 export const PUBLISHED_AS_OF: IsoDate = SITE_TODAY
@@ -36,7 +37,7 @@ export class PublishedProgramRepository implements ProgramRepository {
 
   async list(query: ProgramQuery): Promise<ProgramListResult> {
     const all = await loadPrograms()
-    const items = sortPrograms(filterPrograms(all, query), query.sort)
+    const items = sortPrograms(filterPrograms(all, query), query.sort, viewEventSink.viewCounts())
     return { items, total: items.length }
   }
 

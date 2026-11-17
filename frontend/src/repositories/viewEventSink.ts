@@ -17,12 +17,17 @@ export interface ViewEventSink {
   /** 조회 집계가 서버에 저장되는지 */
   readonly connected: boolean
   record(programId: string): void
+  /** 공고별 최근 7일 순 방문자 수 (조회순 정렬). 집계가 없으면 null */
+  viewCounts(): ReadonlyMap<string, number> | null
 }
 
 export class NoopViewEventSink implements ViewEventSink {
   readonly connected = false
   record(): void {
     // 서버 저장소가 연결되면 이벤트를 보낸다. 지금은 저장하지 않는다.
+  }
+  viewCounts(): null {
+    return null
   }
 }
 

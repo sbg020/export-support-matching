@@ -161,6 +161,7 @@ export const SORT_OPTIONS: Option<ProgramSort>[] = [
   { value: 'recommended', label: '추천순' },
   { value: 'deadline', label: '마감 임박순' },
   { value: 'amount', label: '지원규모순' },
+  { value: 'views', label: '조회순' },
 ]
 
 export const ELIGIBILITY_STATUS_OPTIONS: Option<EligibilityStatus>[] = [

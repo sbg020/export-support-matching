@@ -281,7 +281,8 @@ export interface Program {
   publishStatus?: string | null
 }
 
-export type ProgramSort = 'recommended' | 'deadline' | 'amount'
+/** views: 조회순 (많이 본 공고, 조회 수 집계가 연결되었을 때만 순위가 생긴다) */
+export type ProgramSort = 'recommended' | 'deadline' | 'amount' | 'views'
 
 export interface ProgramQuery {
   keyword: string | null

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 /**
  * Section 5. Matching Preview — 추천 결과 화면 미리보기.
- * 공고 데이터가 연결되어 있고 신청 가능·확인 필요 공고가 있으면 실제 맞춤 추천 카드(RecommendationCard)를
- * 그대로 보여 준다. 아니면(지금처럼 공고 없음) 같은 배치의 예시 카드를 '예시 화면' 표시와 함께 보여 준다.
+ * 공고 데이터가 연결되어 있으면 최근에 올라온 공고 2건(게시일 기준 데이터 기준일 이전 30일, 접수중·접수예정,
+ * 예전 '둘러보기'의 새로 올라온 공고와 같은 규칙)을 맞춤 추천 카드(RecommendationCard)로 보여 준다.
+ * 해당 공고가 없으면 같은 배치의 예시 카드를 '예시 화면' 표시와 함께 보여 준다.
  */
 import { computed } from 'vue'
 import { IconArrowRight } from '@tabler/icons-vue'
@@ -11,8 +12,7 @@ import { ELIGIBILITY_STATUS_OPTIONS } from '@/constants/options'
 import { isSourceConnected, programRepository } from '@/repositories'
 import { useProgramEvaluations } from '@/composables/useProgramEvaluations'
 import { compareToggleMessage, useCompareSelection } from '@/composables/useCompareSelection'
-import { compareRecommended } from '@/lib/engine/evaluateAll'
-import { compareProgramIds } from '@/lib/programQuery'
+import { selectNewPrograms } from '@/lib/programHighlights'
 import { useToast } from '@/stores/toastStore'
 import { vReveal } from '@/composables/useReveal'
 import RecommendationCard from '@/components/programs/RecommendationCard.vue'
@@ -24,16 +24,10 @@ const evaluation = connected ? useProgramEvaluations() : null
 const selection = useCompareSelection()
 const toast = useToast()
 
+/** 최근에 올라온 공고 2건 */
 const realItems = computed(() => {
   if (!evaluation || !evaluation.ready.value) return []
-  const evaluations = evaluation.evaluations.value
-  return evaluation.programs.value
-    .filter((p) => {
-      const status = evaluation.get(p.id)?.eligibility?.status
-      return status === 'eligible' || status === 'needs-check'
-    })
-    .sort((a, b) => compareRecommended(a, b, evaluations, compareProgramIds))
-    .slice(0, 2)
+  return selectNewPrograms(evaluation.programs.value, evaluation.asOf, 2).items.map((line) => line.program)
 })
 
 const anatomy = ['지원사업명', '지원기관', '수출지원 단계', '지원대상 및 주요 요건', '자격 충족 여부', '적합도 점수']
@@ -70,6 +64,7 @@ function toggleCompare(id: string) {
 
       <div v-reveal="120" class="preview__screen">
         <template v-if="realItems.length > 0 && evaluation">
+          <p class="preview__real-note">아래 {{ realItems.length }}건은 최근에 올라온 공고입니다.</p>
           <ul class="preview__real">
             <li v-for="program in realItems" :key="program.id">
               <RecommendationCard
@@ -109,6 +104,12 @@ function toggleCompare(id: string) {
 <style scoped>
 .preview {
   background: var(--color-surface);
+}
+
+.preview__real-note {
+  margin: 0 0 var(--space-3);
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
 }
 
 .preview__grid {

@@ -79,7 +79,15 @@ function dateKey(value: string | null): string | null {
 }
 
 /** 값이 없으면 뒤로, 같으면 ID순. 마감 임박순은 이미 마감된 공고를 접수중·예정 공고 뒤에 둔다 */
-export function sortPrograms(programs: readonly Program[], sort: ProgramSort): Program[] {
+/**
+ * 정렬. 조회순(views)은 조회 수(viewCounts)가 있을 때만 많이 본 순서이고, 없으면(집계 전) ID 순이다.
+ * 조회 수를 지어내거나 기기별 기록으로 대신하지 않는다.
+ */
+export function sortPrograms(
+  programs: readonly Program[],
+  sort: ProgramSort,
+  viewCounts: ReadonlyMap<string, number> | null = null,
+): Program[] {
   const byId = (a: Program, b: Program) => compareProgramIds(a.id, b.id)
   const copy = [...programs]
   if (sort === 'deadline') {
@@ -105,6 +113,9 @@ export function sortPrograms(programs: readonly Program[], sort: ProgramSort): P
       }
       return byId(a, b)
     })
+  }
+  if (sort === 'views' && viewCounts) {
+    return copy.sort((a, b) => (viewCounts.get(b.id) ?? 0) - (viewCounts.get(a.id) ?? 0) || byId(a, b))
   }
   return copy.sort(byId)
 }

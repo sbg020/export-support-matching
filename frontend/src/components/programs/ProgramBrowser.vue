@@ -16,6 +16,7 @@ import { COMPARE_FULL_MESSAGE, useCompareSelection } from '@/composables/useComp
 import { compareRecommended } from '@/lib/engine/evaluateAll'
 import { compareProgramIds } from '@/lib/programQuery'
 import { useToast } from '@/stores/toastStore'
+import { viewEventSink } from '@/repositories/viewEventSink'
 import DataValue from '@/components/common/DataValue.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import NoticeBanner from '@/components/common/NoticeBanner.vue'
@@ -43,6 +44,8 @@ watch(
 )
 
 const filtersOpen = ref(false)
+/** 조회순에 쓸 조회 수가 있는지 (서버 집계 전에는 없음) */
+const viewCountsReady = viewEventSink.viewCounts() !== null
 const hasPrograms = computed(() => items.value.length > 0)
 
 /** 추천순: 저장소는 ID순으로 주고, 여기서 자격·적합도·마감일로 다시 정렬한다 */
@@ -142,6 +145,10 @@ const resultCountFormat = (n: number) => `${n}건`
           <DisabledReason v-if="!hasPrograms" :id="`${idPrefix}-sort-reason`">
             정렬할 공고가 없어 정렬을 사용할 수 없습니다.
           </DisabledReason>
+          <p v-else-if="filters.query.value.sort === 'views' && !viewCountsReady" class="results-bar__note" role="status">
+            조회순은 공고별 조회 수(최근 7일 순 방문자)로 정렬합니다. 조회 수를 모을 서버 저장소가 아직 연결되지 않아
+            지금은 공고 번호 순으로 보여 드립니다.
+          </p>
 
           <div v-if="filters.chips.value.length > 0" class="chips" aria-label="적용한 조건">
             <span class="chips__label">적용한 조건</span>
@@ -304,6 +311,12 @@ const resultCountFormat = (n: number) => `${n}건`
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
+}
+
+.results-bar__note {
+  margin: var(--space-2) 0 0;
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
 }
 
 .results-bar__title {
