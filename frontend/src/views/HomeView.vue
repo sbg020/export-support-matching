@@ -23,8 +23,8 @@ useFullPageScroll(root)
 <template>
   <div ref="root" class="lp lp-fp">
     <HomeHero data-fp-section data-fp-full class="lp-fp-hero" />
-    <!-- 문제 장면이 차례로 쌓이는 섹션: 줄이지 않고 섹션 안에서 화면 높이만큼씩 멈춘다 -->
-    <HomeProblem data-fp-section data-fp-free />
+    <!-- 문제 섹션은 안쪽의 질문 배너와 카드 3개가 각각 한 화면이다 (HomeProblem의 data-fp-section) -->
+    <HomeProblem />
     <HomeSolution data-fp-section />
     <HomeHowItWorks data-fp-section />
     <HomePreview data-fp-section />

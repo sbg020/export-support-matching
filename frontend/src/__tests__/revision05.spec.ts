@@ -133,7 +133,9 @@ describe('메인 랜딩페이지', () => {
 
   it('예시 UI는 예시 화면으로 표시하고, 실제처럼 보이는 공고명·금지 문구가 없다', () => {
     const text = wrapper.text()
-    expect(wrapper.findAll('.lp-example-tag').map((t) => t.text())).toEqual([EXAMPLE_LABEL, EXAMPLE_LABEL])
+    // 히어로 예시 UI에는 보이는 '예시 화면' 문구가 없고(화면낭독기용 이름만), 추천 미리보기에만 표시한다
+    expect(wrapper.findAll('.lp-example-tag').map((t) => t.text())).toEqual([EXAMPLE_LABEL])
+    expect(wrapper.get('.hero__visual').attributes('aria-label')).toContain(EXAMPLE_LABEL)
     expect(text).toContain('실제 공고·점수가 아닙니다')
     for (const word of ['테스트 데이터', 'PoC 데이터 기준', '초안 기준', '샘플']) expect(text).not.toContain(word)
   })

@@ -3,44 +3,53 @@
  * Section 2. Problem — 옐로우 배너의 큰 질문, 이어서 문제 3개를 화면에 차례로 쌓이는 장면(sticky)으로 보여 준다.
  * 그림은 이미지 대신 서비스 요소(기관 이름, 자격 항목, 지원 단계)로 만든 단순한 도식이다.
  */
-import { IconHelpCircle } from '@tabler/icons-vue'
-import { AGENCY_ROWS } from '@/constants/landing'
-import { STAGE_OPTIONS } from '@/constants/options'
-import { vReveal } from '@/composables/useReveal'
+import { IconHelpCircle } from "@tabler/icons-vue";
+import { AGENCY_ROWS } from "@/constants/landing";
+import { STAGE_OPTIONS } from "@/constants/options";
+import { vReveal } from "@/composables/useReveal";
 
-const scattered = AGENCY_ROWS.flat().slice(0, 9)
-const conditions = ['업종', '소재지', '매출액', '수출실적', '업력', '인증']
+const scattered = AGENCY_ROWS.flat().slice(0, 9);
+const conditions = ["업종", "소재지", "매출액", "수출실적", "업력", "인증"];
 
 const problems = [
   {
-    key: 'scattered',
-    num: '01',
-    title: '흩어진 공고',
-    lines: ['수출지원사업은 여러 기관에 나뉘어 올라옵니다.', '기관마다 사이트를 돌며 직접 확인해야 합니다.'],
+    key: "scattered",
+    num: "01",
+    title: "흩어진 공고",
+    lines: [
+      "수출지원사업은 여러 기관에 나뉘어 올라옵니다.",
+      "기관마다 사이트를 돌며 직접 확인해야 합니다.",
+    ],
   },
   {
-    key: 'conditions',
-    num: '02',
-    title: '복잡한 신청 자격',
-    lines: ['업종, 소재지, 매출액, 수출실적까지.', '사업마다 다른 조건을 하나하나 검토해야 합니다.'],
+    key: "conditions",
+    num: "02",
+    title: "복잡한 신청 자격",
+    lines: [
+      "업종, 소재지, 매출액, 수출실적까지.",
+      "사업마다 다른 조건을 하나하나 검토해야 합니다.",
+    ],
   },
   {
-    key: 'strategy',
-    num: '03',
-    title: '불분명한 지원 전략',
-    lines: ['우리 회사의 수출 단계에서', '어떤 사업을 먼저 신청해야 할지 판단하기 어렵습니다.'],
+    key: "strategy",
+    num: "03",
+    title: "불분명한 지원 전략",
+    lines: ["우리 회사의 수출 단계에서", "어떤 사업을 먼저 신청해야 할지 판단하기 어렵습니다."],
   },
-]
+];
 </script>
 
 <template>
   <section class="problem lp-section" aria-labelledby="problem-title">
     <div class="lp-container">
-      <div v-reveal class="problem__banner">
-        <h2 id="problem-title" class="lp-title">
-          우리 기업에 맞는 수출지원사업,<br />
-          왜 찾기 어려울까요?
-        </h2>
+      <!-- 넓은 화면의 풀페이지 스크롤: 질문 배너와 문제 카드 3개가 각각 한 화면(data-fp-section) -->
+      <div class="problem__panel" data-fp-section>
+        <div v-reveal class="problem__banner">
+          <h2 id="problem-title" class="lp-title">
+            우리 기업에 맞는 수출지원사업,<br />
+            왜 찾기 어려울까요?
+          </h2>
+        </div>
       </div>
 
       <ol class="problem__list">
@@ -48,37 +57,47 @@ const problems = [
           v-for="(problem, index) in problems"
           :key="problem.key"
           class="problem__scene"
+          data-fp-section
           :style="{ '--scene-index': index }"
         >
-          <div class="problem__text">
-            <span class="problem__num" aria-hidden="true">{{ problem.num }}</span>
-            <h3 class="problem__title">{{ problem.title }}</h3>
-            <p class="problem__desc">
-              <template v-for="(line, i) in problem.lines" :key="i">{{ line }}<br v-if="i < problem.lines.length - 1" /></template>
-            </p>
-          </div>
-
-          <div class="problem__art" aria-hidden="true">
-            <div v-if="problem.key === 'scattered'" class="art-scatter">
-              <span v-for="(agency, i) in scattered" :key="agency.name" class="art-scatter__chip" :class="`is-${i % 3}`">
-                {{ agency.name }}
-              </span>
+          <div class="problem__card">
+            <div class="problem__text">
+              <span class="problem__num" aria-hidden="true">{{ problem.num }}</span>
+              <h3 class="problem__title">{{ problem.title }}</h3>
+              <p class="problem__desc">
+                <template v-for="(line, i) in problem.lines" :key="i"
+                  >{{ line }}<br v-if="i < problem.lines.length - 1"
+                /></template>
+              </p>
             </div>
 
-            <div v-else-if="problem.key === 'conditions'" class="art-check">
-              <div v-for="(item, i) in conditions" :key="item" class="art-check__row">
-                <span class="art-check__name">{{ item }}</span>
-                <span class="art-check__bar" :style="{ width: `${40 + ((i * 17) % 50)}%` }" />
-                <span class="art-check__q"><IconHelpCircle :size="18" stroke-width="2" /></span>
+            <div class="problem__art" aria-hidden="true">
+              <div v-if="problem.key === 'scattered'" class="art-scatter">
+                <span
+                  v-for="(agency, i) in scattered"
+                  :key="agency.name"
+                  class="art-scatter__chip"
+                  :class="`is-${i % 3}`"
+                >
+                  {{ agency.name }}
+                </span>
               </div>
-            </div>
 
-            <div v-else class="art-path">
-              <div v-for="(stage, i) in STAGE_OPTIONS" :key="stage.value" class="art-path__step">
-                <span class="art-path__dot">{{ i + 1 }}</span>
-                <span class="art-path__label">{{ stage.label }}</span>
+              <div v-else-if="problem.key === 'conditions'" class="art-check">
+                <div v-for="(item, i) in conditions" :key="item" class="art-check__row">
+                  <span class="art-check__name">{{ item }}</span>
+                  <span class="art-check__bar" :style="{ width: `${40 + ((i * 17) % 50)}%` }" />
+                  <span class="art-check__q"><IconHelpCircle :size="18" stroke-width="2" /></span>
+                </div>
               </div>
-              <span class="art-path__ask">무엇부터?</span>
+
+              <div v-else class="art-path">
+                <div v-for="(stage, i) in STAGE_OPTIONS" :key="stage.value" class="art-path__step">
+                  <span class="art-path__dot">{{ i + 1 }}</span>
+                  <span class="art-path__label">{{ stage.label }}</span>
+                </div>
+                <span class="art-path__ask">무엇부터?</span>
+              </div>
             </div>
           </div>
         </li>
@@ -113,10 +132,13 @@ const problems = [
   list-style: none;
 }
 
-/* 장면이 차례로 위에 쌓인다 (스크롤 연동, 별도 스크립트 없음) */
+/* 좁은 화면: 장면이 차례로 위에 쌓인다 (스크롤 연동, 별도 스크립트 없음) */
 .problem__scene {
   position: sticky;
   top: calc(var(--header-height) + 24px + var(--scene-index) * 16px);
+}
+
+.problem__card {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
@@ -240,7 +262,7 @@ const problems = [
 }
 
 .art-path::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 66px;
   right: 12%;
@@ -287,10 +309,29 @@ const problems = [
   transform: translateX(-50%);
 }
 
+/* 넓은 화면의 풀페이지 스크롤 (useFullPageScroll과 같은 조건): 카드를 겹치지 않고 한 화면에 하나씩 */
+@media (min-width: 992px) and (min-height: 600px) and (prefers-reduced-motion: no-preference) {
+  .problem {
+    padding-block: 0;
+  }
+
+  .problem__list {
+    gap: 0;
+    margin: 0;
+  }
+
+  .problem__scene {
+    position: static;
+  }
+}
+
 @media (max-width: 767.98px) {
   .problem__scene {
     position: relative;
     top: auto;
+  }
+
+  .problem__card {
     grid-template-columns: minmax(0, 1fr);
     min-height: 0;
   }

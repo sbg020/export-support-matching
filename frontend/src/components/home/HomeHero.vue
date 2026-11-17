@@ -32,11 +32,8 @@ const heroMatches = EXAMPLE_MATCHES.slice(0, 2)
         <RouterLink :to="{ name: 'programs' }" class="btn lp-btn lp-btn-outline-light">전체 지원사업 보기</RouterLink>
       </div>
 
-      <figure v-reveal="150" class="hero__visual" aria-labelledby="hero-visual-caption">
-        <figcaption id="hero-visual-caption" class="hero__visual-bar">
-          <span class="lp-example-tag">{{ EXAMPLE_LABEL }}</span>
-          <span class="hero__visual-note">{{ EXAMPLE_NOTE }}</span>
-        </figcaption>
+      <!-- 예시 UI: 화면에 보이는 안내 문구는 두지 않고, 화면낭독기에는 예시임을 알린다 -->
+      <figure v-reveal="150" class="hero__visual" :aria-label="`${EXAMPLE_LABEL}: ${EXAMPLE_NOTE}`">
         <div class="hero__window">
           <div class="hero__profile">
             <p class="hero__panel-title">기업 조건</p>
@@ -123,19 +120,7 @@ const heroMatches = EXAMPLE_MATCHES.slice(0, 2)
   margin: clamp(56px, 8vw, 96px) 0 0;
 }
 
-.hero__visual-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-3);
-  margin-bottom: var(--space-4);
-}
 
-.hero__visual-note {
-  font-size: var(--fs-sm);
-  color: rgba(255, 255, 255, 0.72);
-}
 
 .hero__window {
   display: grid;
