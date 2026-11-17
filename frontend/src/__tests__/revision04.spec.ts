@@ -157,9 +157,9 @@ describe('기업 진단 삭제·수출 로드맵 (§4.1~§4.3)', () => {
     expect(makeRouter().hasRoute('diagnose-result')).toBe(false)
   })
 
-  it('기업 맞춤 지원사업의 하위 메뉴는 맞춤 추천 하나이고, 주 메뉴는 맞춤 추천을 연다', async () => {
+  it('기업 맞춤 지원사업의 하위 메뉴는 [맞춤 공고] [공고 비교]이고, 주 메뉴는 맞춤 공고를 연다', async () => {
     const find = sectionByKey('find')!
-    expect(find.items.map((item) => item.label)).toEqual(['맞춤 추천'])
+    expect(find.items.map((item) => item.label)).toEqual(['맞춤 공고', '공고 비교'])
     expect(firstRouteName(find)).toBe('programs-recommended')
     const router = makeRouter()
     await at(router, '/programs')

@@ -6,7 +6,7 @@
  * - 보내는 값: 질문, 판정용 기업 정보(엔진 프로필), 직접 확인한 조건 답, 화면에서 계산한 적합도(신청 가능 공고만).
  */
 import { computed, effectScope, nextTick, onBeforeUnmount, ref, watch, type EffectScope } from 'vue'
-import { IconMessageCircleQuestion, IconSend, IconX } from '@tabler/icons-vue'
+import { IconSend, IconX } from '@tabler/icons-vue'
 import StatusBadge from '@/components/common/StatusBadge.vue'
 import type { BadgeTone } from '@/components/common/types'
 import { useAuth } from '@/stores/authStore'
@@ -23,6 +23,8 @@ import {
 import type { TabKey } from '@/lib/engine/eligibilityV3'
 
 const MAX_QUESTION = 500
+/** 챗봇 로고 (까치, public/brand/) */
+const MAGPIE_LOGO = '/brand/assistant-magpie-96.png'
 const auth = useAuth()
 const selfChecks = useSelfChecks()
 const authenticated = computed(() => auth.state.status === 'authenticated')
@@ -146,7 +148,8 @@ function onTextareaKeydown(event: KeyboardEvent) {
       aria-labelledby="assistant-title"
     >
       <header class="assistant__head">
-        <div>
+        <img class="assistant__avatar" :src="MAGPIE_LOGO" alt="" width="40" height="40" />
+        <div class="assistant__head-text">
           <h2 id="assistant-title" class="assistant__title">공고 도우미</h2>
           <p class="assistant__sub">
             게시된 공고와 우리 회사 판정 결과로만 답합니다.
@@ -240,7 +243,7 @@ function onTextareaKeydown(event: KeyboardEvent) {
       :aria-describedby="!configured ? 'assistant-off-reason' : undefined"
       @click="open ? closePanel() : openPanel()"
     >
-      <IconMessageCircleQuestion :size="22" stroke-width="2" aria-hidden="true" />
+      <img class="assistant__fab-logo" :src="MAGPIE_LOGO" alt="" width="34" height="34" />
       <span>공고 도우미</span>
       <span v-if="!configured" class="assistant__fab-badge">준비 중</span>
     </button>
@@ -271,18 +274,38 @@ function onTextareaKeydown(event: KeyboardEvent) {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-height: 48px;
-  padding: 0 18px;
-  border: 0;
+  min-height: 52px;
+  padding: 0 18px 0 8px;
+  border: 2px solid var(--color-heading);
   border-radius: var(--radius-pill);
-  background: var(--color-heading);
-  color: #fff;
-  font-weight: var(--fw-semibold);
+  background: #fff;
+  color: var(--color-heading);
+  font-weight: var(--fw-bold);
   box-shadow: var(--shadow-lg);
 }
 
 .assistant__fab:hover:not(:disabled) {
-  background: #000;
+  background: var(--color-accent-soft);
+}
+
+/* 까치 로고 */
+.assistant__fab-logo {
+  flex: none;
+  width: 34px;
+  height: 34px;
+}
+
+.assistant__avatar {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+}
+
+.assistant__head-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .assistant__fab:focus-visible {
@@ -291,10 +314,14 @@ function onTextareaKeydown(event: KeyboardEvent) {
 }
 
 .assistant__fab--off {
-  background: var(--color-surface-sunken);
+  border-color: var(--color-border-strong);
   color: var(--color-text);
   box-shadow: var(--shadow-sm);
   cursor: not-allowed;
+}
+
+.assistant__fab--off .assistant__fab-logo {
+  opacity: 0.6;
 }
 
 .assistant__fab-badge {
@@ -319,6 +346,7 @@ function onTextareaKeydown(event: KeyboardEvent) {
 
 .assistant__head {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-3);
   padding: var(--space-4);
@@ -496,7 +524,7 @@ function onTextareaKeydown(event: KeyboardEvent) {
   }
 
   .assistant__fab {
-    padding: 0 14px;
+    padding: 0 8px;
   }
 
   .assistant__panel {

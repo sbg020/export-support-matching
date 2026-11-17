@@ -8,9 +8,41 @@
  * - 초기화(resetTestAccountData)는 테스트 계정 키만 테스트 프로필 값으로 다시 덮어쓴다.
  */
 import { createTestAccountCommonChecks, createTestAccountProfile } from '@/data/testAccountProfile'
-import { scopeOfUser } from '@/lib/storageScope'
+import { createTestAccountDocuments, createTestAccountRecords } from '@/data/testAccountRecords'
+import { getLocalStorage } from '@/lib/storage'
+import { scopeOfUser, scopedStorageKey, type StorageScope } from '@/lib/storageScope'
 import { useProfileStore } from './profileStore'
 import { useSelfChecks } from './selfCheckStore'
+import { useApplicationStore } from './applicationStore'
+import { useTrackingStore } from './trackingStore'
+
+/** 테스트 계정 임시 기록(나의 사업 관리·서류함)을 넣었는지 표시하는 키 */
+export const TEST_SEED_FLAG_KEY = 'esm.testSeed.v1'
+
+/**
+ * 테스트 계정으로 처음 로그인할 때 한 번만 임시 기록을 넣는다.
+ * 표시 키가 있으면(이미 넣었으면) 아무것도 하지 않는다. 사용자가 지우거나 바꾼 기록을 다시 살려내지 않는다.
+ * 기록이 이미 있는 범위에는 넣지 않는다.
+ */
+function seedTestAccountRecordsOnce(scope: StorageScope): void {
+  const storage = getLocalStorage()
+  if (!storage) return
+  const flagKey = scopedStorageKey(TEST_SEED_FLAG_KEY, scope)
+  try {
+    if (storage.getItem(flagKey) !== null) return
+  } catch {
+    return
+  }
+  const applications = useApplicationStore()
+  const tracking = useTrackingStore()
+  if (applications.records.value.length === 0) applications.replaceAll(createTestAccountRecords())
+  if (tracking.documents.value.length === 0) tracking.replaceAll(createTestAccountDocuments())
+  try {
+    storage.setItem(flagKey, JSON.stringify({ records: true, documents: true }))
+  } catch {
+    // 표시를 못 남기면 다음 로그인에 다시 확인한다 (기록이 있으면 넣지 않는다)
+  }
+}
 
 /** 로그인 상태가 바뀔 때마다 부른다. 같은 범위면 아무것도 하지 않는다 */
 export function applyAccountScope(user: { id: string; role: string } | null): void {
@@ -18,6 +50,9 @@ export function applyAccountScope(user: { id: string; role: string } | null): vo
   const isTest = scope.kind === 'test-account'
   useProfileStore().activateScope(scope, isTest ? createTestAccountProfile : null)
   useSelfChecks().activateScope(scope, isTest ? createTestAccountCommonChecks : null)
+  useApplicationStore().activateScope(scope)
+  useTrackingStore().activateScope(scope)
+  if (isTest) seedTestAccountRecordsOnce(scope)
 }
 
 /** 테스트 계정의 기업 프로필과 직접 확인 답을 테스트 프로필 값으로 다시 덮어쓴다. 테스트 계정이 아니면 false */

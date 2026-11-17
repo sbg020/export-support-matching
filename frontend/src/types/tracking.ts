@@ -70,11 +70,23 @@ export interface CalendarEvent {
   programId: string | null
 }
 
+/** 서류 보유 상태: 보유 · 작성 중 · 만료 예정 · 미보유 */
+export type DocumentStatus = 'held' | 'drafting' | 'expiring' | 'missing'
+
+/**
+ * 서류함 기록 (메타데이터만). 파일 저장소가 없어 원본 파일은 올리지 않고, 이 기기에만 기록을 둔다.
+ */
 export interface DocumentRecord {
   id: string
   type: DocumentType
-  fileName: string
-  uploadedAt: IsoDateTime
+  /** 서류 이름 (예: '표준재무제표증명(2025)') */
+  title: string
+  status: DocumentStatus
+  /** 원본 파일 이름 (파일 저장소 연결 후). 지금은 null */
+  fileName: string | null
+  uploadedAt: IsoDateTime | null
+  issuedOn: IsoDate | null
   expiresAt: IsoDate | null
   linkedProgramIds: string[]
+  note: string | null
 }

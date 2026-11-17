@@ -107,11 +107,11 @@ function setAll(ids: readonly unknown[]) {
 }
 
 /** 전체 공고 하단 비교 영역으로 가는 주소 */
+/** 공고 비교 화면 (기업 맞춤 지원사업 > 공고 비교) */
 function compareLocation(): RouteLocationRaw {
   return {
-    name: 'programs',
+    name: 'programs-compare',
     query: state.ids.length > 0 ? { compare: state.ids.join(',') } : {},
-    hash: '#compare',
   }
 }
 

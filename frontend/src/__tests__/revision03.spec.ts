@@ -159,13 +159,14 @@ describe('상단 주 메뉴와 하위 메뉴 패널', () => {
     expect(wrapper.get('.brand-link').text()).toContain('Export Compass')
   })
 
-  it('마우스를 올리면 하위 항목 8개가 보이고 Esc로 다시 숨는다 (서비스 소개 추가, 수출 로드맵 삭제)', async () => {
+  it('마우스를 올리면 하위 항목 9개가 보이고 Esc로 다시 숨는다 (서비스 소개 추가, 수출 로드맵 삭제, 공고 비교 추가)', async () => {
     expect(allHidden()).toBe(true)
     await wrapper.get('.top-nav__list').trigger('mouseenter')
     expect(noneHidden()).toBe(true)
     expect(wrapper.findAll('.top-nav__sublink').map((a) => a.text())).toEqual([
       '서비스 소개',
-      '맞춤 추천',
+      '맞춤 공고',
+      '공고 비교',
       '전체 공고',
       '공고 달력',
       '나의 사업 관리',

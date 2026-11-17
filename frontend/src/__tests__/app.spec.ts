@@ -93,11 +93,11 @@ describe('기존 주소 리다이렉트 (쿼리·해시 유지)', () => {
     return router.currentRoute.value
   }
 
-  it('공고 비교 → 전체 공고 하단 비교 영역', async () => {
+  it('공고 비교: 기업 맞춤 지원사업의 공고 비교 화면, 예전 ?ids=는 ?compare=로', async () => {
     const route = await landing('/programs/compare?ids=a,b&q=x')
-    expect(route.name).toBe('programs')
+    expect(route.name).toBe('programs-compare')
+    expect(route.meta.section).toBe('find')
     expect(route.query).toEqual({ q: 'x', compare: 'a,b' })
-    expect(route.hash).toBe('#compare')
   })
 
   it('일정 → 공고 달력', async () => {

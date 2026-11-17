@@ -88,6 +88,18 @@ export const routes: RouteRecordRaw[] = [
     component: () => import('@/views/programs/ProgramRecommendedView.vue'),
     meta: { title: '맞춤 추천', section: 'find' },
   },
+  {
+    // 공고 비교: 기업 맞춤 지원사업의 하위 탭. 예전 ?ids= 선택은 ?compare= 로 넘긴다.
+    path: '/programs/compare',
+    name: 'programs-compare',
+    component: () => import('@/views/programs/ProgramCompareView.vue'),
+    meta: { title: '공고 비교', section: 'find' },
+    beforeEnter: (to) => {
+      const { ids, ...rest } = to.query
+      if (ids === undefined) return true
+      return { name: 'programs-compare', query: { ...rest, compare: rest.compare ?? ids }, hash: to.hash }
+    },
+  },
 
   // 전체 지원사업
   {
@@ -101,19 +113,6 @@ export const routes: RouteRecordRaw[] = [
     name: 'programs-calendar',
     component: () => import('@/views/programs/ProgramCalendarView.vue'),
     meta: { title: '공고 달력', section: 'programs' },
-  },
-  {
-    // 공고 비교는 전체 공고 하단 비교 영역으로 통합했다. 기존 ?ids= 선택도 넘긴다.
-    path: '/programs/compare',
-    redirect: (to) => {
-      const { ids, compare, ...rest } = to.query
-      const selected = compare ?? ids
-      return {
-        name: 'programs',
-        query: { ...rest, ...(selected ? { compare: selected } : {}) },
-        hash: '#compare',
-      }
-    },
   },
   {
     path: '/programs/:id',

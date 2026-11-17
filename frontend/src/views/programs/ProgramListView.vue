@@ -2,7 +2,7 @@
 import NoticeBanner from '@/components/common/NoticeBanner.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import ProgramBrowser from '@/components/programs/ProgramBrowser.vue'
-import CompareSection from '@/components/programs/CompareSection.vue'
+import CompareDock from '@/components/programs/CompareDock.vue'
 import { isSourceConnected, programRepository } from '@/repositories'
 
 const connected = isSourceConnected(programRepository.source)
@@ -10,7 +10,7 @@ const connected = isSourceConnected(programRepository.source)
 
 <template>
   <div class="page">
-    <PageHeader title="전체 공고" description="수출지원사업 공고를 검색하고, 필요한 공고를 골라 아래에서 비교합니다." />
+    <PageHeader title="전체 공고" description="수출지원사업 공고를 검색하고, 필요한 공고를 골라 공고 비교에서 견줘 봅니다." />
 
     <div class="stack">
       <NoticeBanner v-if="!connected" tone="neutral" title="공고 데이터를 준비하고 있습니다">
@@ -18,7 +18,7 @@ const connected = isSourceConnected(programRepository.source)
         모든 공고에는 원문 링크와 확인한 날짜를 함께 표시합니다.
       </NoticeBanner>
       <ProgramBrowser />
-      <CompareSection />
     </div>
+    <CompareDock />
   </div>
 </template>

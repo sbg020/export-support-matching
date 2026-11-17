@@ -1,21 +1,59 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+/**
+ * 서류함. 파일 저장소가 없어 원본 파일은 올리지 않고, 이 기기에 둔 서류 기록(이름·유형·상태·발급일·유효기간·연결 사업)만 보여 준다.
+ * 기기 공용 범위에는 기록이 없다(빈 상태). 테스트 계정은 처음 로그인할 때 임시 기록이 들어간다.
+ */
+import { computed, ref, watch } from 'vue'
 import { IconClock, IconFileCertificate, IconFolder, IconLink, IconUpload } from '@tabler/icons-vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import SectionCard from '@/components/common/SectionCard.vue'
 import StatTile from '@/components/common/StatTile.vue'
 import NoticeBanner from '@/components/common/NoticeBanner.vue'
 import DataValue from '@/components/common/DataValue.vue'
+import EmptyState from '@/components/common/EmptyState.vue'
+import StatusBadge from '@/components/common/StatusBadge.vue'
+import type { BadgeTone } from '@/components/common/types'
 import ActionButton from '@/components/common/ActionButton.vue'
-import DisabledReason from '@/components/common/DisabledReason.vue'
-import { DOCUMENT_TYPE_OPTIONS } from '@/constants/options'
-import { DOCUMENT_STORAGE_CONNECTED, useTrackingStore } from '@/stores/trackingStore'
+import { DOCUMENT_TYPE_OPTIONS, optionLabel } from '@/constants/options'
+import { DOCUMENT_STATUS_LABEL, expiresWithin } from '@/lib/documentVault'
+import { formatDateCompact } from '@/lib/display'
+import { programTitleText } from '@/lib/programDisplay'
+import { SITE_TODAY } from '@/lib/siteClock'
+import { programRepository } from '@/repositories'
+import { useTrackingStore } from '@/stores/trackingStore'
+import type { Program } from '@/types/program'
+import type { DocumentStatus, DocumentType } from '@/types/tracking'
 
 const tracking = useTrackingStore()
-/** 저장소가 연결되기 전에는 보유 현황을 표시하지 않는다. */
-const ownedCount = computed(() =>
-  DOCUMENT_STORAGE_CONNECTED && tracking.state.documents.length > 0 ? `${tracking.state.documents.length}건` : null,
+const documents = tracking.documents
+
+const heldCount = computed(() => documents.value.filter((d) => d.status === 'held' || d.status === 'expiring').length)
+const expiringCount = computed(() => documents.value.filter((d) => d.status === 'expiring' || expiresWithin(d, SITE_TODAY)).length)
+const linkedCount = computed(() => documents.value.filter((d) => d.linkedProgramIds.length > 0).length)
+const hasDocuments = computed(() => documents.value.length > 0)
+const count = (n: number) => (hasDocuments.value ? `${n}건` : null)
+
+const STATUS_TONE: Record<DocumentStatus, BadgeTone> = { held: 'success', drafting: 'info', expiring: 'warning', missing: 'danger' }
+
+/** 연결된 공고 이름 */
+const programs = ref<Map<string, Program>>(new Map())
+watch(
+  () => documents.value.flatMap((d) => d.linkedProgramIds).join(','),
+  async () => {
+    const ids = Array.from(new Set(documents.value.flatMap((d) => d.linkedProgramIds)))
+    if (ids.length === 0) return
+    try {
+      programs.value = new Map((await programRepository.getByIds(ids)).map((p) => [p.id, p]))
+    } catch {
+      programs.value = new Map()
+    }
+  },
+  { immediate: true },
 )
+
+function documentsOfType(type: DocumentType) {
+  return documents.value.filter((d) => d.type === type)
+}
 </script>
 
 <template>
@@ -32,51 +70,97 @@ const ownedCount = computed(() =>
     <div class="stack">
       <NoticeBanner tone="warning" title="파일 업로드가 아직 연결되지 않았습니다">
         <p id="upload-reason">
-          파일 저장소가 연결되지 않아 서류를 올리거나 보관할 수 없습니다. 서류 원본은 이 기기에도 저장하지 않습니다.
+          파일 저장소가 연결되지 않아 서류 원본을 올리거나 보관할 수 없습니다. 서류 기록(이름·상태·유효기간)만 이 기기에
+          저장합니다.
         </p>
       </NoticeBanner>
 
       <div class="tile-grid">
-        <StatTile label="보유 서류" :value="ownedCount" :icon="IconFolder" />
-        <StatTile label="유효기간 임박" :value="null" :icon="IconClock" tone="accent" />
-        <StatTile label="사업과 연결된 서류" :value="null" :icon="IconLink" tone="secondary" />
+        <StatTile label="보유 서류" :value="count(heldCount)" :icon="IconFolder" />
+        <StatTile label="유효기간 임박" :value="count(expiringCount)" :icon="IconClock" tone="accent" hint="30일 안에 끝나거나 만료 예정" />
+        <StatTile label="사업과 연결된 서류" :value="count(linkedCount)" :icon="IconLink" tone="secondary" />
       </div>
+
+      <SectionCard title="내 서류" heading-id="doc-records-title" :icon="IconFolder" flush>
+        <EmptyState
+          v-if="!hasDocuments"
+          :icon="IconFolder"
+          title="등록된 서류가 없습니다"
+          description="파일 저장소가 연결되면 서류를 올리고, 공고의 제출 서류와 연결해 보여 드립니다."
+          compact
+          :level="3"
+        />
+        <div v-else class="scroll-x">
+          <table class="data-table doc-table">
+            <caption class="visually-hidden">내 서류 기록</caption>
+            <thead>
+              <tr>
+                <th scope="col">서류</th>
+                <th scope="col">상태</th>
+                <th scope="col">발급일</th>
+                <th scope="col">유효기간</th>
+                <th scope="col">연결된 사업</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="document in documents" :key="document.id">
+                <th scope="row">
+                  <span class="doc-table__title">{{ document.title }}</span>
+                  <span class="doc-table__type">{{ optionLabel(DOCUMENT_TYPE_OPTIONS, document.type) }}</span>
+                  <span v-if="document.note" class="doc-table__note">{{ document.note }}</span>
+                </th>
+                <td><StatusBadge :label="DOCUMENT_STATUS_LABEL[document.status]" :tone="STATUS_TONE[document.status]" size="sm" /></td>
+                <td><DataValue :value="document.issuedOn" :format="formatDateCompact" /></td>
+                <td><DataValue :value="document.expiresAt" :format="formatDateCompact" missing-label="유효기간 없음" /></td>
+                <td>
+                  <ul v-if="document.linkedProgramIds.length > 0" class="doc-table__links">
+                    <li v-for="id in document.linkedProgramIds" :key="id">
+                      <RouterLink :to="{ name: 'program-detail', params: { id } }">
+                        {{ programTitleText(programs.get(id) ?? null) ?? id }}
+                      </RouterLink>
+                    </li>
+                  </ul>
+                  <DataValue v-else :value="null" missing-label="연결된 사업 없음" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </SectionCard>
 
       <SectionCard
         title="서류 유형"
         heading-id="doc-types-title"
-        description="아래는 자주 쓰는 서류 유형 안내입니다. 보유한 서류로 표시하지 않습니다."
+        description="자주 쓰는 서류 유형과 내 서류 기록입니다."
         :icon="IconFileCertificate"
         flush
       >
         <div class="scroll-x">
           <table class="data-table doc-table">
-            <caption class="visually-hidden">서류 유형별 보유·연결 현황</caption>
+            <caption class="visually-hidden">서류 유형별 보유 현황</caption>
             <thead>
               <tr>
                 <th scope="col">서류 유형</th>
                 <th scope="col">설명</th>
-                <th scope="col">보유 문서</th>
-                <th scope="col">유효기간</th>
-                <th scope="col">필요한 사업</th>
+                <th scope="col">내 서류</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="type in DOCUMENT_TYPE_OPTIONS" :key="type.value">
                 <th scope="row">{{ type.label }}</th>
                 <td class="doc-table__desc">{{ type.description }}</td>
-                <td><DataValue :value="null" missing-label="보유 정보 없음" /></td>
-                <td><DataValue :value="null" /></td>
-                <td><DataValue :value="null" missing-label="연결된 사업 없음" /></td>
+                <td>
+                  <template v-if="documentsOfType(type.value).length > 0">
+                    <span v-for="document in documentsOfType(type.value)" :key="document.id" class="doc-table__owned">
+                      {{ document.title }} · {{ DOCUMENT_STATUS_LABEL[document.status] }}
+                    </span>
+                  </template>
+                  <DataValue v-else :value="null" missing-label="보유 정보 없음" />
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
-        <template #footer>
-          <DisabledReason id="doc-link-reason" class="mt-0">
-            필요한 사업은 공고의 필요서류가 등록되면 자동으로 연결해 보여 드립니다.
-          </DisabledReason>
-        </template>
       </SectionCard>
     </div>
   </div>
@@ -92,8 +176,34 @@ const ownedCount = computed(() =>
   padding-left: var(--card-padding);
 }
 
+.doc-table__title {
+  display: block;
+  font-weight: var(--fw-semibold);
+  color: var(--color-heading);
+}
+
+.doc-table__type,
+.doc-table__note {
+  display: block;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-regular);
+  color: var(--color-text-muted);
+}
+
 .doc-table__desc {
   font-size: var(--fs-sm);
   color: var(--color-text);
+}
+
+.doc-table__links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-sm);
+}
+
+.doc-table__owned {
+  display: block;
+  font-size: var(--fs-sm);
 }
 </style>

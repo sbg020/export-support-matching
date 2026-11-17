@@ -130,7 +130,7 @@ describe('공고 비교 개선', () => {
     expect(compareToggleMessage('full', 4)).toBe('최대 4개까지 비교할 수 있습니다.')
   })
 
-  it('하단 비교 바: 1개면 이유와 함께 비활성, 2개면 비교 영역으로 이동', async () => {
+  it('하단 비교 바: 1개면 이유와 함께 비활성, 2개면 공고 비교 화면으로 이동', async () => {
     const router = makeRouter()
     await router.push('/programs/recommended')
     await router.isReady()
@@ -149,10 +149,9 @@ describe('공고 비교 개선', () => {
     selection.add('b')
     await flushPromises()
     await wrapper.get('button').trigger('click')
-    // 전체 공고 화면은 지연 로딩이라 이동이 끝날 때까지 기다린다
-    await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('programs'), { timeout: 10_000 })
+    // 공고 비교 화면은 지연 로딩이라 이동이 끝날 때까지 기다린다
+    await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('programs-compare'), { timeout: 10_000 })
     expect(router.currentRoute.value.query.compare).toBe('a,b')
-    expect(router.currentRoute.value.hash).toBe('#compare')
     wrapper.unmount()
   })
 

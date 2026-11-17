@@ -13,6 +13,8 @@ import { applyAccountScope, resetTestAccountData } from '@/stores/accountScope'
 import { useProfileStore } from '@/stores/profileStore'
 import { SELF_CHECK_STORAGE_KEY, useSelfChecks } from '@/stores/selfCheckStore'
 import { useAuth } from '@/stores/authStore'
+import { useApplicationStore } from '@/stores/applicationStore'
+import { useTrackingStore } from '@/stores/trackingStore'
 import { deriveSupportAreas, deriveSupportPhases } from '@/constants/categories'
 import type { SupportCategoryCode } from '@/types/program'
 import { condition, draftProgram, rule } from './fixtures'
@@ -147,12 +149,33 @@ describe('계정별 저장 (테스트 계정만 전용 키)', () => {
     expect(store.state.profile.companyName).toBe('EC 테스트식품(주) 시연 수정')
     expect(useSelfChecks().answers.value.common.closure).toBe('unknown')
     const accountKeys = Object.keys(localStorage).filter((k) => k.includes(':account:TEST'))
-    expect(accountKeys.sort()).toEqual([TEST_PROFILE_KEY, TEST_SELF_CHECK_KEY].sort())
+    // 테스트 계정 전용 키: 프로필 · 직접 확인 · 나의 사업 관리 · 서류함 · 임시 기록 넣음 표시
+    expect(accountKeys.sort()).toEqual(
+      [TEST_PROFILE_KEY, TEST_SELF_CHECK_KEY, ...['esm.applicationRecords.v1', 'esm.documents.v1', 'esm.testSeed.v1'].map((k) => `${k}:account:TEST`)].sort(),
+    )
 
     expect(resetTestAccountData()).toBe(true)
     expect(store.state.profile).toEqual(createTestAccountProfile())
     expect(useSelfChecks().answers.value).toEqual({ common: createTestAccountCommonChecks(), programs: {} })
     expect(localStorage.getItem(PROFILE_STORAGE_KEY)).toBeNull()
+  })
+
+  it('처음 로그인할 때만 나의 사업 관리 8건·서류함 7건을 넣고, 지운 기록은 다시 넣지 않는다', () => {
+    applyAccountScope(TEST_USER)
+    const applications = useApplicationStore()
+    const tracking = useTrackingStore()
+    expect(applications.records.value).toHaveLength(8)
+    expect(tracking.documents.value).toHaveLength(7)
+    expect(applications.byTab('interested')).toHaveLength(3)
+    expect(applications.records.value.filter((r) => r.status === 'preparing')).toHaveLength(2)
+    // 사용자가 기록을 지운 뒤 다시 로그인해도 살려내지 않는다
+    applications.replaceAll([])
+    tracking.replaceAll([])
+    applyAccountScope(null)
+    expect(applications.records.value).toEqual([])
+    applyAccountScope(TEST_USER)
+    expect(applications.records.value).toEqual([])
+    expect(tracking.documents.value).toEqual([])
   })
 
   it('관리자 계정과 비로그인은 기존 키를 쓰고, 테스트 계정이 아니면 초기화하지 않는다', () => {

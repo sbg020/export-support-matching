@@ -148,15 +148,22 @@ export type ModelCaller = (req: ModelRequest) => Promise<ModelReply>
 
 export const callClaude: ModelCaller = async (req) => {
   const client = new Anthropic({ apiKey: req.apiKey, maxRetries: 1, timeout: 50_000 })
-  const response = await client.beta.messages.create({
+  const base = {
     model: req.model,
     max_tokens: 4000,
-    betas: ['server-side-fallback-2026-07-01'],
-    fallbacks: 'default',
     system: req.system,
-    messages: [{ role: 'user', content: req.user }],
-    output_config: { format: { type: 'json_schema', schema: ANSWER_SCHEMA as unknown as Record<string, unknown> } },
-  })
+    messages: [{ role: 'user' as const, content: req.user }],
+    output_config: { format: { type: 'json_schema' as const, schema: ANSWER_SCHEMA as unknown as Record<string, unknown> } },
+  }
+  let response
+  try {
+    // 서버 측 대체 모델(거절 시 같은 요청을 대체 모델로 다시 실행)을 기본으로 켠다
+    response = await client.beta.messages.create({ ...base, betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' })
+  } catch (error) {
+    // 설정한 모델이 대체 모델 옵션을 받지 않으면(400) 그 옵션 없이 한 번 다시 보낸다
+    if (!(error instanceof Anthropic.BadRequestError)) throw error
+    response = await client.beta.messages.create(base)
+  }
   const text = response.content
     .map((block) => (block.type === 'text' ? block.text : ''))
     .join('')

@@ -17,6 +17,7 @@ import {
 } from '@/constants/applicationStatus'
 import { getLocalStorage } from '@/lib/storage'
 import { siteNow } from '@/lib/siteClock'
+import { DEVICE_SCOPE, scopedStorageKey, type StorageScope } from '@/lib/storageScope'
 
 export const APPLICATION_STORAGE_KEY = 'esm.applicationRecords.v1'
 
@@ -25,7 +26,16 @@ interface StoredRecords {
   records: ApplicationRecord[]
 }
 
-const state = reactive<{ records: ApplicationRecord[]; loaded: boolean }>({ records: [], loaded: false })
+const state = reactive<{ records: ApplicationRecord[]; loaded: boolean; scope: StorageScope }>({
+  records: [],
+  loaded: false,
+  scope: DEVICE_SCOPE,
+})
+
+/** 지금 범위의 저장 키 (테스트 계정은 계정 전용 키, revision_03) */
+function storageKey(): string {
+  return scopedStorageKey(APPLICATION_STORAGE_KEY, state.scope)
+}
 
 function pickString(value: unknown): string | null {
   return typeof value === 'string' && value.trim() !== '' ? value : null
@@ -88,8 +98,9 @@ export function mergeRecords(records: ApplicationRecord[]): ApplicationRecord[] 
 function ensureLoaded() {
   if (state.loaded) return
   state.loaded = true
+  state.records = []
   try {
-    const raw = getLocalStorage()?.getItem(APPLICATION_STORAGE_KEY)
+    const raw = getLocalStorage()?.getItem(storageKey())
     if (!raw) return
     const parsed = JSON.parse(raw) as Partial<StoredRecords>
     if (parsed.version !== 1 || !Array.isArray(parsed.records)) return
@@ -106,7 +117,7 @@ function persist(): boolean {
   if (!storage) return false
   try {
     const stored: StoredRecords = { version: 1, records: state.records }
-    storage.setItem(APPLICATION_STORAGE_KEY, JSON.stringify(stored))
+    storage.setItem(storageKey(), JSON.stringify(stored))
     return true
   } catch {
     return false
@@ -168,9 +179,25 @@ function setChecklistItem(programId: string, requiredDocumentId: string, checked
   return true
 }
 
+/** 로그인 범위가 바뀌면 그 범위의 기록을 읽는다 */
+function activateScope(scope: StorageScope): void {
+  if (state.loaded && scopedStorageKey(APPLICATION_STORAGE_KEY, scope) === storageKey()) return
+  state.scope = scope
+  state.loaded = false
+  ensureLoaded()
+}
+
+/** 지금 범위의 기록을 통째로 바꾼다 (테스트 계정 임시 기록 넣기) */
+function replaceAll(records: ApplicationRecord[]): void {
+  state.records = mergeRecords(records)
+  persist()
+}
+
 export function useApplicationStore() {
   ensureLoaded()
   return {
+    activateScope,
+    replaceAll,
     records: computed(() => state.records),
     find,
     byTab: (tab: ApplicationTab) => state.records.filter((r) => tabOfStatus(r.status) === tab),

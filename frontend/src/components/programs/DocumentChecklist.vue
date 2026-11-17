@@ -3,6 +3,7 @@
  * 공고 상세 '신청 준비'의 필요서류 체크리스트 (REVISION_02 §8.2).
  * 필수 → 해당 시 → 선택 순서로 보여 주고, 원문 서류명과 근거 쪽을 함께 표시한다.
  * 체크 상태는 관리 기록(관심·준비 중·신청완료)이 있을 때만 저장한다.
+ * 서류함에 같은 유형의 기록이 있으면 '서류함에 있음'(또는 '작성 중')을 함께 표시한다.
  */
 import { computed } from 'vue'
 import { IconChecklist } from '@tabler/icons-vue'
@@ -10,12 +11,16 @@ import type { DocumentRequirement, Program, RequiredDocument } from '@/types/pro
 import type { ApplicationRecord } from '@/types/tracking'
 import { DOCUMENT_REQUIREMENT_OPTIONS, optionLabel } from '@/constants/options'
 import { useApplicationStore } from '@/stores/applicationStore'
+import { useTrackingStore } from '@/stores/trackingStore'
+import { vaultMatch, vaultTagText } from '@/lib/documentVault'
 import EmptyState from '@/components/common/EmptyState.vue'
 import DisabledReason from '@/components/common/DisabledReason.vue'
 
 const props = defineProps<{ program: Program | null; record: ApplicationRecord | null }>()
 
 const applications = useApplicationStore()
+const tracking = useTrackingStore()
+const vaultTag = (doc: RequiredDocument) => vaultTagText(vaultMatch(doc, tracking.documents.value))
 
 const ORDER: Record<DocumentRequirement, number> = { required: 0, conditional: 1, optional: 2 }
 const docs = computed(() =>
@@ -59,6 +64,7 @@ function onChange(docId: string, event: Event) {
           {{ doc.name }}
           <span v-if="doc.requirement" class="checklist__tag">{{ optionLabel(DOCUMENT_REQUIREMENT_OPTIONS, doc.requirement) }}</span>
           <span v-if="doc.isProgramForm" class="checklist__tag checklist__tag--form">공고 전용 서식</span>
+          <span v-if="vaultTag(doc)" class="checklist__tag checklist__tag--vault">{{ vaultTag(doc) }}</span>
         </span>
         <span v-if="metaText(doc)" class="checklist__meta">{{ metaText(doc) }}</span>
       </label>
@@ -134,5 +140,10 @@ function onChange(docId: string, event: Event) {
 .checklist__meta {
   font-size: var(--fs-xs);
   color: var(--color-text-muted);
+}
+.checklist__tag--vault {
+  border-color: var(--color-success, #16a34a);
+  background: var(--color-success-soft, #e9f7ef);
+  color: var(--color-success-strong, #166534);
 }
 </style>

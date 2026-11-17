@@ -1,13 +1,14 @@
 <script setup lang="ts">
 /**
- * 전체 공고 하단의 공고 비교 영역 (기존 공고 비교 화면을 옮겨 재사용).
+ * 공고 비교 (기업 맞춤 지원사업 > 공고 비교 화면).
+ * 담은 공고가 없으면 빈 상태 안내와 '맞춤 공고 보러 가기' 버튼만 보여 준다. 비교 표의 행 구성과 기능은 그대로다.
  * 선택은 useCompareSelection 하나로 관리하며, 이 화면에서는 URL 쿼리 compare 와 동기화한다.
  * 선택한 공고가 없으면 열 제목부터 값까지 '-'인 빈 비교 표를 보여 준다. 어떤 공고가 더 좋다고 판단하지 않는다.
  * 기회비용은 데이터 기준일로, 자격 판정은 직접 확인 답(esm.selfChecks.v1)을 반영해 계산한다 (§8.4.2).
  */
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { IconCopy, IconLayoutColumns, IconLayoutGrid, IconScale, IconTable, IconTargetArrow, IconX } from '@tabler/icons-vue'
+import { IconArrowRight, IconCopy, IconLayoutColumns, IconLayoutGrid, IconScale, IconTable, IconTargetArrow, IconX } from '@tabler/icons-vue'
 import SectionCard from '@/components/common/SectionCard.vue'
 import NoticeBanner from '@/components/common/NoticeBanner.vue'
 import InfoList from '@/components/common/InfoList.vue'
@@ -16,7 +17,7 @@ import SegmentedControl from '@/components/common/SegmentedControl.vue'
 import ActionButton from '@/components/common/ActionButton.vue'
 import DisabledReason from '@/components/common/DisabledReason.vue'
 import CompareTable from '@/components/programs/CompareTable.vue'
-import CompareDock from '@/components/programs/CompareDock.vue'
+import EmptyState from '@/components/common/EmptyState.vue'
 import { compareCellText, type CompareRowKey, type CompareSlot } from '@/components/programs/compareRows'
 import { isSourceConnected, programRepository } from '@/repositories'
 import { useProfileStore } from '@/stores/profileStore'
@@ -145,41 +146,14 @@ const viewOptions = [
   { value: 'cards' as const, label: '카드 보기', icon: IconLayoutGrid },
 ]
 
-/* ── 펼치기, 해시 도착, 하단 고정 바 ── */
-const expanded = ref(false)
-const sectionRef = ref<HTMLElement | null>(null)
-const sectionVisible = ref(false)
-let observer: IntersectionObserver | null = null
-
-onMounted(async () => {
-  if (window.matchMedia('(max-width: 767.98px)').matches) view.value = 'cards'
+onMounted(() => {
+  if (typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 767.98px)').matches) view.value = 'cards'
   syncQueryFromSelection()
-  if (route.hash === '#compare') {
-    if (selection.count.value >= 2) expanded.value = true
-    await nextTick()
-    sectionRef.value?.scrollIntoView({ block: 'start' })
-  }
-  if ('IntersectionObserver' in window && sectionRef.value) {
-    observer = new IntersectionObserver((entries) => {
-      sectionVisible.value = entries.some((entry) => entry.isIntersecting)
-    })
-    observer.observe(sectionRef.value)
-  }
 })
-
-onBeforeUnmount(() => observer?.disconnect())
-
-/** 하단 비교 바: 이 화면에서는 이동하지 않고 비교 영역으로 스크롤한다 (2개 이상이면 펼친다) */
-function scrollToCompare() {
-  if (selection.count.value >= 2) expanded.value = true
-  void router.replace({ query: route.query, hash: '#compare' })
-  sectionRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  sectionRef.value?.querySelector<HTMLElement>('.compare-section__title')?.focus({ preventScroll: true })
-}
 </script>
 
 <template>
-  <section id="compare" ref="sectionRef" class="compare-section surface-card" aria-labelledby="compare-title">
+  <section id="compare" class="compare-section surface-card" aria-labelledby="compare-title">
     <header class="compare-section__header">
       <div>
         <h2 id="compare-title" class="compare-section__title" tabindex="-1">
@@ -190,15 +164,10 @@ function scrollToCompare() {
           선택한 공고 <strong>{{ selection.count.value }}</strong>/{{ MAX_COMPARE }}
         </p>
       </div>
-      <button
-        type="button"
-        class="btn btn-outline-primary"
-        :aria-expanded="expanded"
-        aria-controls="compare-content"
-        @click="expanded = !expanded"
-      >
-        {{ expanded ? '비교 내용 접기' : '비교 내용 펼치기' }}
-      </button>
+      <RouterLink :to="{ name: 'programs-recommended' }" class="btn btn-outline-primary">
+        맞춤 공고 보러 가기
+        <IconArrowRight :size="18" stroke-width="2" aria-hidden="true" />
+      </RouterLink>
     </header>
 
     <div class="compare-section__selection">
@@ -221,19 +190,24 @@ function scrollToCompare() {
           <button type="button" class="btn btn-ghost btn-sm" @click="selection.clear()">모두 지우기</button>
         </li>
       </ul>
-      <template v-else>
-        <p class="compare-section__empty">아직 선택한 공고가 없습니다.</p>
-        <DisabledReason id="compare-select-reason">
-          {{
-            noProgramSource
-              ? "현재 등록된 공고가 없어 비교할 공고를 선택할 수 없습니다. 공고가 등록되면 목록의 '비교에 추가'로 2~4개를 고를 수 있습니다."
-              : "목록에서 '비교에 추가'를 눌러 공고를 2~4개 고르세요."
-          }}
-        </DisabledReason>
-      </template>
+      <EmptyState
+        v-else
+        :icon="IconLayoutColumns"
+        title="비교할 공고를 담아 주세요"
+        :description="
+          noProgramSource
+            ? '현재 등록된 공고가 없어 비교할 공고를 선택할 수 없습니다.'
+            : '맞춤 공고나 전체 공고에서 \'비교에 추가\'를 눌러 공고를 2~4개 고르면 이곳에서 나란히 비교합니다.'
+        "
+        :level="3"
+      >
+        <template #actions>
+          <RouterLink :to="{ name: 'programs-recommended' }" class="btn btn-primary">맞춤 공고 보러 가기</RouterLink>
+        </template>
+      </EmptyState>
     </div>
 
-    <div v-show="expanded" id="compare-content" class="compare-section__content">
+    <div v-if="chips.length > 0" id="compare-content" class="compare-section__content">
       <NoticeBanner v-if="status === 'error'" tone="danger" title="공고를 불러오지 못했습니다" alert>
         공고 API에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.
       </NoticeBanner>
@@ -303,8 +277,6 @@ function scrollToCompare() {
       </div>
     </div>
   </section>
-
-  <CompareDock mode="scroll" :hidden="sectionVisible" @go="scrollToCompare" />
 </template>
 
 <style scoped>

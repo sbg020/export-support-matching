@@ -60,7 +60,7 @@ describe('공고 비교 선택', () => {
     expect(selection.add('2')).toBe('exists')
     expect(selection.add('5')).toBe('full')
     expect(selection.count.value).toBe(MAX_COMPARE)
-    expect(selection.compareLocation()).toEqual({ name: 'programs', query: { compare: '1,2,3,4' }, hash: '#compare' })
+    expect(selection.compareLocation()).toEqual({ name: 'programs-compare', query: { compare: '1,2,3,4' } })
     selection.clear()
   })
 })

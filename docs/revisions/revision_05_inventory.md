@@ -178,3 +178,10 @@
 - 관리자 쓰기 동작(승인·반려·일괄 게시·수집·업로드 반영·키 발급) — 지금은 로컬 관리 명령 + 스냅샷 재배포.
 - KOTRA·KITA 업로드의 §7.4 새 열 구성(`source_notice_id, title, organizer, operator, posted_at, apply_start, apply_end, source_url, file_name, memo`)과 공고문 파일 연결 — 지금 화면은 REVISION_04 양식으로 미리보기만 한다.
 - 챗봇 호출 수·공개 API 호출 제한의 정확한 집계(DB).
+
+## 13. 이후 변경 (2026-11-18)
+
+- **TEST 계정 임시 기록:** 나의 사업 관리·서류함은 브라우저 저장(localStorage)이라 TEST 계정 전용 키(`esm.applicationRecords.v1:account:TEST`, `esm.documents.v1:account:TEST`)를 쓰고, 처음 로그인할 때 한 번만 넣는다(`esm.testSeed.v1:account:TEST` 표시). 지운 기록은 다시 넣지 않는다. 데이터: `frontend/src/data/testAccountRecords.ts` — 관심 3(P034·P063 신청 가능, P005 확인 필요), 준비 중 2(P037·P036, 체크리스트 일부), 신청완료 P038, 심사중 P006, 선정완료 P007 / 서류 7건(파일 없이 기록만, 수출실적증명서는 '해당 없음' 상태가 없어 제외). 제출 서류 체크리스트에 '서류함에 있음' 표시.
+- **공고 비교:** 기업 맞춤 지원사업의 하위 탭 [맞춤 공고] [공고 비교] (`/programs/compare`, 예전 `?ids=`는 `?compare=`로). 전체 공고 하단 비교 영역 삭제, 접기·펼치기 대신 '맞춤 공고 보러 가기'.
+- **챗봇:** 까치 로고(`frontend/public/brand/assistant-magpie*.png`). 실행에는 Vercel 환경변수 `ANTHROPIC_API_KEY`가 필요하다(아직 미설정).
+
