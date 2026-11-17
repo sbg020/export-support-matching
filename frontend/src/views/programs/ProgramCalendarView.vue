@@ -4,10 +4,9 @@ import { IconChevronLeft, IconChevronRight, IconInfoCircle, IconPlus } from '@ta
 import PageHeader from '@/components/layout/PageHeader.vue'
 import NoticeBanner from '@/components/common/NoticeBanner.vue'
 import ActionButton from '@/components/common/ActionButton.vue'
-import DisabledReason from '@/components/common/DisabledReason.vue'
 import MonthCalendar from '@/components/calendar/MonthCalendar.vue'
 import CalendarDayDialog from '@/components/calendar/CalendarDayDialog.vue'
-import { CALENDAR_EVENT_SHORT_LABEL, CALENDAR_EVENT_TYPE_OPTIONS, CALENDAR_MAX_PER_DAY } from '@/constants/options'
+import { CALENDAR_EVENT_SHORT_LABEL, CALENDAR_EVENT_TYPE_OPTIONS } from '@/constants/options'
 import { addMonths, parseIso, todayIso } from '@/lib/calendar'
 import { buildProgramEvents } from '@/lib/calendarEvents'
 import { createEmptyQuery, programRepository } from '@/repositories'
@@ -157,13 +156,10 @@ function openDay(date: string) {
         />
 
         <footer class="calendar-card__footer">
-          <p class="calendar-card__help">
-            날짜를 누르면 그날의 공고를 볼 수 있습니다. 한 칸에는 최대 {{ CALENDAR_MAX_PER_DAY }}건까지 보이고, 나머지는
-            '+N개'로 엽니다. 방향키로 날짜를, PageUp·PageDown으로 약 한 달씩 이동할 수 있습니다.
-          </p>
           <div class="calendar-card__goal">
             <ActionButton :icon="IconPlus" size="sm" disabled describedby="goal-reason">개인 준비 목표 추가</ActionButton>
-            <DisabledReason id="goal-reason">준비 중인 사업이 연결된 후 서류 준비 목표일을 추가할 수 있습니다.</DisabledReason>
+            <!-- 화면에는 보이지 않고, 화면낭독기에만 비활성 이유를 알린다 -->
+            <span id="goal-reason" class="visually-hidden">준비 중인 사업이 연결된 후 서류 준비 목표일을 추가할 수 있습니다.</span>
           </div>
         </footer>
       </section>
@@ -274,7 +270,7 @@ function openDay(date: string) {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: var(--space-3) var(--space-5);
 }
 
