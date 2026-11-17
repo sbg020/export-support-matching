@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { IconCalendarEvent, IconChevronLeft, IconChevronRight, IconPlus } from '@tabler/icons-vue'
+import { IconChevronLeft, IconChevronRight, IconInfoCircle, IconPlus } from '@tabler/icons-vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
-import SectionCard from '@/components/common/SectionCard.vue'
 import NoticeBanner from '@/components/common/NoticeBanner.vue'
 import ActionButton from '@/components/common/ActionButton.vue'
 import DisabledReason from '@/components/common/DisabledReason.vue'
 import MonthCalendar from '@/components/calendar/MonthCalendar.vue'
-import { CALENDAR_EVENT_TYPE_OPTIONS } from '@/constants/options'
-import { addMonths, formatKoreanDate, parseIso, todayIso } from '@/lib/calendar'
+import CalendarDayDialog from '@/components/calendar/CalendarDayDialog.vue'
+import { CALENDAR_EVENT_SHORT_LABEL, CALENDAR_EVENT_TYPE_OPTIONS, CALENDAR_MAX_PER_DAY } from '@/constants/options'
+import { addMonths, parseIso, todayIso } from '@/lib/calendar'
 import { buildProgramEvents } from '@/lib/calendarEvents'
 import { createEmptyQuery, programRepository } from '@/repositories'
 import type { Program } from '@/types/program'
@@ -64,9 +64,20 @@ function toggleType(type: CalendarEventType, checked: boolean) {
     : visibleTypes.value.filter((t) => t !== type)
 }
 
-const selectedEvents = computed(() =>
-  events.value.filter((e) => e.date === selectedDate.value && visibleTypes.value.includes(e.type)),
+/* 날짜 팝업: 날짜(칸)나 '+N개'를 누르면 그날의 일정을 연다 */
+const dialogOpen = ref(false)
+const dialogDate = ref(today)
+const programById = computed(() => new Map(programs.value.map((p) => [p.id, p])))
+const TYPE_ORDER = CALENDAR_EVENT_TYPE_OPTIONS.map((o) => o.value)
+const dialogEvents = computed(() =>
+  events.value
+    .filter((e) => e.date === dialogDate.value && visibleTypes.value.includes(e.type))
+    .sort((a, b) => TYPE_ORDER.indexOf(a.type) - TYPE_ORDER.indexOf(b.type) || a.title.localeCompare(b.title, 'ko')),
 )
+function openDay(date: string) {
+  dialogDate.value = date
+  dialogOpen.value = true
+}
 </script>
 
 <template>
@@ -81,95 +92,84 @@ const selectedEvents = computed(() =>
         공고와 연동된 일정이 없습니다. 공고 날짜가 확인되지 않으면 달력에 일정을 만들지 않습니다.
       </NoticeBanner>
 
-      <div class="grid-12">
-        <section class="col-span-12 lg-span-8 surface-card calendar-card" aria-labelledby="calendar-month-title">
-          <header class="calendar-card__header">
+      <section class="surface-card calendar-card" aria-labelledby="calendar-month-title">
+        <header class="calendar-card__header">
+          <div class="calendar-card__heading">
             <h2 id="calendar-month-title" class="calendar-card__title" aria-live="polite">
               {{ year }}년 {{ month }}월
             </h2>
-            <div class="calendar-card__nav">
-              <button type="button" class="btn btn-secondary btn-icon btn-sm" aria-label="이전 달" @click="shiftMonth(-1)">
-                <IconChevronLeft :size="18" stroke-width="2" aria-hidden="true" />
+            <!-- 일정 유형 안내: 마우스를 올리거나 키보드로 초점을 주면 보인다 -->
+            <span class="type-info">
+              <button type="button" class="type-info__button" aria-label="일정 유형 안내" aria-describedby="type-info-tip">
+                <IconInfoCircle :size="18" stroke-width="2" aria-hidden="true" />
               </button>
-              <button type="button" class="btn btn-secondary btn-sm" @click="goToday">오늘</button>
-              <button type="button" class="btn btn-secondary btn-icon btn-sm" aria-label="다음 달" @click="shiftMonth(1)">
-                <IconChevronRight :size="18" stroke-width="2" aria-hidden="true" />
-              </button>
-            </div>
-          </header>
+              <span id="type-info-tip" role="tooltip" class="type-info__tip">
+                <span class="type-info__title">일정 유형</span>
+                <span v-for="option in CALENDAR_EVENT_TYPE_OPTIONS" :key="option.value" class="type-info__row">
+                  <span class="type-info__tag" :class="`is-${option.value}`">{{ CALENDAR_EVENT_SHORT_LABEL[option.value] }}</span>
+                  <span>
+                    <strong>{{ option.label }}</strong>
+                    <span class="type-info__desc">{{ option.description }}</span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </div>
+          <div class="calendar-card__nav">
+            <button type="button" class="btn btn-secondary btn-icon btn-sm" aria-label="이전 달" @click="shiftMonth(-1)">
+              <IconChevronLeft :size="18" stroke-width="2" aria-hidden="true" />
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" @click="goToday">오늘</button>
+            <button type="button" class="btn btn-secondary btn-icon btn-sm" aria-label="다음 달" @click="shiftMonth(1)">
+              <IconChevronRight :size="18" stroke-width="2" aria-hidden="true" />
+            </button>
+          </div>
+        </header>
 
-          <fieldset class="calendar-card__types">
-            <legend class="visually-hidden">표시할 일정 유형</legend>
-            <label
-              v-for="option in CALENDAR_EVENT_TYPE_OPTIONS"
-              :key="option.value"
-              class="type-toggle"
-              :class="`type-toggle--${option.value}`"
-            >
-              <input
-                type="checkbox"
-                class="form-check-input"
-                :checked="visibleTypes.includes(option.value)"
-                @change="toggleType(option.value, ($event.target as HTMLInputElement).checked)"
-              />
-              <span class="type-toggle__swatch" aria-hidden="true" />
-              {{ option.label }}
-            </label>
-          </fieldset>
+        <fieldset class="calendar-card__types">
+          <legend class="visually-hidden">표시할 일정 유형</legend>
+          <label
+            v-for="option in CALENDAR_EVENT_TYPE_OPTIONS"
+            :key="option.value"
+            class="type-toggle"
+            :class="`type-toggle--${option.value}`"
+          >
+            <input
+              type="checkbox"
+              class="form-check-input"
+              :checked="visibleTypes.includes(option.value)"
+              @change="toggleType(option.value, ($event.target as HTMLInputElement).checked)"
+            />
+            <span class="type-toggle__swatch" aria-hidden="true" />
+            {{ option.label }}
+          </label>
+        </fieldset>
 
-          <MonthCalendar
-            :year="year"
-            :month="month"
-            :events="events"
-            :selected-date="selectedDate"
-            :today="today"
-            :visible-types="visibleTypes"
-            @select="onSelect"
-          />
+        <MonthCalendar
+          :year="year"
+          :month="month"
+          :events="events"
+          :selected-date="selectedDate"
+          :today="today"
+          :visible-types="visibleTypes"
+          @select="onSelect"
+          @open="openDay"
+        />
+
+        <footer class="calendar-card__footer">
           <p class="calendar-card__help">
-            날짜를 선택한 뒤 방향키로 날짜를, PageUp·PageDown으로 약 한 달씩 이동할 수 있습니다.
+            날짜를 누르면 그날의 공고를 볼 수 있습니다. 한 칸에는 최대 {{ CALENDAR_MAX_PER_DAY }}건까지 보이고, 나머지는
+            '+N개'로 엽니다. 방향키로 날짜를, PageUp·PageDown으로 약 한 달씩 이동할 수 있습니다.
           </p>
-        </section>
-
-        <div class="col-span-12 lg-span-4 stack">
-          <SectionCard title="선택한 날짜" heading-id="selected-date-title" :icon="IconCalendarEvent">
-            <p class="selected-date">{{ formatKoreanDate(selectedDate) }}</p>
-            <ul v-if="selectedEvents.length > 0" class="list-plain">
-              <li v-for="event in selectedEvents" :key="event.id">
-                <RouterLink
-                  v-if="event.programId"
-                  :to="{ name: 'program-detail', params: { id: event.programId }, query: { from: 'calendar' } }"
-                >
-                  {{ event.title }}
-                </RouterLink>
-                <span v-else>{{ event.title }}</span>
-              </li>
-            </ul>
-            <p v-else class="fs-sm text-muted-strong mb-0">이 날짜에는 일정이 없습니다.</p>
-          </SectionCard>
-
-          <SectionCard title="일정 유형" heading-id="event-types-title">
-            <dl class="type-legend">
-              <div v-for="option in CALENDAR_EVENT_TYPE_OPTIONS" :key="option.value" class="type-legend__row">
-                <dt>
-                  <span class="type-toggle__swatch" :class="`swatch--${option.value}`" aria-hidden="true" />
-                  {{ option.label }}
-                </dt>
-                <dd>{{ option.description }}</dd>
-              </div>
-            </dl>
-            <template #footer>
-              <ActionButton :icon="IconPlus" size="sm" disabled describedby="goal-reason">
-                개인 준비 목표 추가
-              </ActionButton>
-              <DisabledReason id="goal-reason">
-                준비 중인 사업이 연결된 후 서류 준비 목표일을 추가할 수 있습니다.
-              </DisabledReason>
-            </template>
-          </SectionCard>
-        </div>
-      </div>
+          <div class="calendar-card__goal">
+            <ActionButton :icon="IconPlus" size="sm" disabled describedby="goal-reason">개인 준비 목표 추가</ActionButton>
+            <DisabledReason id="goal-reason">준비 중인 사업이 연결된 후 서류 준비 목표일을 추가할 수 있습니다.</DisabledReason>
+          </div>
+        </footer>
+      </section>
     </div>
+
+    <CalendarDayDialog v-model:open="dialogOpen" :date="dialogDate" :events="dialogEvents" :programs="programById" />
   </div>
 </template>
 
@@ -264,32 +264,152 @@ const selectedEvents = computed(() =>
   color: var(--color-text-muted);
 }
 
-.selected-date {
-  margin-bottom: var(--space-2);
-  font-size: var(--fs-lg);
-  font-weight: var(--fw-bold);
-  color: var(--color-heading);
+.calendar-card__heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
-.type-legend {
+.calendar-card__footer {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-5);
+}
+
+.calendar-card__footer .calendar-card__help {
+  flex: 1 1 320px;
   margin: 0;
 }
 
-.type-legend__row dt {
+.calendar-card__goal {
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  max-width: 360px;
+  text-align: right;
+}
+
+/* ⓘ 일정 유형 안내 (마우스 올림·초점) */
+.type-info {
+  position: relative;
+  display: inline-flex;
+}
+
+.type-info__button {
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-semibold);
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: help;
+}
+
+.type-info__button:hover,
+.type-info__button:focus-visible {
+  background: var(--color-surface-sunken);
   color: var(--color-heading);
 }
 
-.type-legend__row dd {
-  margin: 2px 0 0 16px;
+.type-info__tip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 300px;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  font-size: var(--fs-sm);
+  color: var(--color-heading);
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease,
+    visibility 0.15s;
+  pointer-events: none;
+}
+
+.type-info:hover .type-info__tip,
+.type-info:focus-within .type-info__tip {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+}
+
+.type-info__title {
+  font-weight: var(--fw-bold);
+}
+
+.type-info__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.type-info__desc {
+  display: block;
   font-size: var(--fs-xs);
   color: var(--color-text-muted);
+}
+
+.type-info__tag {
+  flex: none;
+  margin-top: 1px;
+  padding: 0 5px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: var(--fw-bold);
+  line-height: 18px;
+}
+
+.type-info__tag.is-apply-start {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+}
+
+.type-info__tag.is-apply-end {
+  background: var(--color-danger-soft);
+  color: var(--color-danger-strong);
+}
+
+.type-info__tag.is-personal-goal {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+.type-info__tag.is-agreement {
+  background: var(--color-success-soft);
+  color: var(--color-success-strong);
+}
+
+.type-info__tag.is-announcement {
+  background: var(--color-secondary-soft);
+  color: var(--color-secondary-strong);
+}
+
+@media (max-width: 767.98px) {
+  .calendar-card__goal {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .type-info__tip {
+    width: min(300px, calc(100vw - 48px));
+  }
 }
 </style>

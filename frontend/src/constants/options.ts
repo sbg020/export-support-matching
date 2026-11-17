@@ -248,6 +248,18 @@ export const CALENDAR_EVENT_TYPE_OPTIONS: Option<CalendarEventType>[] = [
   { value: 'personal-goal', label: '개인 준비 목표', description: '직접 정한 서류 준비 목표일' },
 ]
 
+/** 달력 칸·팝업의 상태 2글자 (색은 유형별 같은 색) */
+export const CALENDAR_EVENT_SHORT_LABEL: Record<CalendarEventType, string> = {
+  'apply-start': '시작',
+  'apply-end': '마감',
+  announcement: '발표',
+  agreement: '협약',
+  'personal-goal': '목표',
+}
+
+/** 달력 한 칸에 보여 줄 최대 일정 수 (넘치면 '+N개') */
+export const CALENDAR_MAX_PER_DAY = 5
+
 export const DOCUMENT_TYPE_OPTIONS: Option<DocumentType>[] = [
   { value: 'business-registration', label: '사업자등록증', description: '사업자 등록 사실을 증명하는 서류' },
   { value: 'financial-statements', label: '재무제표', description: '매출·자산 등 재무 상태를 보여주는 서류' },
