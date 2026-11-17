@@ -1,14 +1,77 @@
 <script setup lang="ts">
 /**
- * Section 2. Problem — 옐로우 배너의 큰 질문, 이어서 문제 3개를 화면에 차례로 쌓이는 장면(sticky)으로 보여 준다.
+ * Section 2. Problem — 옐로우 배너의 큰 질문, 이어서 문제 3개.
+ * - 넓은 화면(풀페이지 스크롤): 문제 구간에 들어오면 카드 틀을 화면에 고정하고, 아래로 스크롤할 때마다
+ *   같은 자리에서 문구와 그림이 한 세트씩 함께 바뀐다. 위로 스크롤하면 이전 세트, 마지막 세트에서 더 내리면
+ *   고정이 풀리며 다음 섹션으로 이어진다. 무대(.problem__stage)는 세트 수 × 화면 높이이고,
+ *   useFullPageScroll이 세트마다 한 번씩 멈춘다. 지금 세트는 스크롤 위치로 정한다.
+ * - 좁은 화면: 카드가 차례로 위에 쌓인다(sticky).
  * 그림은 이미지 대신 서비스 요소(기관 이름, 자격 항목, 지원 단계)로 만든 단순한 도식이다.
  */
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import { IconHelpCircle } from "@tabler/icons-vue";
+import { FULLPAGE_MEDIA, FULLPAGE_STEP_EVENT } from "@/composables/useFullPageScroll";
 import { AGENCY_ROWS } from "@/constants/landing";
 import { STAGE_OPTIONS } from "@/constants/options";
 import { vReveal } from "@/composables/useReveal";
 
 const scattered = AGENCY_ROWS.flat().slice(0, 9);
+
+/* ── 고정 무대: 지금 보이는 세트 ── */
+const stage = ref<HTMLElement | null>(null);
+const active = ref(0);
+const pinned = ref(false);
+let media: MediaQueryList | null = null;
+let ticking = false;
+
+function headerHeight(): number {
+  return (
+    Number.parseInt(
+      getComputedStyle(document.documentElement).getPropertyValue("--header-height"),
+      10,
+    ) || 64
+  );
+}
+
+function update() {
+  ticking = false;
+  const el = stage.value;
+  if (!el || !media?.matches) {
+    pinned.value = false;
+    active.value = 0;
+    return;
+  }
+  pinned.value = true;
+  const header = headerHeight();
+  const page = Math.max(1, window.innerHeight - header);
+  // 무대 시작(카드 틀이 헤더 아래에 고정되는 위치)에서 몇 화면 내려왔는지
+  const progress = (header - el.getBoundingClientRect().top) / page;
+  active.value = Math.min(problems.length - 1, Math.max(0, Math.round(progress)));
+}
+
+function onScroll() {
+  if (ticking) return;
+  ticking = true;
+  requestAnimationFrame(update);
+  window.setTimeout(() => ticking && update(), 50);
+}
+
+onMounted(() => {
+  if (typeof window.matchMedia !== "function") return;
+  media = window.matchMedia(FULLPAGE_MEDIA);
+  media.addEventListener?.("change", update);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener(FULLPAGE_STEP_EVENT, update);
+  window.addEventListener("resize", onScroll);
+  update();
+});
+
+onBeforeUnmount(() => {
+  media?.removeEventListener?.("change", update);
+  window.removeEventListener("scroll", onScroll);
+  window.removeEventListener(FULLPAGE_STEP_EVENT, update);
+  window.removeEventListener("resize", onScroll);
+});
 const conditions = ["업종", "소재지", "매출액", "수출실적", "업력", "인증"];
 
 const problems = [
@@ -52,56 +115,92 @@ const problems = [
         </div>
       </div>
 
-      <ol class="problem__list">
-        <li
-          v-for="(problem, index) in problems"
-          :key="problem.key"
-          class="problem__scene"
-          data-fp-section
-          :style="{ '--scene-index': index }"
-        >
-          <div class="problem__card">
-            <div class="problem__text">
-              <span class="problem__num" aria-hidden="true">{{ problem.num }}</span>
-              <h3 class="problem__title">{{ problem.title }}</h3>
-              <p class="problem__desc">
-                <template v-for="(line, i) in problem.lines" :key="i"
-                  >{{ line }}<br v-if="i < problem.lines.length - 1"
-                /></template>
-              </p>
-            </div>
+      <!-- 무대: 세트 수만큼 화면 높이. 안쪽 틀은 헤더 아래에 고정된다 (data-fp-free: 크기를 줄이지 않고 세트마다 멈춤) -->
+      <div
+        ref="stage"
+        class="problem__stage"
+        data-fp-section
+        data-fp-free
+        :style="{ '--set-count': problems.length }"
+      >
+        <div class="problem__pin">
+          <ol class="problem__list">
+            <li
+              v-for="(problem, index) in problems"
+              :key="problem.key"
+              class="problem__scene"
+              :class="
+                pinned
+                  ? {
+                      'is-active': index === active,
+                      'is-before': index < active,
+                      'is-after': index > active,
+                    }
+                  : null
+              "
+              :aria-current="pinned && index === active ? 'step' : undefined"
+              :style="{ '--scene-index': index }"
+            >
+              <div class="problem__card">
+                <div class="problem__text">
+                  <span class="problem__num" aria-hidden="true">{{ problem.num }}</span>
+                  <h3 class="problem__title">{{ problem.title }}</h3>
+                  <p class="problem__desc">
+                    <template v-for="(line, i) in problem.lines" :key="i"
+                      >{{ line }}<br v-if="i < problem.lines.length - 1"
+                    /></template>
+                  </p>
+                </div>
 
-            <div class="problem__art" aria-hidden="true">
-              <div v-if="problem.key === 'scattered'" class="art-scatter">
-                <span
-                  v-for="(agency, i) in scattered"
-                  :key="agency.name"
-                  class="art-scatter__chip"
-                  :class="`is-${i % 3}`"
-                >
-                  {{ agency.name }}
-                </span>
-              </div>
+                <div class="problem__art" aria-hidden="true">
+                  <div v-if="problem.key === 'scattered'" class="art-scatter">
+                    <span
+                      v-for="(agency, i) in scattered"
+                      :key="agency.name"
+                      class="art-scatter__chip"
+                      :class="`is-${i % 3}`"
+                    >
+                      {{ agency.name }}
+                    </span>
+                  </div>
 
-              <div v-else-if="problem.key === 'conditions'" class="art-check">
-                <div v-for="(item, i) in conditions" :key="item" class="art-check__row">
-                  <span class="art-check__name">{{ item }}</span>
-                  <span class="art-check__bar" :style="{ width: `${40 + ((i * 17) % 50)}%` }" />
-                  <span class="art-check__q"><IconHelpCircle :size="18" stroke-width="2" /></span>
+                  <div v-else-if="problem.key === 'conditions'" class="art-check">
+                    <div v-for="(item, i) in conditions" :key="item" class="art-check__row">
+                      <span class="art-check__name">{{ item }}</span>
+                      <span class="art-check__bar" :style="{ width: `${40 + ((i * 17) % 50)}%` }" />
+                      <span class="art-check__q"
+                        ><IconHelpCircle :size="18" stroke-width="2"
+                      /></span>
+                    </div>
+                  </div>
+
+                  <div v-else class="art-path">
+                    <div
+                      v-for="(stage, i) in STAGE_OPTIONS"
+                      :key="stage.value"
+                      class="art-path__step"
+                    >
+                      <span class="art-path__dot">{{ i + 1 }}</span>
+                      <span class="art-path__label">{{ stage.label }}</span>
+                    </div>
+                    <span class="art-path__ask">무엇부터?</span>
+                  </div>
                 </div>
               </div>
-
-              <div v-else class="art-path">
-                <div v-for="(stage, i) in STAGE_OPTIONS" :key="stage.value" class="art-path__step">
-                  <span class="art-path__dot">{{ i + 1 }}</span>
-                  <span class="art-path__label">{{ stage.label }}</span>
-                </div>
-                <span class="art-path__ask">무엇부터?</span>
-              </div>
-            </div>
-          </div>
-        </li>
-      </ol>
+            </li>
+          </ol>
+          <!-- 세트 위치 표시 (넓은 화면) -->
+          <ol class="problem__dots" aria-hidden="true">
+            <li
+              v-for="(problem, index) in problems"
+              :key="problem.key"
+              :class="{ 'is-active': index === active }"
+            >
+              {{ problem.num }}
+            </li>
+          </ol>
+        </div>
+      </div>
     </div>
   </section>
 </template>
@@ -310,18 +409,101 @@ const problems = [
 }
 
 /* 넓은 화면의 풀페이지 스크롤 (useFullPageScroll과 같은 조건): 카드를 겹치지 않고 한 화면에 하나씩 */
+.problem__dots {
+  display: none;
+}
+
+/* 넓은 화면의 풀페이지 스크롤 (useFullPageScroll과 같은 조건): 카드 틀을 고정하고 세트를 같은 자리에서 바꾼다 */
 @media (min-width: 992px) and (min-height: 600px) and (prefers-reduced-motion: no-preference) {
   .problem {
     padding-block: 0;
   }
 
+  /* 세트 수 × (화면 - 헤더). useFullPageScroll이 무대 시작 + 화면 높이마다 멈춘다 */
+  .problem .problem__stage {
+    display: block;
+    height: calc(var(--set-count) * (100svh - var(--header-height)));
+    min-height: 0;
+  }
+
+  .problem__pin {
+    position: sticky;
+    top: var(--header-height);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-5);
+    height: calc(100svh - var(--header-height));
+  }
+
+  /* 세 장면을 같은 칸에 겹쳐 두고 지금 세트만 보인다. 카드 틀은 목록에 있어 전환 중에도 움직이지 않는다 */
   .problem__list {
-    gap: 0;
+    display: grid;
     margin: 0;
+    padding: clamp(32px, 5vw, 64px);
+    border: 1px solid var(--color-border);
+    border-radius: var(--lp-radius);
+    background: var(--color-bg);
+    overflow: hidden;
   }
 
   .problem__scene {
-    position: static;
+    position: relative;
+    top: auto;
+    grid-area: 1 / 1;
+    opacity: 0;
+    transform: translateY(40px);
+    transition:
+      opacity 0.5s ease,
+      transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+
+  .problem__scene.is-before {
+    transform: translateY(-40px);
+  }
+
+  .problem__scene.is-active {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0.08s;
+    pointer-events: auto;
+  }
+
+  .problem__card {
+    min-height: clamp(360px, 50vh, 500px);
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .problem__dots {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .problem__dots li {
+    min-width: 44px;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-sunken);
+    color: var(--color-text-muted);
+    font-size: var(--fs-xs);
+    font-weight: 800;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    transition:
+      background 0.3s ease,
+      color 0.3s ease;
+  }
+
+  .problem__dots li.is-active {
+    background: var(--color-ink);
+    color: #fff;
   }
 }
 

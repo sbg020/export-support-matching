@@ -14,6 +14,8 @@ import { onBeforeUnmount, onMounted, type Ref } from 'vue'
 export const FULLPAGE_MEDIA = '(min-width: 992px) and (min-height: 600px) and (prefers-reduced-motion: no-preference)'
 /** 섹션 요소 표시 */
 export const FULLPAGE_SECTION_ATTR = 'data-fp-section'
+/** 이동 중 매 단계와 끝에 window로 보내는 이벤트 (스크롤 위치에 따라 바뀌는 화면이 듣는다) */
+export const FULLPAGE_STEP_EVENT = 'fullpage:step'
 
 const DURATION_MS = 850
 /** 이 시간 넘게 휠 이벤트가 없으면 다음 제스처로 본다 */
@@ -136,11 +138,13 @@ export function useFullPageScroll(root: Ref<HTMLElement | null>) {
     const step = (now: number) => {
       const t = Math.min(1, (now - started) / DURATION_MS)
       window.scrollTo({ top: from + (target - from) * easeInOutCubic(t), behavior: 'instant' })
+      window.dispatchEvent(new Event(FULLPAGE_STEP_EVENT))
       if (t < 1) {
         cancelFrame = nextFrame(step)
       } else {
         cancelFrame = null
         window.scrollTo({ top: target, behavior: 'instant' })
+        window.dispatchEvent(new Event(FULLPAGE_STEP_EVENT))
         animating = false
         settledAt = performance.now()
       }
