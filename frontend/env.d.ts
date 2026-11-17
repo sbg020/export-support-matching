@@ -8,6 +8,8 @@ interface ImportMetaEnv {
   readonly VITE_API_BASE_URL?: string
   /** 'off'이면 게시 공고 스냅샷 대신 빈 저장소를 쓴다 (테스트 전용, REVISION_05) */
   readonly VITE_PUBLISHED_SNAPSHOT?: string
+  /** off면 커뮤니티 임시 예시 글을 쓰지 않는다 (테스트 환경) */
+  readonly VITE_COMMUNITY_SAMPLES?: string
 }
 
 interface ImportMeta {

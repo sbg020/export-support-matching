@@ -2,7 +2,7 @@
 /**
  * 커뮤니티 게시판 목록 (지원사업 후기 · 지원사업 정보방). REVISION_02 §10.2~10.7
  *
- * 게시글을 저장할 서버와 회원 DB가 아직 없어 목록은 빈 상태다. 예시 글이나 가짜 글을 만들지 않는다.
+ * 게시글을 저장할 서버와 회원 DB가 아직 없어 임시 예시 글(게시판별 20개, 익명)을 10개씩 보여 준다.
  * 검색·정렬·말머리·연결 공고는 주소(쿼리)에 담아 서버가 연결되면 그대로 쓰게 한다.
  * 글쓰기: 비로그인이면 로그인 화면으로 갔다가 같은 게시판으로 돌아온다. 로그인 회원에게는 이유와 함께 비활성이다.
  */
@@ -10,7 +10,6 @@ import { computed, ref, useId, watch } from 'vue'
 import { useRoute, useRouter, type LocationQueryRaw } from 'vue-router'
 import { IconPencil, IconSearch, IconX } from '@tabler/icons-vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
-import NoticeBanner from '@/components/common/NoticeBanner.vue'
 import DisabledReason from '@/components/common/DisabledReason.vue'
 import CommunityPostList from '@/components/community/CommunityPostList.vue'
 import {
@@ -123,11 +122,6 @@ async function onWrite() {
     <PageHeader :title="definition.label" :description="definition.description" />
 
     <div class="stack">
-      <NoticeBanner v-if="!communityRepository.connected" tone="neutral" title="커뮤니티는 화면만 준비되어 있습니다">
-        {{ COMMUNITY_WRITE_DISABLED_REASON }} 글은 서버가 연결된 뒤 모든 방문자에게 같은 목록으로 보입니다.
-        <template v-if="board === 'reviews'"> {{ REVIEW_WRITE_RULE }}</template>
-      </NoticeBanner>
-
       <div class="board-tools surface-card">
         <form class="board-tools__search" role="search" @submit.prevent="write({ q: keywordDraft.trim() || null })">
           <label :for="`${uid}-scope`" class="visually-hidden">검색 범위</label>
@@ -213,6 +207,7 @@ async function onWrite() {
 
       <section class="surface-card board-section" aria-labelledby="posts-title">
         <h2 id="posts-title" class="board-section__title">글 목록</h2>
+        <p v-if="communityRepository.sample" class="board-section__sample">임시로 넣어 둔 예시 글입니다.</p>
         <CommunityPostList
           :board="board"
           :posts="result?.items ?? []"
@@ -299,6 +294,12 @@ async function onWrite() {
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--card-padding);
+}
+
+.board-section__sample {
+  margin: calc(var(--space-2) * -1) 0 var(--space-3);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
 }
 
 .board-section__title {

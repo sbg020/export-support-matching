@@ -53,7 +53,8 @@ export const COMMUNITY_SORT_OPTIONS: Option<CommunitySort>[] = [
   { value: 'comments', label: '댓글순' },
 ]
 
-export const COMMUNITY_PAGE_SIZE = 20
+/** 게시판 한 페이지 글 수 */
+export const COMMUNITY_PAGE_SIZE = 10
 export const WEEKLY_POPULAR_MIN_POSTS = 5
 
 /** 글쓰기·등록을 막는 이유 (서버·회원 DB 미연결) */
