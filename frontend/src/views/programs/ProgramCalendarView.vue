@@ -3,7 +3,6 @@ import { computed, onMounted, ref } from 'vue'
 import { IconCalendarEvent, IconChevronLeft, IconChevronRight, IconPlus } from '@tabler/icons-vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import SectionCard from '@/components/common/SectionCard.vue'
-import EmptyState from '@/components/common/EmptyState.vue'
 import NoticeBanner from '@/components/common/NoticeBanner.vue'
 import ActionButton from '@/components/common/ActionButton.vue'
 import DisabledReason from '@/components/common/DisabledReason.vue'
@@ -11,7 +10,6 @@ import MonthCalendar from '@/components/calendar/MonthCalendar.vue'
 import { CALENDAR_EVENT_TYPE_OPTIONS } from '@/constants/options'
 import { addMonths, formatKoreanDate, parseIso, todayIso } from '@/lib/calendar'
 import { buildProgramEvents } from '@/lib/calendarEvents'
-import { formatDate } from '@/lib/display'
 import { createEmptyQuery, programRepository } from '@/repositories'
 import type { Program } from '@/types/program'
 import type { CalendarEventType } from '@/types/tracking'
@@ -66,12 +64,6 @@ function toggleType(type: CalendarEventType, checked: boolean) {
     : visibleTypes.value.filter((t) => t !== type)
 }
 
-const monthEvents = computed(() =>
-  events.value.filter((e) => {
-    const d = parseIso(e.date)
-    return d.year === year.value && d.month === month.value && visibleTypes.value.includes(e.type)
-  }),
-)
 const selectedEvents = computed(() =>
   events.value.filter((e) => e.date === selectedDate.value && visibleTypes.value.includes(e.type)),
 )
@@ -156,37 +148,6 @@ const selectedEvents = computed(() =>
             <p v-else class="fs-sm text-muted-strong mb-0">이 날짜에는 일정이 없습니다.</p>
           </SectionCard>
 
-          <SectionCard title="이달의 일정" heading-id="month-events-title">
-            <ul v-if="monthEvents.length > 0" class="list-plain">
-              <li v-for="event in monthEvents" :key="event.id">
-                <span class="fs-sm text-muted-strong">{{ formatDate(event.date) }}</span>
-                <RouterLink
-                  v-if="event.programId"
-                  :to="{ name: 'program-detail', params: { id: event.programId }, query: { from: 'calendar' } }"
-                >
-                  {{ event.title }}
-                </RouterLink>
-                <span v-else>{{ event.title }}</span>
-              </li>
-            </ul>
-            <EmptyState
-              v-else
-              :icon="IconCalendarEvent"
-              title="공고와 연동된 일정이 없습니다"
-              description="공고가 등록되면 접수 시작·마감, 발표일, 협약일이 공고의 날짜 그대로 표시됩니다."
-              compact
-              :level="3"
-            />
-            <template #footer>
-              <ActionButton :icon="IconPlus" size="sm" disabled describedby="goal-reason">
-                개인 준비 목표 추가
-              </ActionButton>
-              <DisabledReason id="goal-reason">
-                준비 중인 사업이 연결된 후 서류 준비 목표일을 추가할 수 있습니다.
-              </DisabledReason>
-            </template>
-          </SectionCard>
-
           <SectionCard title="일정 유형" heading-id="event-types-title">
             <dl class="type-legend">
               <div v-for="option in CALENDAR_EVENT_TYPE_OPTIONS" :key="option.value" class="type-legend__row">
@@ -197,6 +158,14 @@ const selectedEvents = computed(() =>
                 <dd>{{ option.description }}</dd>
               </div>
             </dl>
+            <template #footer>
+              <ActionButton :icon="IconPlus" size="sm" disabled describedby="goal-reason">
+                개인 준비 목표 추가
+              </ActionButton>
+              <DisabledReason id="goal-reason">
+                준비 중인 사업이 연결된 후 서류 준비 목표일을 추가할 수 있습니다.
+              </DisabledReason>
+            </template>
           </SectionCard>
         </div>
       </div>
