@@ -94,7 +94,6 @@ async function requireLogin() {
           <p class="post__meta">
             {{ definition.categories.find((c) => c.value === post?.category)?.label ?? '-' }} · {{ post.author.label }}
             <span v-if="post.author.participationVerified" class="post__badge">참여 확인</span>
-            <span v-if="communityRepository.sample" class="post__badge">예시 글</span>
             <span v-if="post.author.kind === 'operator'" class="post__badge">운영자</span>
             · {{ formatPostDate(post.createdAt, now) }} · 조회 {{ post.viewCount }} · 추천 {{ post.likeCount }}
           </p>

@@ -207,7 +207,6 @@ async function onWrite() {
 
       <section class="surface-card board-section" aria-labelledby="posts-title">
         <h2 id="posts-title" class="board-section__title">글 목록</h2>
-        <p v-if="communityRepository.sample" class="board-section__sample">임시로 넣어 둔 예시 글입니다.</p>
         <CommunityPostList
           :board="board"
           :posts="result?.items ?? []"
@@ -294,12 +293,6 @@ async function onWrite() {
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--card-padding);
-}
-
-.board-section__sample {
-  margin: calc(var(--space-2) * -1) 0 var(--space-3);
-  font-size: var(--fs-xs);
-  color: var(--color-text-muted);
 }
 
 .board-section__title {
