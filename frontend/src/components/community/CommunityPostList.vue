@@ -67,7 +67,7 @@ function categoryLabel(post: CommunityPost): string {
             <td>{{ row.number }}</td>
             <td>{{ categoryLabel(row.post) }}</td>
             <th scope="row">
-              <RouterLink :to="{ name: 'community-post', params: { board, postId: row.post.id } }">
+              <RouterLink class="post-table__title" :to="{ name: 'community-post', params: { board, postId: row.post.id } }">
                 {{ row.post.title }}
               </RouterLink>
               <span v-if="row.post.commentCount > 0" class="post-table__comments">[{{ row.post.commentCount }}]</span>
@@ -108,6 +108,24 @@ function categoryLabel(post: CommunityPost): string {
 .post-table .is-notice {
   background: var(--color-surface-muted);
   font-weight: var(--fw-semibold);
+}
+
+/* 게시글 제목: 검정 글자, 밑줄 없음 (마우스를 올려도 같은 색, 키보드 초점은 테두리로 표시) */
+.post-table__title,
+.post-card__title,
+.post-table__title:hover,
+.post-card__title:hover,
+.post-table__title:visited,
+.post-card__title:visited {
+  color: var(--color-heading);
+  text-decoration: none;
+}
+
+.post-table__title:focus-visible,
+.post-card__title:focus-visible {
+  outline: 2px solid var(--color-heading);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .post-table__comments {
