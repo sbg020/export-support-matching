@@ -18,6 +18,8 @@ export const FULLPAGE_SECTION_ATTR = 'data-fp-section'
 const DURATION_MS = 850
 /** 이 시간 넘게 휠 이벤트가 없으면 다음 제스처로 본다 */
 const GESTURE_GAP_MS = 180
+/** 이 시간 넘게 멈췄다가 다시 오면 값과 관계없이 새 제스처 */
+const LONG_GAP_MS = 600
 /** 이동을 시작할 누적 휠 양 (트랙패드의 작은 떨림 무시) */
 const TRIGGER_DELTA = 24
 /** 이동이 끝난 직후 이 시간 안에는 새 제스처도 받지 않는다 */
@@ -162,18 +164,26 @@ export function useFullPageScroll(root: Ref<HTMLElement | null>) {
     const now = performance.now()
     const gap = now - lastWheelAt
     lastWheelAt = now
-    const abs = Math.abs(event.deltaY)
-    const rising = abs > lastAbs * 1.6 && abs > 30
+    // 줄·쪽 단위(일부 마우스 휠)는 픽셀로 바꿔 비교한다
+    const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1
+    const delta = event.deltaY * unit
+    const abs = Math.abs(delta)
+    const prevAbs = lastAbs
+    const rising = abs > prevAbs * 1.6 && abs > 30
     lastAbs = abs
+    const settled = !animating && now - settledAt > SETTLE_MS
     if (gap > GESTURE_GAP_MS) {
-      consumed = false
+      // 이동 중이거나 막 멈춘 직후의 끊김은 같은 제스처(관성)로 본다.
+      // 잠깐 끊겼다 이어진 관성은 값이 계속 줄어들므로, 짧은 끊김 뒤에는 값이 줄지 않을 때만 새 제스처로 본다
+      // (마우스 휠 한 칸은 값이 일정하다). 오래 멈췄으면 무조건 새 제스처다.
+      if (settled && (gap > LONG_GAP_MS || (abs >= prevAbs && abs >= 10))) consumed = false
       acc = 0
-    } else if (consumed && rising && !animating && now - settledAt > SETTLE_MS) {
+    } else if (consumed && rising && settled) {
       consumed = false // 관성이 줄어들다가 다시 커졌다 = 새 제스처
       acc = 0
     }
     if (animating || consumed) return
-    acc += event.deltaY
+    acc += delta
     if (Math.abs(acc) < TRIGGER_DELTA) return
     consumed = true
     move(acc > 0 ? 1 : -1)
