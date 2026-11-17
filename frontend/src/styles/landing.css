@@ -138,3 +138,46 @@
     transition: none;
   }
 }
+
+/* ── 풀페이지 스크롤 (넓은 화면, useFullPageScroll과 같은 조건) ──
+ * 섹션마다 화면(헤더 아래) 높이를 채우고 내용을 세로 가운데에 둔다. 화면보다 긴 섹션은 그대로 길다. */
+@media (min-width: 992px) and (min-height: 600px) and (prefers-reduced-motion: no-preference) {
+  .lp-fp > [data-fp-section] {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: calc(100svh - var(--header-height));
+  }
+
+  .lp.lp-fp {
+    --lp-section-y: clamp(40px, 6vh, 64px);
+    /* 섹션 크기를 맞추는 동안 브라우저가 스크롤 위치를 옮기지 않게 한다 */
+    overflow-anchor: none;
+  }
+
+  /* 섹션 내용이 한 화면보다 크면 스크립트가 --fp-zoom(최소 0.7)으로 줄인다 */
+  .lp-fp > [data-fp-section] > * {
+    zoom: var(--fp-zoom, 1);
+  }
+
+  /* 히어로는 헤더 밑까지 깔리므로 화면 전체 높이 */
+  .lp.lp-fp > .lp-fp-hero {
+    min-height: 100svh;
+    padding: calc(var(--header-height) + clamp(24px, 4vh, 48px)) 0 clamp(24px, 4vh, 48px);
+  }
+
+  .lp.lp-fp .lp-fp-grow {
+    padding-block: clamp(40px, 6vh, 64px);
+  }
+
+  .lp-fp > .lp-fp-tail {
+    justify-content: flex-start;
+  }
+
+  .lp-fp-grow {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
