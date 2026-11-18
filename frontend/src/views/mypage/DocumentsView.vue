@@ -8,7 +8,6 @@ import { IconClock, IconFileCertificate, IconFolder, IconLink, IconUpload } from
 import PageHeader from '@/components/layout/PageHeader.vue'
 import SectionCard from '@/components/common/SectionCard.vue'
 import StatTile from '@/components/common/StatTile.vue'
-import NoticeBanner from '@/components/common/NoticeBanner.vue'
 import DataValue from '@/components/common/DataValue.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import StatusBadge from '@/components/common/StatusBadge.vue'
@@ -68,12 +67,8 @@ function documentsOfType(type: DocumentType) {
     </PageHeader>
 
     <div class="stack">
-      <NoticeBanner tone="warning" title="파일 업로드가 아직 연결되지 않았습니다">
-        <p id="upload-reason">
-          파일 저장소가 연결되지 않아 서류 원본을 올리거나 보관할 수 없습니다. 서류 기록(이름·상태·유효기간)만 이 기기에
-          저장합니다.
-        </p>
-      </NoticeBanner>
+      <!-- 서류 올리기 비활성 이유 (화면낭독기용) -->
+      <span id="upload-reason" class="visually-hidden">파일 저장소가 연결되지 않아 서류 원본을 올릴 수 없습니다.</span>
 
       <div class="tile-grid">
         <StatTile label="보유 서류" :value="count(heldCount)" :icon="IconFolder" />

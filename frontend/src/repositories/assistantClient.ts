@@ -1,12 +1,16 @@
 /*
- * 공고 도우미 챗봇 API 호출 (REVISION_05 §8). 서버: frontend/server/assistant/handlers.ts
+ * 챗봇 이름·안내 문구. 지금 '까치에게 물어보기'는 사이트 데이터로 규칙 답변을 만든다(lib/assistant/ruleAssistant.ts).
+ * 아래 서버 호출(Claude API, frontend/server/assistant/handlers.ts)은 나중에 AI 답변으로 바꿀 때 쓰도록 남겨 둔다.
  * 질문과 함께 판정에 쓰는 기업 정보(엔진 프로필), 직접 확인한 조건 답, 화면에서 계산한 적합도만 보낸다.
  * 사업자등록번호·대표자명·연락처는 보내지 않는다. 서버는 대화 내용을 저장하지 않는다.
  */
 import type { EngineProfile, TabKey } from '@/lib/engine/eligibilityV3'
 
+/** 챗봇 이름 */
+export const ASSISTANT_NAME = '까치에게 물어보기'
+
 export const ASSISTANT_DISCLAIMER =
-  'AI 답변은 등록된 공고와 판정 결과를 바탕으로 하며, 최종 신청 자격은 공고 원문과 주관기관에서 확인하세요.'
+  '답변은 등록된 공고와 판정 결과로 자동 작성되며, 최종 신청 자격은 공고 원문과 주관기관에서 확인하세요.'
 
 export interface AssistantStatus {
   configured: boolean

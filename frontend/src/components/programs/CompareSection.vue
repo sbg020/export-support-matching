@@ -8,13 +8,12 @@
  */
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { IconArrowRight, IconCopy, IconLayoutColumns, IconLayoutGrid, IconScale, IconTable, IconTargetArrow, IconX } from '@tabler/icons-vue'
+import { IconArrowRight, IconFileDownload, IconLayoutColumns, IconLayoutGrid, IconScale, IconTable, IconTargetArrow, IconX } from '@tabler/icons-vue'
 import SectionCard from '@/components/common/SectionCard.vue'
 import NoticeBanner from '@/components/common/NoticeBanner.vue'
 import InfoList from '@/components/common/InfoList.vue'
 import InfoRow from '@/components/common/InfoRow.vue'
 import SegmentedControl from '@/components/common/SegmentedControl.vue'
-import ActionButton from '@/components/common/ActionButton.vue'
 import DisabledReason from '@/components/common/DisabledReason.vue'
 import CompareTable from '@/components/programs/CompareTable.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
@@ -24,6 +23,8 @@ import { useProfileStore } from '@/stores/profileStore'
 import { MAX_COMPARE, parseCompareQuery, useCompareSelection } from '@/composables/useCompareSelection'
 import { useProgramEvaluations } from '@/composables/useProgramEvaluations'
 import { programTitleText } from '@/lib/programDisplay'
+import { downloadComparePdf } from '@/lib/comparePdf'
+import { useToast } from '@/stores/toastStore'
 import type { Program } from '@/types/program'
 import type { LoadStatus } from '@/composables/useProgramList'
 
@@ -146,6 +147,24 @@ const viewOptions = [
   { value: 'cards' as const, label: '카드 보기', icon: IconLayoutGrid },
 ]
 
+/* ── 비교 결과 저장 (PDF 다운로드) ── */
+const sectionRef = ref<HTMLElement | null>(null)
+const saving = ref(false)
+const toast = useToast()
+const canSave = computed(() => selectedPrograms.value.length >= 2)
+async function savePdf() {
+  if (!canSave.value || saving.value || !sectionRef.value) return
+  saving.value = true
+  try {
+    await downloadComparePdf(sectionRef.value)
+    toast.show('비교 결과를 PDF로 저장했습니다.', 'success')
+  } catch {
+    toast.show('PDF를 만들지 못했습니다. 잠시 후 다시 시도해 주세요.', 'warning')
+  } finally {
+    saving.value = false
+  }
+}
+
 onMounted(() => {
   if (typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 767.98px)').matches) view.value = 'cards'
   syncQueryFromSelection()
@@ -153,7 +172,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <section id="compare" class="compare-section surface-card" aria-labelledby="compare-title">
+  <section id="compare" ref="sectionRef" class="compare-section surface-card" aria-labelledby="compare-title">
     <header class="compare-section__header">
       <div>
         <h2 id="compare-title" class="compare-section__title" tabindex="-1">
@@ -164,7 +183,7 @@ onMounted(() => {
           선택한 공고 <strong>{{ selection.count.value }}</strong>/{{ MAX_COMPARE }}
         </p>
       </div>
-      <RouterLink :to="{ name: 'programs-recommended' }" class="btn btn-outline-primary">
+      <RouterLink :to="{ name: 'programs-recommended' }" class="btn btn-outline-primary" data-pdf-ignore>
         맞춤 공고 보러 가기
         <IconArrowRight :size="18" stroke-width="2" aria-hidden="true" />
       </RouterLink>
@@ -180,6 +199,7 @@ onMounted(() => {
           <button
             type="button"
             class="compare-chip__remove"
+            data-pdf-ignore
             :aria-label="`${chip.missing ? '찾을 수 없는 공고 ' + chip.id : chip.label} 비교에서 빼기`"
             @click="selection.remove(chip.id)"
           >
@@ -187,7 +207,7 @@ onMounted(() => {
           </button>
         </li>
         <li>
-          <button type="button" class="btn btn-ghost btn-sm" @click="selection.clear()">모두 지우기</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-pdf-ignore @click="selection.clear()">모두 지우기</button>
         </li>
       </ul>
       <EmptyState
@@ -200,11 +220,7 @@ onMounted(() => {
             : '맞춤 공고나 전체 공고에서 \'비교에 추가\'를 눌러 공고를 2~4개 고르면 이곳에서 나란히 비교합니다.'
         "
         :level="3"
-      >
-        <template #actions>
-          <RouterLink :to="{ name: 'programs-recommended' }" class="btn btn-primary">맞춤 공고 보러 가기</RouterLink>
-        </template>
-      </EmptyState>
+      />
     </div>
 
     <div v-if="chips.length > 0" id="compare-content" class="compare-section__content">
@@ -215,7 +231,7 @@ onMounted(() => {
         비교하려면 공고를 2개 이상 선택하세요.
       </p>
 
-      <div class="compare-controls">
+      <div class="compare-controls" data-pdf-ignore>
         <div class="compare-controls__group">
           <span class="compare-controls__label">비교 칸 수</span>
           <SegmentedControl v-model="slotCount" :options="slotOptions" label="비교 칸 수" />
@@ -225,12 +241,23 @@ onMounted(() => {
           <SegmentedControl v-model="view" :options="viewOptions" label="보기 방식" />
         </div>
         <div class="compare-controls__group compare-controls__actions">
-          <ActionButton :icon="IconCopy" size="sm" disabled describedby="compare-save-reason">
-            비교 결과 저장
-          </ActionButton>
+          <button
+            type="button"
+            class="btn btn-primary compare-save"
+            :aria-disabled="!canSave || saving ? 'true' : undefined"
+            :aria-describedby="!canSave ? 'compare-save-reason' : undefined"
+            :aria-busy="saving ? 'true' : undefined"
+            @click="savePdf"
+          >
+            <IconFileDownload :size="20" stroke-width="2" aria-hidden="true" />
+            <span class="compare-save__text">
+              <span>{{ saving ? 'PDF 만드는 중…' : '비교 결과 저장' }}</span>
+              <small>(PDF 다운로드)</small>
+            </span>
+          </button>
         </div>
-        <DisabledReason id="compare-save-reason" class="compare-controls__reason">
-          비교 결과 저장 기능은 아직 연결되지 않았습니다.
+        <DisabledReason v-if="!canSave" id="compare-save-reason" class="compare-controls__reason">
+          공고를 2개 이상 고르면 비교 결과를 PDF로 저장할 수 있습니다.
         </DisabledReason>
       </div>
 
@@ -414,6 +441,31 @@ onMounted(() => {
 
 .compare-controls__actions {
   margin-left: auto;
+}
+
+.compare-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding-block: 6px;
+  line-height: 1.2;
+}
+
+.compare-save__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.compare-save__text small {
+  font-size: 11px;
+  font-weight: var(--fw-medium);
+  opacity: 0.85;
+}
+
+.compare-save[aria-disabled='true'] {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .compare-controls__reason {

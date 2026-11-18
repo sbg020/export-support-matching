@@ -1,35 +1,28 @@
 <script setup lang="ts">
 /**
- * 공고 도우미 챗봇 (REVISION_05 §8). 로그인한 사용자 화면 오른쪽 아래 버튼 → 대화 패널.
- * - 서버에 ANTHROPIC_API_KEY가 없으면 버튼에 '준비 중'을 표시하고 비활성화한다 (응답이 오는 것처럼 꾸미지 않는다).
- * - 질문마다 따로 답한다. 대화 내용은 이 화면에만 있고 서버에 저장하지 않는다.
- * - 보내는 값: 질문, 판정용 기업 정보(엔진 프로필), 직접 확인한 조건 답, 화면에서 계산한 적합도(신청 가능 공고만).
+ * '까치에게 물어보기' 챗봇. 로그인한 사용자 화면 오른쪽 아래 버튼 → 대화 패널.
+ * - 외부 AI API를 쓰지 않는다. 사이트에 게시된 공고와 이 기업의 판정 결과(3탭·적합도·조건)로
+ *   규칙에 따라 답 문장을 만든다 (lib/assistant/ruleAssistant.ts). 질문은 이 브라우저 밖으로 보내지 않는다.
+ * - 질문마다 따로 답한다. 대화 내용은 이 화면에만 있고 저장하지 않는다.
  */
-import { computed, effectScope, nextTick, onBeforeUnmount, ref, watch, type EffectScope } from 'vue'
+import { computed, effectScope, nextTick, onBeforeUnmount, ref, type EffectScope } from 'vue'
 import { IconSend, IconX } from '@tabler/icons-vue'
 import StatusBadge from '@/components/common/StatusBadge.vue'
 import type { BadgeTone } from '@/components/common/types'
 import { useAuth } from '@/stores/authStore'
-import { useSelfChecks } from '@/stores/selfCheckStore'
+import { useProfileStore } from '@/stores/profileStore'
 import { loadAllPrograms, useProgramEvaluations } from '@/composables/useProgramEvaluations'
-import {
-  ASSISTANT_DISCLAIMER,
-  askAssistant,
-  fetchAssistantStatus,
-  type AssistantAnswer,
-  type AssistantMeta,
-  type AssistantStatus,
-} from '@/repositories/assistantClient'
+import { ASSISTANT_DISCLAIMER, ASSISTANT_NAME } from '@/repositories/assistantClient'
+import { EXAMPLE_QUESTIONS, answerQuestion, type RuleAnswer } from '@/lib/assistant/ruleAssistant'
 import type { TabKey } from '@/lib/engine/eligibilityV3'
 
 const MAX_QUESTION = 500
 /** 챗봇 로고 (까치, public/brand/) */
 const MAGPIE_LOGO = '/brand/assistant-magpie-96.png'
 const auth = useAuth()
-const selfChecks = useSelfChecks()
+const profile = useProfileStore()
 const authenticated = computed(() => auth.state.status === 'authenticated')
 
-const status = ref<AssistantStatus | null>(null)
 const open = ref(false)
 const question = ref('')
 const sending = ref(false)
@@ -40,24 +33,16 @@ const buttonRef = ref<HTMLButtonElement | null>(null)
 interface Turn {
   id: number
   question: string
-  answer: AssistantAnswer | null
-  meta: AssistantMeta | null
+  answer: RuleAnswer | null
+  asOf: string | null
   error: string | null
 }
 const turns = ref<Turn[]>([])
 let nextId = 1
 
-watch(
-  authenticated,
-  async (value) => {
-    status.value = value ? await fetchAssistantStatus() : null
-  },
-  { immediate: true },
-)
-
-const configured = computed(() => status.value?.configured === true)
-const remaining = computed(() => status.value?.remaining ?? null)
-const limitReached = computed(() => remaining.value !== null && remaining.value <= 0)
+/* 사이트 데이터로 답하므로 항상 쓸 수 있다 (외부 API 키가 필요 없다) */
+const configured = computed(() => true)
+const limitReached = computed(() => false)
 
 let scope: EffectScope | null = null
 let evaluations: ReturnType<typeof useProgramEvaluations> | null = null
@@ -89,43 +74,41 @@ function onKeydown(event: KeyboardEvent) {
 
 const TAB_TONE: Record<TabKey, BadgeTone> = { eligible: 'success', 'needs-check': 'warning', ineligible: 'danger' }
 
+function ask(example: string) {
+  question.value = example
+  void send()
+}
+
 async function send() {
   const text = question.value.trim()
   if (text === '' || sending.value || limitReached.value) return
   sending.value = true
-  const turn: Turn = { id: nextId++, question: text, answer: null, meta: null, error: null }
+  const turn: Turn = { id: nextId++, question: text, answer: null, asOf: null, error: null }
   turns.value.push(turn)
   question.value = ''
   await nextTick()
-  logRef.value?.scrollTo({ top: logRef.value.scrollHeight })
+  logRef.value?.scrollTo?.({ top: logRef.value.scrollHeight })
   try {
     const ev = ensureEvaluations()
     await loadAllPrograms()
     if (!ev) throw new Error('evaluations')
-    const fit: Record<string, number> = {}
-    for (const [id, e] of ev.evaluations.value) if (e.fit) fit[id] = e.fit.score
-    const answers: Record<string, Record<string, 'met' | 'unmet'>> = {}
-    for (const [programId, entries] of Object.entries(selfChecks.answers.value.programs)) {
-      answers[programId] = Object.fromEntries(Object.entries(entries).map(([condId, entry]) => [condId, entry.answer]))
-    }
-    const result = await askAssistant({ question: text, profile: ev.engineProfile.value, answers, fit })
+    const answer = answerQuestion(text, {
+      programs: ev.programs.value,
+      evaluations: ev.evaluations.value,
+      asOf: ev.asOf,
+      profileEmpty: profile.assessment.value.status === 'empty',
+    })
     const target = turns.value.find((t) => t.id === turn.id)
     if (!target) return
-    if (result.ok) {
-      target.answer = result.answer
-      target.meta = result.meta
-      if (status.value) status.value = { ...status.value, remaining: result.meta.remaining }
-    } else {
-      target.error = result.message
-      if (result.remaining !== undefined && status.value) status.value = { ...status.value, remaining: result.remaining }
-    }
+    target.answer = answer
+    target.asOf = ev.asOf
   } catch {
     const target = turns.value.find((t) => t.id === turn.id)
     if (target) target.error = '답변을 만들지 못했습니다. 잠시 뒤 다시 시도해 주세요.'
   } finally {
     sending.value = false
     await nextTick()
-    logRef.value?.scrollTo({ top: logRef.value.scrollHeight })
+    logRef.value?.scrollTo?.({ top: logRef.value.scrollHeight })
   }
 }
 
@@ -150,28 +133,31 @@ function onTextareaKeydown(event: KeyboardEvent) {
       <header class="assistant__head">
         <img class="assistant__avatar" :src="MAGPIE_LOGO" alt="" width="40" height="40" />
         <div class="assistant__head-text">
-          <h2 id="assistant-title" class="assistant__title">공고 도우미</h2>
-          <p class="assistant__sub">
-            게시된 공고와 우리 회사 판정 결과로만 답합니다.
-            <span v-if="remaining !== null">오늘 남은 질문 {{ remaining }}회</span>
-          </p>
+          <h2 id="assistant-title" class="assistant__title">{{ ASSISTANT_NAME }}</h2>
+          <p class="assistant__sub">사이트에 등록된 공고와 우리 회사 판정 결과로 답해요.</p>
         </div>
-        <button type="button" class="btn btn-ghost btn-sm assistant__close" aria-label="공고 도우미 닫기" @click="closePanel">
+        <button type="button" class="btn btn-ghost btn-sm assistant__close" :aria-label="`${ASSISTANT_NAME} 닫기`" @click="closePanel">
           <IconX :size="18" stroke-width="2" aria-hidden="true" />
         </button>
       </header>
 
       <div ref="logRef" class="assistant__log" aria-live="polite">
-        <p v-if="turns.length === 0" class="assistant__hint">
-          예: "해외 전시회 참가를 지원하는 공고 중 우리 회사가 신청할 수 있는 것은?", "물류바우처 신청 전에 확인할 조건은?"
-          질문마다 따로 답하며, 대화 내용은 저장하지 않습니다.
-        </p>
+        <div v-if="turns.length === 0" class="assistant__hint">
+          <p class="mb-2">
+            안녕하세요, 까치예요. 신청할 수 있는 공고, 마감이 가까운 공고, 제출 서류, 신청 자격, 지원 금액을 물어보세요.
+          </p>
+          <ul class="assistant__examples" aria-label="질문 예시">
+            <li v-for="example in EXAMPLE_QUESTIONS" :key="example">
+              <button type="button" class="assistant__example" @click="ask(example)">{{ example }}</button>
+            </li>
+          </ul>
+        </div>
         <article v-for="turn in turns" :key="turn.id" class="assistant__turn">
           <p class="assistant__question"><span class="visually-hidden">질문: </span>{{ turn.question }}</p>
           <p v-if="!turn.answer && !turn.error" class="assistant__pending" role="status">답변을 만드는 중입니다…</p>
           <p v-if="turn.error" class="assistant__error" role="alert">{{ turn.error }}</p>
           <div v-if="turn.answer" class="assistant__answer">
-            <h3 class="assistant__label">요약</h3>
+            <h3 class="assistant__label">까치의 답</h3>
             <p>{{ turn.answer.summary }}</p>
 
             <template v-if="turn.answer.related.length > 0">
@@ -192,7 +178,7 @@ function onTextareaKeydown(event: KeyboardEvent) {
             </template>
 
             <template v-if="turn.answer.checks.length > 0">
-              <h3 class="assistant__label">확인 필요 항목</h3>
+              <h3 class="assistant__label">{{ turn.answer.intent === 'documents' ? '제출 서류' : turn.answer.intent === 'help' || turn.answer.intent === 'search' ? '이렇게 물어보세요' : '확인할 항목' }}</h3>
               <ul class="assistant__checks">
                 <li v-for="(c, i) in turn.answer.checks" :key="i">{{ c }}</li>
               </ul>
@@ -201,15 +187,13 @@ function onTextareaKeydown(event: KeyboardEvent) {
             <h3 class="assistant__label">다음 할 일</h3>
             <p>{{ turn.answer.nextStep }}</p>
             <p class="assistant__disclaimer">{{ ASSISTANT_DISCLAIMER }}</p>
-            <p v-if="turn.meta" class="assistant__meta">
-              데이터 기준일 {{ turn.meta.asOf }} · 모델 {{ turn.meta.model }} · {{ turn.meta.promptVersion }}
-            </p>
+            <p class="assistant__meta">데이터 기준일 {{ turn.asOf ?? '-' }} · 사이트 데이터로 만든 답변</p>
           </div>
         </article>
       </div>
 
       <form class="assistant__form" @submit.prevent="send">
-        <label for="assistant-question" class="visually-hidden">공고 도우미에게 질문하기</label>
+        <label for="assistant-question" class="visually-hidden">까치에게 질문하기</label>
         <textarea
           id="assistant-question"
           ref="inputRef"
@@ -218,7 +202,7 @@ function onTextareaKeydown(event: KeyboardEvent) {
           rows="2"
           :maxlength="MAX_QUESTION"
           :disabled="limitReached"
-          :placeholder="limitReached ? '오늘 질문할 수 있는 횟수를 모두 썼습니다.' : '등록된 공고에 대해 물어보세요 (Enter로 보내기)'"
+          placeholder="까치에게 물어보세요 (Enter로 보내기)"
           aria-describedby="assistant-question-help"
           @keydown="onTextareaKeydown"
         />
@@ -227,7 +211,7 @@ function onTextareaKeydown(event: KeyboardEvent) {
           <span>보내기</span>
         </button>
         <p id="assistant-question-help" class="assistant__help">
-          판정에 쓰는 기업 정보만 함께 보냅니다 (사업자등록번호·대표자명·연락처 제외). {{ question.length }}/{{ MAX_QUESTION }}자
+          질문은 이 브라우저 밖으로 보내지 않아요. {{ question.length }}/{{ MAX_QUESTION }}자
         </p>
       </form>
     </section>
@@ -236,20 +220,13 @@ function onTextareaKeydown(event: KeyboardEvent) {
       ref="buttonRef"
       type="button"
       class="assistant__fab"
-      :class="{ 'assistant__fab--off': !configured }"
-      :disabled="!configured"
       :aria-expanded="open"
       aria-controls="assistant-panel"
-      :aria-describedby="!configured ? 'assistant-off-reason' : undefined"
       @click="open ? closePanel() : openPanel()"
     >
       <img class="assistant__fab-logo" :src="MAGPIE_LOGO" alt="" width="34" height="34" />
-      <span>공고 도우미</span>
-      <span v-if="!configured" class="assistant__fab-badge">준비 중</span>
+      <span>{{ ASSISTANT_NAME }}</span>
     </button>
-    <span v-if="!configured" id="assistant-off-reason" class="visually-hidden">
-      서버에 AI 키가 설정되지 않아 아직 사용할 수 없습니다.
-    </span>
   </div>
 </template>
 
@@ -531,5 +508,29 @@ function onTextareaKeydown(event: KeyboardEvent) {
     width: calc(100vw - 24px);
     height: calc(100vh - 96px);
   }
+}
+.assistant__examples {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.assistant__example {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-heading);
+  font-size: var(--fs-sm);
+  text-align: left;
+}
+
+.assistant__example:hover {
+  border-color: var(--color-heading);
+  background: var(--color-accent-soft);
 }
 </style>
