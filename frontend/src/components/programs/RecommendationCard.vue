@@ -31,7 +31,6 @@ import { CONDITION_TYPE_NAME } from '@/constants/conditionTypes'
 import DataValue from '@/components/common/DataValue.vue'
 import StatusBadge from '@/components/common/StatusBadge.vue'
 import CategoryChips from './CategoryChips.vue'
-import EligibilityBadge from './EligibilityBadge.vue'
 import FitBreakdownTable from './FitBreakdownTable.vue'
 
 const props = defineProps<{
@@ -116,11 +115,6 @@ async function saveInterested() {
   <article class="rec-card surface-card" :aria-labelledby="titleId">
     <div class="rec-card__head">
       <div class="rec-card__main">
-        <EligibilityBadge
-          :status="eligibility?.status ?? null"
-          size="sm"
-          :self-checked-count="eligibility?.selfCheckedCount ?? 0"
-        />
         <h3 :id="titleId" class="rec-card__title">
           <RouterLink :to="detailTo">
             <DataValue :value="programTitleText(program)" missing-label="공고명 없음" />

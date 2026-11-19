@@ -181,3 +181,24 @@ describe('맞춤 추천 카드 (§4.4.3)', () => {
     expect(labels).toEqual(['자세히', '관심사업 저장', '비교에 추가'])
   })
 })
+
+describe('맞춤 공고 페이지 (탭마다 10개씩)', () => {
+  it('카드 제목 위 상태 글자가 없고, 10개씩 나눠 이전·번호·다음으로 넘긴다', async () => {
+    setData(
+      Array.from({ length: 25 }, (_, i) => [
+        draftProgram({ id: `E${String(i + 1).padStart(2, '0')}`, title: `가능 ${i + 1}` }),
+        evaluation('eligible', 90 - i),
+      ]),
+    )
+    const { router, wrapper } = await mountAt('/programs/recommended')
+    expect(wrapper.findAll('.rec-card')).toHaveLength(10)
+    expect(wrapper.find('.rec-card .eligibility-badge, .rec-card__main > .status-badge').exists()).toBe(false)
+    const buttons = () => wrapper.findAll('.recommend__pager button').map((b) => b.text())
+    expect(buttons()).toEqual(['< 이전', '1', '2', '3', '다음 >'])
+    await wrapper.findAll('.recommend__pager button').find((b) => b.text() === '3')!.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.query.page).toBe('3')
+    expect(wrapper.findAll('.rec-card')).toHaveLength(5)
+    expect(wrapper.find('.recommend__pager [aria-current="page"]').text()).toBe('3')
+  })
+})

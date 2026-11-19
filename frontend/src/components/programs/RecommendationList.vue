@@ -82,7 +82,8 @@ const activeTab = computed<EligibilityStatus>({
   get: () => (isTab(route.query.tab) ? route.query.tab : defaultTab.value),
   set: (tab) => {
     // 쿼리만 바꾸므로 스크롤 위치는 유지된다 (router scrollBehavior)
-    void router.replace({ query: { ...route.query, tab } })
+    // 탭을 바꾸면 첫 페이지로
+    void router.replace({ query: { ...route.query, tab, page: undefined } })
   },
 })
 
@@ -101,6 +102,27 @@ const visibleItems = computed(() => {
     .filter((p) => visible(p) && statusOf(p.id) === activeTab.value)
     .sort((a, b) => compareRecommended(a, b, evaluations, compareProgramIds))
 })
+
+/* 탭마다 10개씩 페이지로 나눈다 (?page=) */
+const PAGE_SIZE = 10
+const pageCount = computed(() => Math.max(1, Math.ceil(visibleItems.value.length / PAGE_SIZE)))
+const page = computed(() => {
+  const n = Number(Array.isArray(route.query.page) ? route.query.page[0] : route.query.page)
+  return Number.isInteger(n) && n >= 1 ? Math.min(n, pageCount.value) : 1
+})
+const pageItems = computed(() => visibleItems.value.slice((page.value - 1) * PAGE_SIZE, page.value * PAGE_SIZE))
+/** 보여 줄 페이지 번호 (최대 5개, 지금 페이지를 가운데로) */
+const pageNumbers = computed(() => {
+  const total = pageCount.value
+  const start = Math.max(1, Math.min(page.value - 2, total - 4))
+  return Array.from({ length: Math.min(5, total) }, (_, i) => start + i)
+})
+const listTop = ref<HTMLElement | null>(null)
+function goPage(n: number) {
+  if (n < 1 || n > pageCount.value || n === page.value) return
+  void router.replace({ query: { ...route.query, page: n === 1 ? undefined : String(n) } })
+  listTop.value?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+}
 
 const SORT_NOTES: Record<EligibilityStatus, string> = {
   eligible: '적합도가 높은 순으로, 같으면 마감이 가까운 순으로 보여 드립니다.',
@@ -179,8 +201,8 @@ function toggleCompare(id: string) {
         compact
       />
 
-      <ul v-else class="recommend__list">
-        <li v-for="program in visibleItems" :key="program.id">
+      <ul v-else ref="listTop" class="recommend__list">
+        <li v-for="program in pageItems" :key="program.id">
           <RecommendationCard
             :program="program"
             :evaluation="evaluation.get(program.id)"
@@ -190,6 +212,22 @@ function toggleCompare(id: string) {
           />
         </li>
       </ul>
+      <nav v-if="visibleItems.length > PAGE_SIZE" class="recommend__pager" aria-label="공고 목록 페이지">
+        <button type="button" class="recommend__page-btn" :disabled="page === 1" @click="goPage(page - 1)">&lt; 이전</button>
+        <button
+          v-for="n in pageNumbers"
+          :key="n"
+          type="button"
+          class="recommend__page-btn recommend__page-num"
+          :class="{ 'is-current': n === page }"
+          :aria-current="n === page ? 'page' : undefined"
+          :aria-label="`${n}쪽`"
+          @click="goPage(n)"
+        >
+          {{ n }}
+        </button>
+        <button type="button" class="recommend__page-btn" :disabled="page === pageCount" @click="goPage(page + 1)">다음 &gt;</button>
+      </nav>
     </div>
     </template>
   </section>
@@ -253,5 +291,39 @@ function toggleCompare(id: string) {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+.recommend__pager {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: var(--space-5);
+}
+
+.recommend__page-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-heading);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+}
+
+.recommend__page-btn:hover:not(:disabled) {
+  border-color: var(--color-heading);
+}
+
+.recommend__page-btn:disabled {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.recommend__page-num.is-current {
+  border-color: var(--color-heading);
+  background: var(--color-heading);
+  color: #fff;
 }
 </style>
