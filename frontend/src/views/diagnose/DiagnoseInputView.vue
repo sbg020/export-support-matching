@@ -218,7 +218,8 @@ function resetAll() {
 
     <div class="grid-12">
       <div class="col-span-12 lg-span-8 stack">
-        <NoticeBanner tone="privacy" title="입력 정보는 이 기기에만 저장됩니다">
+        <!-- 테스트 계정(TEST)에서는 저장 안내 카드를 보여 주지 않는다 -->
+        <NoticeBanner v-if="store.state.scope.kind !== 'test-account'" tone="privacy" title="입력 정보는 이 기기에만 저장됩니다">
           서버로 전송하지 않으며, '다음'·'건너뛰기'·'임시 저장'을 누를 때 이 브라우저에 저장합니다. 사업자등록번호는
           저장하지 않습니다.
         </NoticeBanner>
