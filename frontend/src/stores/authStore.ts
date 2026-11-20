@@ -18,6 +18,8 @@ export type AuthRole = 'admin' | 'test' | 'member'
 export interface AuthUser {
   id: string
   role: AuthRole
+  /** 시연 계정의 기업 프로필 이름 (예: 'efuture'). 서버가 주지 않으면 없음 */
+  profile?: string
 }
 
 interface AuthState {
@@ -34,9 +36,11 @@ let checking: Promise<void> | null = null
 
 function readUser(data: unknown): AuthUser | null {
   if (typeof data !== 'object' || data === null) return null
-  const record = data as { authenticated?: unknown; user?: { id?: unknown; role?: unknown } }
+  const record = data as { authenticated?: unknown; user?: { id?: unknown; role?: unknown; profile?: unknown } }
   if (record.authenticated !== true || typeof record.user?.id !== 'string') return null
-  return { id: record.user.id, role: roleOf(record.user.role) }
+  const user: AuthUser = { id: record.user.id, role: roleOf(record.user.role) }
+  if (typeof record.user.profile === 'string') user.profile = record.user.profile
+  return user
 }
 
 function roleOf(value: unknown): AuthRole {

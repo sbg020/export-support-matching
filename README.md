@@ -83,6 +83,7 @@ npm run dev           # 개발 서버: http://localhost:5173
 |---|---|
 | `DEMO_LOGIN_ID`, `DEMO_LOGIN_PASSWORD` | 관리자 계정 아이디(`ADMIN`)·비밀번호 (서버 전용, 아이디는 대소문자 구분, 역할 `admin`) |
 | `TEST_LOGIN_ID`, `TEST_LOGIN_PASSWORD` | 테스트 계정 아이디(`TEST`)·비밀번호 (서버 전용, 둘 다 있을 때만 로그인 가능) |
+| `EFUTURE_LOGIN_ID`, `EFUTURE_LOGIN_PASSWORD` | 시연용 기업 계정 '이퓨쳐' 아이디(`USER`)·비밀번호 (역할 `test`, 관리자 권한 없음) |
 | `AUTH_SESSION_SECRET` | 세션 서명 키 (`openssl rand -base64 32`, 환경마다 다른 값) |
 | `VITE_API_BASE_URL` | 공고 API 주소. 비우면 공고 데이터 미연동 상태. 빌드 시점에 들어가므로 바꾼 뒤 다시 배포 |
 

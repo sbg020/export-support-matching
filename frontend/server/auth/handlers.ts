@@ -4,7 +4,7 @@
  *
  *   POST /api/auth/login    { id, password } → 로그인, 세션 쿠키 발급
  *   POST /api/auth/logout   → 세션 쿠키 삭제
- *   GET  /api/auth/me       → { authenticated, user?: { id, role } }  (role: admin | member | test)
+ *   GET  /api/auth/me       → { authenticated, user?: { id, role, profile? } }  (role: admin | member | test, profile: 시연 기업 프로필 이름)
  *   POST /api/auth/signup   → 501 (회원 정보를 저장할 서버 DB가 없음)
  */
 import {
@@ -93,8 +93,9 @@ async function login(request: Request, env: AuthEnv, nowSeconds: number): Promis
   )
 }
 
-function userOf(account: AuthAccount): { id: string; role: AuthAccount['role'] } {
-  return { id: account.loginId, role: account.role }
+function userOf(account: AuthAccount): { id: string; role: AuthAccount['role']; profile?: string } {
+  // 시연 계정이면 처음 넣을 기업 프로필 이름을 함께 준다 (예: 'efuture'). 비밀 값이 아니다
+  return { id: account.loginId, role: account.role, ...(account.demoProfile ? { profile: account.demoProfile } : {}) }
 }
 
 function logout(request: Request, env: AuthEnv): Response {

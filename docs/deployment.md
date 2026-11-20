@@ -42,6 +42,8 @@ git push -u origin main
    | `DEMO_LOGIN_PASSWORD` | ADMIN 계정 비밀번호 | 문서·커밋에 적지 않음 |
    | `TEST_LOGIN_ID` | `TEST` | 테스트 계정 (대소문자 구분) |
    | `TEST_LOGIN_PASSWORD` | 테스트 계정 비밀번호 | 문서·커밋에 적지 않음. 둘 중 하나라도 없으면 테스트 계정만 로그인 불가 |
+   | `EFUTURE_LOGIN_ID` | `USER` | 시연용 기업 계정 '이퓨쳐' (역할 `test`, 대소문자 구분) |
+   | `EFUTURE_LOGIN_PASSWORD` | 이퓨쳐 계정 비밀번호 | 문서·커밋에 적지 않음. 둘 중 하나라도 없으면 이 계정만 로그인 불가 |
    | `AUTH_SESSION_SECRET` | `openssl rand -base64 32` 결과 | Production과 Preview에 **서로 다른 값** |
    | `ANTHROPIC_API_KEY` | Claude API 키 | 챗봇(공고 도우미). 없으면 버튼이 `준비 중` |
    | `ASSISTANT_MODEL` | (선택) 기본 `claude-sonnet-5-5` | |

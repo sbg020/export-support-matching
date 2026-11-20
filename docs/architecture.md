@@ -166,7 +166,7 @@ interface ProgramRepository {
 - 아이디·비밀번호는 SHA-256 값을 `timingSafeEqual`로 비교하며 아이디는 대소문자를 구분한다. 실패 시 어느 쪽이 틀렸는지 알리지 않는다.
 - 세션은 `{ sub, iat, exp }`를 HMAC-SHA256으로 서명한 토큰을 `esm_session` 쿠키(`HttpOnly`, `SameSite=Lax`, `Path=/`, 12시간, 배포에서 `Secure`)에 담는다. 서명·만료·주체가 맞지 않으면 비로그인이다.
 - 브라우저 저장소에는 로그인 표시를 저장하지 않는다. 앱 시작 시 `/api/auth/me`로 한 번 확인한 뒤 `router.beforeEach`가 진행한다.
-- 계정은 관리자(`DEMO_LOGIN_ID`·`DEMO_LOGIN_PASSWORD`, 아이디 `ADMIN`, 역할 `admin`)와 테스트(`TEST_LOGIN_ID`·`TEST_LOGIN_PASSWORD`, revision_03 테스트 계정, 역할 `test`) 두 개이며, 아이디·비밀번호가 둘 다 있는 계정만 쓴다. 환경변수 이름은 REVISION_04에서도 그대로다. 모든 계정을 끝까지 비교한 뒤 판정하고, 세션 주체가 설정된 계정이 아니면 무효다. `login`·`me`는 `user: { id, role }`(`admin`|`test`)을 돌려준다.
+- 계정은 관리자(`DEMO_LOGIN_ID`·`DEMO_LOGIN_PASSWORD`, 아이디 `ADMIN`, 역할 `admin`)와 테스트(`TEST_LOGIN_ID`·`TEST_LOGIN_PASSWORD`, revision_03 테스트 계정, 역할 `test`) 두 개이며, 아이디·비밀번호가 둘 다 있는 계정만 쓴다. 환경변수 이름은 REVISION_04에서도 그대로다. 모든 계정을 끝까지 비교한 뒤 판정하고, 세션 주체가 설정된 계정이 아니면 무효다. `login`·`me`는 `user: { id, role }`(`admin`|`test`)을 돌려준다. 시연용 기업 계정 '이퓨쳐'(`EFUTURE_LOGIN_ID`·`EFUTURE_LOGIN_PASSWORD`, 아이디 `USER`, 역할 `test`)는 `user.profile = 'efuture'`를 함께 돌려주어 브라우저가 이퓨쳐 프로필을 넣는다.
 - 브라우저(`stores/authStore.ts`)는 `'admin'` → `admin`, `'test'` → `test`, 그 밖의 값 → `member`(관리자로 보지 않음, 앞으로 회원가입 회원용)로 읽고 `isAdmin`을 내보낸다. **브라우저의 역할은 화면 이동에만 쓴다.** 지금은 관리자 데이터 API가 없어 서버에 관리자 데이터도 없다. `/api/admin/*`을 만들 때 서버 함수가 세션 주체의 역할을 다시 확인하고 관리자가 아니면 403을 돌려준다.
 - 역할 `test`이면 화면이 기업 프로필·직접 확인 답을 계정 전용 키(`<기존 키>:account:<아이디>`)로 읽고 쓴다(`src/stores/accountScope.ts`). 그 키가 없을 때만 `src/data/testAccountProfile.ts` 값을 넣는다. 관리자 계정·비로그인은 기존 키를 그대로 쓴다.
 - 쓸 계정이 하나도 없거나 `AUTH_SESSION_SECRET`가 없으면 로그인 API는 503이며 코드 안의 기본값으로 대신하지 않는다. `VITE_` 접두사를 붙이지 않아 번들에 포함되지 않는다.

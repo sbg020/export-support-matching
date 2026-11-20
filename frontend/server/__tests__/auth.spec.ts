@@ -168,6 +168,16 @@ describe('인증 API', () => {
     expect(logout.headers.get('set-cookie')).toContain('Max-Age=0')
   })
 
+  it('시연 계정 이퓨쳐(EFUTURE_LOGIN_*) 로그인 → 역할 test, 프로필 이름 efuture (관리자 아님)', async () => {
+    const env = { ...ENV_WITH_TEST, EFUTURE_LOGIN_ID: 'USER', EFUTURE_LOGIN_PASSWORD: 'efuture-account-only-password' }
+    const login = await handleAuthRequest(post('/api/auth/login', { id: 'USER', password: 'efuture-account-only-password' }), env, NOW)
+    expect(login.status).toBe(200)
+    expect(await login.json()).toEqual({ authenticated: true, user: { id: 'USER', role: 'test', profile: 'efuture' } })
+    // 비밀번호가 없으면 이 계정만 로그인할 수 없다
+    const without = { ...ENV_WITH_TEST, EFUTURE_LOGIN_ID: 'USER' }
+    expect(readAuthConfig(without)!.accounts.map((a) => a.loginId)).not.toContain('USER')
+  })
+
   it('테스트 계정 로그인 → me에 역할 test, 테스트 계정 설정을 지우면 그 세션은 무효', async () => {
     const login = await handleAuthRequest(
       post('/api/auth/login', { id: 'TEST', password: 'test-account-only-password' }),

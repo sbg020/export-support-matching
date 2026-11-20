@@ -8,7 +8,8 @@
  *   관리자 계정 DEMO_LOGIN_ID·DEMO_LOGIN_PASSWORD(환경변수 이름은 그대로, REVISION_04 §5.1), 테스트 계정 TEST_LOGIN_ID·TEST_LOGIN_PASSWORD,
  *   세션 키 AUTH_SESSION_SECRET. 계정은 아이디와 비밀번호가 둘 다 있을 때만 쓴다. 쓸 계정이 없거나 세션 키가 없으면 로그인을 막는다.
  * - 역할 (REVISION_05 §7.1): 운영자 계정 OPS_LOGIN_ID·OPS_LOGIN_PASSWORD = admin(관리자 영역 /admin),
- *   DEMO_LOGIN_*(ADMIN) = member(일반 사용자로 둔다), TEST_LOGIN_* = test(일반 기업 회원 권한).
+ *   DEMO_LOGIN_*(ADMIN) = member(일반 사용자로 둔다), TEST_LOGIN_* = test(일반 기업 회원 권한),
+ *   EFUTURE_LOGIN_*(USER) = test(시연용 기업 '이퓨쳐', 일반 기업 회원 권한. 기업 프로필만 다르다).
  *   관리자 데이터를 다루는 서버 함수는 세션 주체의 역할을 다시 확인하고 관리자가 아니면 403을 돌려준다.
  */
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto'
@@ -23,10 +24,14 @@ export type AuthEnv = Record<string, string | undefined>
 /** admin: 운영자(OPS_LOGIN_*), member: 일반 사용자(DEMO_LOGIN_* = ADMIN), test: 시연·캡처용 테스트 계정 */
 export type AccountRole = 'admin' | 'test' | 'member'
 
+/** 시연 계정이 처음 로그인할 때 넣을 기업 프로필 (브라우저 src/data의 프로필 이름). 없으면 역할의 기본값 */
+export type DemoProfileKey = 'efuture'
+
 export interface AuthAccount {
   loginId: string
   password: string
   role: AccountRole
+  demoProfile?: DemoProfileKey
 }
 
 export interface AuthConfig {
@@ -40,10 +45,12 @@ export interface SessionPayload {
   exp: number
 }
 
-const ACCOUNT_ENV: { role: AccountRole; id: string; password: string }[] = [
+const ACCOUNT_ENV: { role: AccountRole; id: string; password: string; demoProfile?: DemoProfileKey }[] = [
   { role: 'admin', id: 'OPS_LOGIN_ID', password: 'OPS_LOGIN_PASSWORD' },
   { role: 'member', id: 'DEMO_LOGIN_ID', password: 'DEMO_LOGIN_PASSWORD' },
   { role: 'test', id: 'TEST_LOGIN_ID', password: 'TEST_LOGIN_PASSWORD' },
+  // 시연용 기업 계정 '이퓨쳐' (역할 test, 관리자 권한 없음)
+  { role: 'test', id: 'EFUTURE_LOGIN_ID', password: 'EFUTURE_LOGIN_PASSWORD', demoProfile: 'efuture' },
 ]
 
 export function readAuthConfig(env: AuthEnv): AuthConfig | null {
@@ -54,9 +61,9 @@ export function readAuthConfig(env: AuthEnv): AuthConfig | null {
     const loginId = env[names.id] ?? ''
     const password = env[names.password] ?? ''
     if (loginId === '' || password === '') continue
-    // 아이디가 겹치면 먼저 설정된 계정만 쓴다 (운영자 → 데모 → 테스트 순)
+    // 아이디가 겹치면 먼저 설정된 계정만 쓴다 (운영자 → 데모 → 테스트 → 이퓨쳐 순)
     if (accounts.some((a) => a.loginId === loginId)) continue
-    accounts.push({ loginId, password, role: names.role })
+    accounts.push({ loginId, password, role: names.role, ...(names.demoProfile ? { demoProfile: names.demoProfile } : {}) })
   }
   if (accounts.length === 0) return null
   return { accounts, secret }
