@@ -9,7 +9,6 @@ import type { ExportStage, Program, SupportCategoryCode } from '@/types/program'
 import type { ExportStageDiagnosis, FitFactorResult, FitScoreResult } from '@/types/results'
 import {
   ARCHETYPE_CATEGORY,
-  ARCHETYPE_REFERENCE,
   ARCHETYPE_VALUES,
   FIT_V1_LABEL,
   FIT_V1_MAPPING_VERSIONS,
@@ -26,6 +25,7 @@ import { EXPORT_STAGE_OPTIONS, optionLabel } from '@/constants/options'
 import { industryTagsForKsic } from '@/constants/ksicIndustryTags'
 import { financeSummary } from '@/lib/finance'
 import { REGION_SHORT } from './engineProfile'
+import { ARCHETYPE_REFERENCE, assignCluster, specialRuleFor } from './archetypeReference'
 
 export const FIT_V1_ENGINE_VERSION = 'fit-1.0.0'
 
@@ -75,31 +75,63 @@ function categoriesText(codes: SupportCategoryCode[]): string {
   return codes.map(categoryName).join(' · ')
 }
 
-/** 재무 원형 판정: 기준표의 평균·표준편차로 표준화 → 가장 가까운 군집의 원형 */
-export function financeArchetype(p: CompanyProfile): { archetype: Archetype | null; reason: string } {
-  const summary = financeSummary(p)
-  if (summary.status !== 'complete') return { archetype: null, reason: '재무 미입력' }
-  if (summary.capitalImpaired) return { archetype: null, reason: '자본잠식' }
-  const table = ARCHETYPE_REFERENCE
-  if (!table) return { archetype: null, reason: '기준 미등록' }
-  const values = {
-    growth: summary.revenueGrowth,
-    opMargin: summary.operatingMargin,
-    debtRatio: summary.debtRatio,
-    netMargin: summary.netMargin,
-  }
-  if (Object.values(values).some((v) => v === null)) return { archetype: null, reason: '재무 비율 계산 불가' }
-  const z = (k: keyof typeof values) => ((values[k] as number) - table.stats[k].mean) / (table.stats[k].sd || 1)
-  let best: { archetype: Archetype; d: number } | null = null
-  for (const cluster of table.clusters) {
-    const d = (['growth', 'opMargin', 'debtRatio', 'netMargin'] as const).reduce(
-      (sum, k) => sum + (z(k) - cluster.center[k]) ** 2,
-      0,
-    )
-    if (!best || d < best.d) best = { archetype: cluster.archetype, d }
-  }
-  return best ? { archetype: best.archetype, reason: '' } : { archetype: null, reason: '기준 미등록' }
+export interface FinanceArchetypeResult {
+  archetype: Archetype | null
+  clusterId: string | null
+  clusterName: string | null
+  industryGroupLabel: string | null
+  stability: string | null
+  /** 원형이 없을 때 사유 (재무 미입력 · 사전분리 규칙 이름 · 수출단계 미확정 · 재무 비율 계산 불가) */
+  reason: string
 }
+
+const LOW_STABILITY = '낮음(해석 주의)'
+
+function noArchetype(reason: string): FinanceArchetypeResult {
+  return { archetype: null, clusterId: null, clusterName: null, industryGroupLabel: null, stability: null, reason }
+}
+
+/**
+ * 재무 원형 판정 (REVISION_06 §3, 기준표 v4).
+ * 재무 미입력 → 사전분리 → 수출단계 확인 → 네 변수(%) → 업종 내 백분위 → 단계별 표준화 → 같은 단계 최근접 군집
+ */
+export function financeArchetype(p: CompanyProfile, stage: ExportStage | null): FinanceArchetypeResult {
+  const summary = financeSummary(p)
+  if (summary.status !== 'complete') return noArchetype('재무 미입력')
+  const revenue = p.revenueKrw!
+  const equity = p.totalEquityKrw!
+  const pct = (v: number | null) => (v === null ? null : v * 100)
+  const values = {
+    growth: pct(summary.revenueGrowth),
+    opMargin: pct(summary.operatingMargin),
+    debtRatio: pct(summary.debtRatio),
+    nonOpBalance:
+      summary.netMargin === null || summary.operatingMargin === null ? null : (summary.netMargin - summary.operatingMargin) * 100,
+  }
+  const rule = specialRuleFor({ revenueKrw: revenue, totalEquityKrw: equity, debtRatio: values.debtRatio, opMargin: values.opMargin, growth: values.growth })
+  if (rule) return noArchetype(rule.label)
+  if (stage === null) return noArchetype('수출단계 미확정')
+  const assigned = assignCluster(values, stage, p.ksicCode)
+  if (!assigned) return noArchetype('재무 비율 계산 불가')
+  return {
+    archetype: assigned.cluster.archetype,
+    clusterId: assigned.cluster.id,
+    clusterName: assigned.cluster.name,
+    industryGroupLabel: assigned.industryGroupLabel,
+    stability: assigned.stability,
+    reason: '',
+  }
+}
+
+/** 화면 근거 문장: '재무 원형 확장형 (내수 고성장·고부채 확장형, 비교 업종: 식료품 제조업)' */
+export function financeArchetypeText(result: FinanceArchetypeResult): string | null {
+  if (!result.archetype) return null
+  const note = result.stability === LOW_STABILITY ? ' (이 단계의 재무 유형은 참고용)' : ''
+  return `재무 원형 ${result.archetype} (${result.clusterName}, 비교 업종: ${result.industryGroupLabel})${note}`
+}
+
+/** 기준표 버전 (관리자 화면 배지 등) */
+export const ARCHETYPE_REFERENCE_VERSION = ARCHETYPE_REFERENCE.version
 
 function bonusFactor(profile: CompanyProfile, program: Program): FitFactorResult {
   const items = program.bonusItems ?? []
@@ -204,16 +236,16 @@ export function computeFitV1Factors(profile: CompanyProfile, program: Program, c
     out.push(factor('stage', best, `수출단계 ${optionLabel(EXPORT_STAGE_OPTIONS, stage)} × ${categoryName(bestCat)} = ${STAGE_CATEGORY_MATRIX[bestCat][stage]}`))
   }
 
-  // 4) 재무 원형 × 사업 분류
-  const { archetype, reason } = financeArchetype(profile)
-  if (!archetype) {
-    out.push(factor('finance', null, `${reason}으로 제외`))
+  // 4) 재무 원형 × 사업 분류 (기준표 v4, 수출단계별 군집)
+  const finance = financeArchetype(profile, stage)
+  if (!finance.archetype) {
+    out.push(factor('finance', null, `${finance.reason}으로 제외`))
   } else if (cats.length === 0) {
     out.push(factor('finance', null, '공고 사업 분류가 없어 제외'))
   } else {
-    const map = ARCHETYPE_CATEGORY[archetype]
+    const map = ARCHETYPE_CATEGORY[finance.archetype]
     const best = Math.max(...cats.map((c) => (map.core.includes(c) ? ARCHETYPE_VALUES.core : map.support.includes(c) ? ARCHETYPE_VALUES.support : ARCHETYPE_VALUES.other)))
-    out.push(factor('finance', best, `재무 원형 ${archetype} × 사업 분류 (${best === 1 ? '핵심' : best === 0.6 ? '보조' : '그 밖'})`))
+    out.push(factor('finance', best, `${financeArchetypeText(finance)} × 사업 분류 (${best === 1 ? '핵심' : best === 0.6 ? '보조' : '그 밖'})`))
   }
 
   // 5) 가점 충족

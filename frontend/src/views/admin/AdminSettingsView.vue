@@ -18,7 +18,6 @@ import { ACTIVE_EXPORT_STAGE_CRITERIA, bandText } from '@/lib/engine/diagnosis'
 import {
   ARCHETYPE_CATEGORY,
   ARCHETYPE_GUIDE,
-  ARCHETYPE_REFERENCE,
   FINANCE_ASSUMPTION_NOTE,
   FIT_V1_LABEL,
   FIT_V1_MAPPING_VERSIONS,
@@ -30,6 +29,7 @@ import {
   type FitV1FactorKey,
 } from '@/constants/fitV1'
 import { CONDITION_TYPE_NAME } from '@/constants/conditionTypes'
+import { ARCHETYPE_REFERENCE } from '@/lib/engine/archetypeReference'
 import { defaultImportance } from '@/lib/engine/eligibilityV3'
 import {
   CATEGORY_PHASES,
@@ -65,6 +65,14 @@ function onWeightInput(key: FitV1FactorKey, event: Event) {
   weights[key] = raw.trim() === '' ? null : Number(raw)
 }
 const ARCHETYPES = Object.keys(ARCHETYPE_CATEGORY) as Archetype[]
+/** 기준표 v4: 수출단계별 군집 수·안정성·군집 이름 */
+const archetypeStages = Object.entries(ARCHETYPE_REFERENCE.stages).map(([stage, t]) => ({
+  stage,
+  label: t.stageLabel,
+  k: t.k,
+  stability: t.stability,
+  clusters: t.clusters.map((c) => `${c.name} (${c.archetype})`).join(' · '),
+}))
 const TYPE_CODES = Object.keys(CONDITION_TYPE_NAME)
 const archetypeCell = (a: Archetype, code: (typeof SUPPORT_CATEGORIES)[number]['code']) =>
   ARCHETYPE_CATEGORY[a].core.includes(code) ? '핵심 1.0' : ARCHETYPE_CATEGORY[a].support.includes(code) ? '보조 0.6' : '0.3'
@@ -213,15 +221,31 @@ function downloadStrategyTemplate() {
           </AdminTable>
         </details>
 
-        <h3 class="settings-subtitle">재무 원형 기준표 (19개 군집)</h3>
+        <h3 class="settings-subtitle">재무 원형 기준표 (수출단계별 군집)</h3>
         <p class="mb-2">
           상태:
-          <StatusBadge :label="ARCHETYPE_REFERENCE ? '등록됨' : '기준 미등록'" :tone="ARCHETYPE_REFERENCE ? 'success' : 'warning'" />
-          — 등록 전에는 원형을 판정하지 않고 적합도에서 재무 요소를 뺍니다. 임의의 기준값을 넣지 않습니다.
+          <StatusBadge :label="`등록됨 (${ARCHETYPE_REFERENCE.version})`" tone="success" />
+          · {{ ARCHETYPE_REFERENCE.status }}
         </p>
-        <p class="fs-sm text-muted-strong">
-          CSV 내용: 4개 변수(매출액증가율·매출액영업이익률·부채비율·매출액순이익률)의 평균·표준편차(KSIC 중분류별이면 중분류 열),
-          19개 군집 중심값, 군집 → 원형 대응.
+        <p class="fs-sm text-muted-strong mb-2">
+          4개 변수(매출액증가율·매출액영업이익률·부채비율·영업외수지)의 업종 내 백분위 → 수출단계별 표준화 → 단계별 군집 중심.
+          출처: {{ ARCHETYPE_REFERENCE.source }}
+        </p>
+        <AdminTable
+          label="수출단계별 재무 원형 군집"
+          :columns="['수출단계', '군집 수', '안정성', '군집 (원형)']"
+          :row-count="archetypeStages.length"
+        >
+          <tr v-for="row in archetypeStages" :key="row.stage">
+            <th scope="row">{{ row.label }}</th>
+            <td>{{ row.k }}</td>
+            <td>{{ row.stability }}</td>
+            <td>{{ row.clusters }}</td>
+          </tr>
+        </AdminTable>
+        <p class="fs-sm text-muted-strong mt-2">
+          사전분리(원형 없음): {{ ARCHETYPE_REFERENCE.specialRules.slice(1).map((r) => r.label).join(' · ') }}. 업종은 KSIC 중분류 →
+          대분류 → 전체 순으로 비교합니다. 기준표는 코드에 넣어 두었고, 화면 등록은 서버 저장소 연결 후에 씁니다.
         </p>
         <StoreButton label="기준표 CSV 등록" reason="서버 저장소를 연결한 뒤 사용할 수 있습니다. 팀의 군집 분석 결과를 등록하면 버전과 변경자를 남깁니다." />
 

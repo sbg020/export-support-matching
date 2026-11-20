@@ -92,14 +92,7 @@ export const ARCHETYPE_GUIDE: {
   { name: '정체형', feature: '강소·고부채', stages: '강소', sgr: '규모는 크지만 성장이 정체되고 부채가 있음', strategy: '시장 다변화, 위험 관리', basis: 'Higgins, Ansoff' },
 ]
 
-/**
- * 재무 원형 기준표 (19개 군집 중심값·표준화 기준). 관리자가 기준·설정에서 CSV로 등록한다.
- * 등록 전에는 null이며, 원형은 '기준 미등록'이고 재무 요소를 뺀다. 임의의 기준값을 넣지 않는다.
+/*
+ * 재무 원형 기준표는 v4(재무 유형 군집화, 수출단계별 군집)를 쓴다: lib/engine/archetypeReference.ts
+ * (기준표가 커서 이 상수 파일에는 넣지 않는다. 판정 함수는 lib/engine/fitV1.ts 의 financeArchetype)
  */
-export interface ArchetypeReferenceTable {
-  version: string
-  /** 변수: growth(매출액증가율) · opMargin(매출액영업이익률) · debtRatio(부채비율) · netMargin(매출액순이익률) */
-  stats: Record<'growth' | 'opMargin' | 'debtRatio' | 'netMargin', { mean: number; sd: number }>
-  clusters: { id: string; center: Record<'growth' | 'opMargin' | 'debtRatio' | 'netMargin', number>; archetype: Archetype }[]
-}
-export const ARCHETYPE_REFERENCE: ArchetypeReferenceTable | null = null
