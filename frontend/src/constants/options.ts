@@ -310,12 +310,6 @@ export const PROFILE_STEPS: ProfileStepDefinition[] = [
     optional: false,
   },
   {
-    id: 5,
-    title: '가점 요소',
-    description: '보유한 기업 인증과 지식재산권을 알려 주세요. 선택 입력입니다.',
-    optional: true,
-  },
-  {
     id: 6,
     title: '관심 분야',
     description: '도움받고 싶은 분야를 모두 골라 주세요.',

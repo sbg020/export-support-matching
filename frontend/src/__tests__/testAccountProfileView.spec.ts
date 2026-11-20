@@ -64,3 +64,19 @@ describe('재무제표 금액 위치', () => {
     step7.unmount()
   })
 })
+
+describe('가점 요소 단계 삭제', () => {
+  it('단계는 6개이고 가점 요소가 없으며, 예전 ⑤ 주소는 관심 분야로 연다', async () => {
+    const router = createRouter({ history: createMemoryHistory(), routes })
+    await router.push('/profile?step=5')
+    await router.isReady()
+    const wrapper = mount(DiagnoseInputView, { global: { plugins: [router] } })
+    await flushPromises()
+    const steps = wrapper.findAll('.step-progress__list li')
+    expect(steps).toHaveLength(6)
+    expect(wrapper.text()).not.toContain('가점 요소')
+    expect(wrapper.get('.step-progress__title').text()).toBe('관심 분야')
+    expect(wrapper.get('.step-progress__current').text()).toBe('5')
+    wrapper.unmount()
+  })
+})

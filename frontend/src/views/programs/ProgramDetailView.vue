@@ -414,7 +414,7 @@ const formatConditionCount = (n: number) => `${n}개`
         id="section-fit"
         title="얼마나 잘 맞나요?"
         heading-id="section-fit-title"
-        description="신청 자격과는 별개로 계산하며, 신청 가능 공고에만 보여 드립니다. 5개 요소(관심 분야·업종·수출단계·재무·가점)의 검증 전 시험값입니다."
+        description="신청 자격과는 별개로 계산하며, 신청 가능 공고에만 보여 드립니다. 4개 요소(관심 분야·업종·수출단계·재무, 각 25%)의 검증 전 시험값입니다."
         :icon="IconTargetArrow"
       >
         <FitBreakdownTable

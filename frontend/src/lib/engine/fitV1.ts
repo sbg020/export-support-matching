@@ -24,7 +24,6 @@ import { INTEREST_CATEGORIES, categoryName } from '@/constants/categories'
 import { EXPORT_STAGE_OPTIONS, optionLabel } from '@/constants/options'
 import { industryTagsForKsic } from '@/constants/ksicIndustryTags'
 import { financeSummary } from '@/lib/finance'
-import { REGION_SHORT } from './engineProfile'
 import { ARCHETYPE_REFERENCE, assignCluster, specialRuleFor } from './archetypeReference'
 
 export const FIT_V1_ENGINE_VERSION = 'fit-1.0.0'
@@ -133,36 +132,6 @@ export function financeArchetypeText(result: FinanceArchetypeResult): string | n
 /** 기준표 버전 (관리자 화면 배지 등) */
 export const ARCHETYPE_REFERENCE_VERSION = ARCHETYPE_REFERENCE.version
 
-function bonusFactor(profile: CompanyProfile, program: Program): FitFactorResult {
-  const items = program.bonusItems ?? []
-  if (items.length === 0) return factor('bonus', null, '가점이 없는 공고라 제외')
-  const owned = new Set([...profile.certifications, ...profile.ipTypes])
-  const hqSido = profile.hqRegion ? REGION_SHORT[profile.hqRegion] : null
-  let checkable = 0
-  let met = 0
-  for (const item of items) {
-    const text = item.item ?? ''
-    const keys = item.matchKeys ?? []
-    if (keys.length > 0 && profile.certificationStatus !== null) {
-      checkable += 1
-      if (keys.some((k) => owned.has(k))) met += 1
-      continue
-    }
-    if (/수출\s*실적/.test(text) && profile.exportUsdLastYear !== null) {
-      checkable += 1
-      if (profile.exportUsdLastYear > 0) met += 1
-      continue
-    }
-    const sido = Object.values(REGION_SHORT).find((s) => text.includes(s))
-    if (sido && hqSido) {
-      checkable += 1
-      if (sido === hqSido) met += 1
-    }
-  }
-  if (checkable === 0) return factor('bonus', null, '기업 정보로 확인할 수 있는 가점 항목이 없어 제외')
-  return factor('bonus', met / checkable, `가점 ${checkable}개 중 ${met}개를 기업 정보로 충족`)
-}
-
 export function evaluateFitV1(profile: CompanyProfile, program: Program, context: FitV1Context): FitScoreResult | null {
   const factors = computeFitV1Factors(profile, program, context)
   const used = factors.filter((f) => f.value !== null)
@@ -251,7 +220,5 @@ export function computeFitV1Factors(profile: CompanyProfile, program: Program, c
     out.push(factor('finance', best, `${financeArchetypeText(finance)} × 사업 분류 (${best === 1 ? '핵심' : best === 0.6 ? '보조' : '그 밖'})`))
   }
 
-  // 5) 가점 충족
-  out.push(bonusFactor(profile, program))
   return out
 }

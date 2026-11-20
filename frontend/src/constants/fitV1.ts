@@ -10,14 +10,14 @@ export const FIT_V1_STATUS_LABEL = '검증 전 시험값'
 export const FINANCE_ASSUMPTION_NOTE =
   '재무 원형과 지원 분야의 연결은 실증 근거가 아니라 선행연구에 기반한 가정이므로, 이용 데이터가 쌓이면 보정합니다.'
 
-export type FitV1FactorKey = 'interest' | 'industry' | 'stage' | 'finance' | 'bonus'
+/** 4개 요소 (가점 요소는 2026-11 삭제) */
+export type FitV1FactorKey = 'interest' | 'industry' | 'stage' | 'finance'
 
 export const FIT_V1_WEIGHTS: Record<FitV1FactorKey, number> = {
   interest: 0.25,
-  industry: 0.2,
+  industry: 0.25,
   stage: 0.25,
   finance: 0.25,
-  bonus: 0.05,
 }
 
 export const FIT_V1_LABEL: Record<FitV1FactorKey, string> = {
@@ -25,7 +25,6 @@ export const FIT_V1_LABEL: Record<FitV1FactorKey, string> = {
   industry: '공고 내용 × KSIC 업종 일치도',
   stage: '수출단계 × 사업 분류 일치도',
   finance: '재무 원형 × 사업 분류 일치도',
-  bonus: '가점 충족',
 }
 
 /** 계산할 수 있는 요소가 이보다 적으면 점수를 내지 않는다 */

@@ -141,7 +141,7 @@ function downloadStrategyTemplate() {
       <SectionCard
         title="적합도 가중치"
         heading-id="settings-fit-title"
-        :description="`가중치 버전 ${FIT_V1_VERSION} · ${FIT_V1_STATUS_LABEL} · 5개 요소 (REVISION_05 §6.4)`"
+        :description="`가중치 버전 ${FIT_V1_VERSION} · ${FIT_V1_STATUS_LABEL} · 4개 요소 각 25% (가점 요소 삭제)`"
       >
         <AdminTable label="적합도 가중치" :columns="['항목', '현재 가중치', '바꿀 가중치']" :row-count="FIT_KEYS.length">
           <tr v-for="key in FIT_KEYS" :key="key">

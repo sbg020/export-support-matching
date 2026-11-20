@@ -142,9 +142,9 @@ describe('메인 랜딩페이지', () => {
 
   it('적합도 카드는 코드의 실제 가중치를 보여 준다', () => {
     const values = wrapper.findAll('.ui-fit__value').map((v) => v.text())
-    // REVISION_05 §6.4 적합도 v1: 관심 분야 25 / 업종 20 / 수출단계 25 / 재무 25 / 가점 5
+    // 적합도 v1 (2026-11 가점 요소 삭제): 관심 분야 · 업종 · 수출단계 · 재무 각 25%
     expect(values).toEqual(Object.values(FIT_V1_WEIGHTS).map((w) => w.toFixed(2)))
-    expect(values).toEqual(['0.25', '0.20', '0.25', '0.25', '0.05'])
+    expect(values).toEqual(['0.25', '0.25', '0.25', '0.25'])
     expect(wrapper.text()).toContain(FIT_V1_VERSION)
   })
 

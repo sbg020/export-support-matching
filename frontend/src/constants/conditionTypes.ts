@@ -17,7 +17,7 @@ export const CONDITION_TYPE_NAME: Record<string, string> = {
 
 /** A 유형이 기업 미입력으로 모름일 때 입력할 기업 프로필 단계 */
 export const CONDITION_TYPE_STEP: Record<string, ProfileStepId> = {
-  A01: 1, A02: 1, A03: 1, A04: 2, A05: 4, A06: 3, A07: 2, A08: 1, A09: 1, A10: 5, A11: 7,
+  A01: 1, A02: 1, A03: 1, A04: 2, A05: 4, A06: 3, A07: 2, A08: 1, A09: 1, A11: 2,
   B01: 7, B02: 7, B03: 7, B04: 7, B05: 7, B08: 7, B09: 7,
 }
 

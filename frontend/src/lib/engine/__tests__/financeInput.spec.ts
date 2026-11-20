@@ -44,3 +44,14 @@ describe('재무제표 금액 입력', () => {
     expect(missing.reason).toContain('0점')
   })
 })
+
+describe('적합도 요소 (가점 삭제)', () => {
+  it('4개 요소가 각각 25%이고 가점 요소는 계산하지 않는다', async () => {
+    const { FIT_V1_WEIGHTS } = await import('@/constants/fitV1')
+    expect(FIT_V1_WEIGHTS).toEqual({ interest: 0.25, industry: 0.25, stage: 0.25, finance: 0.25 })
+    const program = draftProgram({ id: 'F2', supportCategories: ['C13'], bonusItems: [] })
+    const profile = createTestAccountProfile()
+    const keys = computeFitV1Factors(profile, program, { diagnosis: diagnoseExportStage(profile), textSimilarity: new Map(), asOf: '2026-10-20' }).map((f) => f.key)
+    expect(keys).toEqual(['interest', 'industry', 'stage', 'finance'])
+  })
+})

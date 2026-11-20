@@ -23,7 +23,6 @@ import StepBasicInfo from '@/components/diagnose/steps/StepBasicInfo.vue'
 import StepCompanySize from '@/components/diagnose/steps/StepCompanySize.vue'
 import StepExportStatus from '@/components/diagnose/steps/StepExportStatus.vue'
 import StepMainProduct from '@/components/diagnose/steps/StepMainProduct.vue'
-import StepBonusFactors from '@/components/diagnose/steps/StepBonusFactors.vue'
 import StepInterests from '@/components/diagnose/steps/StepInterests.vue'
 import StepFinanceChecks from '@/components/diagnose/steps/StepFinanceChecks.vue'
 import { PROFILE_STEPS } from '@/constants/options'
@@ -41,12 +40,12 @@ import { getStepStatus, type StepStatus } from '@/lib/profileSteps'
 import { formatDateTime } from '@/lib/display'
 import type { ProfileField, ProfileStepId } from '@/types/profile'
 
-const STEP_COMPONENTS: Record<ProfileStepId, Component> = {
+/** 화면에 있는 단계의 입력 부품 (⑤ 가점 요소는 삭제) */
+const STEP_COMPONENTS: Partial<Record<ProfileStepId, Component>> = {
   1: StepBasicInfo,
   2: StepCompanySize,
   3: StepExportStatus,
   4: StepMainProduct,
-  5: StepBonusFactors,
   6: StepInterests,
   7: StepFinanceChecks,
 }
@@ -61,17 +60,28 @@ const toast = useToast()
 const errors = ref<FieldErrors>({})
 provideProfileForm({ profile: toRef(store.state, 'profile'), errors, idPrefix: ID_PREFIX })
 
+/** 화면에 보이는 단계 (⑤ 가점 요소는 삭제: 1·2·3·4·6·7) */
+const ACTIVE_STEPS: ProfileStepId[] = PROFILE_STEPS.map((s) => s.id)
+
 function parseStep(value: unknown): ProfileStepId {
   const raw = Array.isArray(value) ? value[0] : value
   const n = Number(raw)
-  return (PROFILE_STEP_IDS as number[]).includes(n) ? (n as ProfileStepId) : 1
+  if (!(PROFILE_STEP_IDS as number[]).includes(n)) return 1
+  // 예전 ⑤ 가점 요소 주소는 다음 단계(관심 분야)로
+  return (ACTIVE_STEPS.find((s) => s >= n) ?? ACTIVE_STEPS[ACTIVE_STEPS.length - 1]!) as ProfileStepId
+}
+
+/** 화면 순서로 이전·다음 단계 */
+function neighborStep(step: ProfileStepId, offset: 1 | -1): ProfileStepId {
+  const i = ACTIVE_STEPS.indexOf(step)
+  return ACTIVE_STEPS[Math.min(ACTIVE_STEPS.length - 1, Math.max(0, i + offset))]!
 }
 
 const currentStep = computed(() => parseStep(route.query.step))
 const stepDef = computed(() => PROFILE_STEPS.find((s) => s.id === currentStep.value) ?? PROFILE_STEPS[0]!)
 const isFirst = computed(() => currentStep.value === 1)
 /** ⑦ 재무·신청 전 확인(선택)이 마지막 단계다 (REVISION_05 §3) */
-const isLast = computed(() => currentStep.value === 7)
+const isLast = computed(() => currentStep.value === ACTIVE_STEPS[ACTIVE_STEPS.length - 1])
 
 const statuses = computed(
   () =>
@@ -143,19 +153,19 @@ function next() {
   if (!validateCurrent()) return
   store.clearStepSkipped(currentStep.value)
   persist()
-  goToStep((currentStep.value + 1) as ProfileStepId)
+  goToStep(neighborStep(currentStep.value, 1))
 }
 
 function prev() {
   if (isFirst.value) return
-  goToStep((currentStep.value - 1) as ProfileStepId)
+  goToStep(neighborStep(currentStep.value, -1))
 }
 
 function skip() {
   store.markStepSkipped(currentStep.value)
   persist()
   toast.show(`'${stepDef.value.title}' 단계를 건너뛰었습니다. 나중에 다시 입력할 수 있어요.`, 'info')
-  goToStep((currentStep.value + 1) as ProfileStepId)
+  goToStep(neighborStep(currentStep.value, 1))
 }
 
 function saveDraft() {
@@ -242,7 +252,7 @@ function resetAll() {
           <div class="step-form__body">
             <header class="step-form__header">
               <h2 ref="stepHeading" class="step-form__title" tabindex="-1">
-                <span class="visually-hidden">{{ currentStep }}단계: </span>{{ stepDef.title }}
+                <span class="visually-hidden">{{ ACTIVE_STEPS.indexOf(currentStep) + 1 }}단계: </span>{{ stepDef.title }}
                 <span v-if="stepDef.optional" class="tag-optional">선택 단계</span>
               </h2>
               <p class="step-form__description">{{ stepDef.description }}</p>

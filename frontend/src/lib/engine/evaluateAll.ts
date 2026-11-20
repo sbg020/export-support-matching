@@ -72,7 +72,8 @@ function toConditionResult(o: ConditionOutcome, p: EngineProfile, sourceUrl: str
   const c = o.condition
   const typeName = CONDITION_TYPE_NAME[c.condType] ?? c.condType
   const step = CONDITION_TYPE_STEP[c.condType] ?? null
-  const missingInput = o.state === 'unknown' && c.condType.startsWith('A') && companyValueOf(o, p) === null
+  // 기업 프로필에 입력할 곳이 있는 항목만 '기업 정보에 없는 항목'(입력 링크). 입력 단계가 없는 항목(인증 등)은 공고에서 직접 확인
+  const missingInput = o.state === 'unknown' && c.condType.startsWith('A') && companyValueOf(o, p) === null && step !== null
   const reason =
     o.state === 'unknown'
       ? missingInput
