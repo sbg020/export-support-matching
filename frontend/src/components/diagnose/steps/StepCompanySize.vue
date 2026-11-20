@@ -10,13 +10,14 @@ import NumberInput from '@/components/form/NumberInput.vue'
 import SelectInput from '@/components/form/SelectInput.vue'
 import ChoiceCards from '@/components/form/ChoiceCards.vue'
 import NoticeBanner from '@/components/common/NoticeBanner.vue'
+import FinanceAmountsFields from './FinanceAmountsFields.vue'
 
 const { profile, errors, fieldId } = useProfileForm()
 
 const yearOptions = recentYears(11).map((year) => ({ value: year, label: `${year}년` }))
 
 const revenueHint = computed(() => {
-  const base = '원 단위로 입력해 주세요. 매출이 없으면 0을 입력하면 됩니다.'
+  const base = '손익계산서의 당기 매출액을 원 단위로 입력해 주세요. 매출이 없으면 0을 입력하면 됩니다.'
   if (profile.value.revenueKrw === null) return base
   return `${base} 입력한 금액: ${formatKrwReadable(profile.value.revenueKrw)}`
 })
@@ -105,7 +106,7 @@ function onModeChange() {
     <FormField
       v-slot="{ id, describedby, invalid }"
       :id="fieldId('revenueKrw')"
-      label="최근 매출액"
+      label="최근 매출액 (당기 매출액)"
       required
       :hint="revenueHint"
       :error="errors.revenueKrw"
@@ -136,5 +137,8 @@ function onModeChange() {
         :invalid="invalid"
       />
     </FormField>
+
+    <!-- 재무제표 금액: 전기 매출액·영업이익·당기순이익·부채총계·자본총계 (선택) -->
+    <FinanceAmountsFields />
   </div>
 </template>

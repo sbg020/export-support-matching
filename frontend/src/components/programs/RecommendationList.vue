@@ -17,6 +17,8 @@ import { isSourceConnected, programRepository } from '@/repositories'
 import { useToast } from '@/stores/toastStore'
 import { useProfileStore } from '@/stores/profileStore'
 import EmptyState from '@/components/common/EmptyState.vue'
+import NoticeBanner from '@/components/common/NoticeBanner.vue'
+import { financeSummary } from '@/lib/finance'
 import TabNav from '@/components/common/TabNav.vue'
 import type { TabItem } from '@/components/common/types'
 import ProgramCardFieldGuide from './ProgramCardFieldGuide.vue'
@@ -121,7 +123,7 @@ const listTop = ref<HTMLElement | null>(null)
 function goPage(n: number) {
   if (n < 1 || n > pageCount.value || n === page.value) return
   void router.replace({ query: { ...route.query, page: n === 1 ? undefined : String(n) } })
-  listTop.value?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+  listTop.value?.scrollIntoView?.({ block: 'start', behavior: 'smooth' })
 }
 
 const SORT_NOTES: Record<EligibilityStatus, string> = {
@@ -130,6 +132,9 @@ const SORT_NOTES: Record<EligibilityStatus, string> = {
   ineligible: '마감이 가까운 순으로 보여 드립니다.',
 }
 const sortNote = computed(() => SORT_NOTES[activeTab.value])
+
+/** 재무제표 금액(6개) 중 빠진 것이 있으면 적합도의 재무 요소가 0점이라 알린다 */
+const financeMissing = computed(() => financeSummary(profileStore.state.profile).status !== 'complete')
 
 /** 카드의 '비교에 추가': 화면을 이동하지 않고 선택만 바꾼다 */
 function toggleCompare(id: string) {
@@ -153,6 +158,13 @@ function toggleCompare(id: string) {
     </EmptyState>
 
     <template v-else>
+    <NoticeBanner v-if="financeMissing" tone="warning" title="재무 정보를 입력하지 않았습니다">
+      전기 매출액·영업이익·당기순이익·부채총계·자본총계를 입력하지 않아 적합도의 재무 요소(비중 25%)가 0점으로 계산됩니다.
+      기업 프로필의 '기업 규모' 단계에서 입력하면 재무 유형에 맞춰 적합도를 다시 계산합니다.
+      <template #actions>
+        <RouterLink :to="{ name: 'company-profile', query: { step: '2' } }" class="btn btn-secondary btn-sm">재무 정보 입력하기</RouterLink>
+      </template>
+    </NoticeBanner>
     <TabNav v-model="activeTab" :tabs="tabs" label="신청 자격 상태별 보기" :id-prefix="ID_PREFIX" />
     <div v-if="hasPrograms" class="recommend__options">
       <label class="form-check recommend__closed">

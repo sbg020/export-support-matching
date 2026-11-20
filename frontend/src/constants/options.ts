@@ -294,7 +294,7 @@ export const PROFILE_STEPS: ProfileStepDefinition[] = [
   {
     id: 2,
     title: '기업 규모',
-    description: '업종과 최근 매출액을 입력해 주세요.',
+    description: '업종과 최근 매출액을 입력해 주세요. 재무제표 금액(전기 매출액·영업이익·당기순이익·부채총계·자본총계)은 선택 입력이며, 입력하면 적합도의 재무 요소를 계산합니다.',
     optional: false,
   },
   {
@@ -323,8 +323,8 @@ export const PROFILE_STEPS: ProfileStepDefinition[] = [
   },
   {
     id: 7,
-    title: '재무·신청 전 확인',
-    description: '재무제표 금액과 공통 결격 사유를 알려 주세요. 선택 입력이며, 입력하면 신청 자격과 적합도를 더 정확하게 계산합니다.',
+    title: '신청 전 확인',
+    description: '공통 결격 사유와 참여 조건을 알려 주세요. 선택 입력이며, 입력하면 신청 자격을 더 정확하게 판정합니다.',
     optional: true,
   },
 ]

@@ -202,3 +202,19 @@ describe('맞춤 공고 페이지 (탭마다 10개씩)', () => {
     expect(wrapper.find('.recommend__pager [aria-current="page"]').text()).toBe('3')
   })
 })
+
+describe('재무 정보 미입력 경고', () => {
+  it('재무제표 금액이 빠졌으면 맞춤 공고에 경고를 보여 주고, 모두 있으면(TEST) 보여 주지 않는다', async () => {
+    setData([[draftProgram({ id: 'E1', title: '가능 A' }), evaluation('eligible', 50)]])
+    const first = await mountAt('/programs/recommended')
+    expect(first.wrapper.text()).not.toContain('재무 정보를 입력하지 않았습니다')
+    first.wrapper.unmount()
+
+    useProfileStore().replaceProfile({ ...createTestAccountProfile(), operatingIncomeKrw: null })
+    const second = await mountAt('/programs/recommended')
+    expect(second.wrapper.text()).toContain('재무 정보를 입력하지 않았습니다')
+    expect(second.wrapper.text()).toContain('0점')
+    const link = second.wrapper.findAll('a').find((a) => a.text().includes('재무 정보 입력하기'))
+    expect(link?.attributes('href')).toBe('/profile?step=2')
+  })
+})

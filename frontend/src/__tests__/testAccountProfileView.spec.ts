@@ -41,3 +41,26 @@ describe('기업 프로필 안내 카드', () => {
     wrapper.unmount()
   })
 })
+
+describe('재무제표 금액 위치', () => {
+  it('② 기업 규모에 5개 선택 항목과 출처가 있고, ⑦은 신청 전 확인만 남는다', async () => {
+    const router = createRouter({ history: createMemoryHistory(), routes })
+    await router.push('/profile?step=2')
+    await router.isReady()
+    const step2 = mount(DiagnoseInputView, { global: { plugins: [router] } })
+    await flushPromises()
+    for (const label of ['전기 매출액', '영업이익', '당기순이익', '부채총계', '자본총계', '재무제표 금액 (선택 입력)']) {
+      expect(step2.text()).toContain(label)
+    }
+    expect(step2.text()).toContain('출처: 손익계산서')
+    expect(step2.text()).toContain('출처: 재무상태표')
+    step2.unmount()
+
+    await router.push('/profile?step=7')
+    const step7 = mount(DiagnoseInputView, { global: { plugins: [router] } })
+    await flushPromises()
+    expect(step7.text()).toContain('신청 전 확인')
+    expect(step7.text()).not.toContain('재무제표 금액 (선택 입력)')
+    step7.unmount()
+  })
+})

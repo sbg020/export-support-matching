@@ -238,7 +238,10 @@ export function computeFitV1Factors(profile: CompanyProfile, program: Program, c
 
   // 4) 재무 원형 × 사업 분류 (기준표 v4, 수출단계별 군집)
   const finance = financeArchetype(profile, stage)
-  if (!finance.archetype) {
+  if (finance.reason === '재무 미입력') {
+    // 재무제표 금액을 입력하지 않은 기업은 재무 요소 0점 (기업 프로필 ② 기업 규모에서 선택 입력)
+    out.push(factor('finance', 0, '재무제표 금액을 입력하지 않아 0점'))
+  } else if (!finance.archetype) {
     out.push(factor('finance', null, `${finance.reason}으로 제외`))
   } else if (cats.length === 0) {
     out.push(factor('finance', null, '공고 사업 분류가 없어 제외'))
