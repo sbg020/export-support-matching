@@ -38,9 +38,6 @@ const sourceConnected = isSourceConnected(programRepository.source)
 const profileEmpty = computed(() => profileStore.assessment.value.status === 'empty')
 /** 마감이 지난 공고는 기본으로 숨긴다 */
 const includeClosed = ref(false)
-const closedCount = computed(() =>
-  hasPrograms.value ? evaluation.programs.value.filter((p) => p.receptionStatus === 'closed').length : 0,
-)
 function visible(p: { receptionStatus: string | null }): boolean {
   return includeClosed.value || p.receptionStatus !== 'closed'
 }
@@ -171,9 +168,6 @@ function toggleCompare(id: string) {
         <input v-model="includeClosed" type="checkbox" class="form-check-input" />
         <span class="form-check-label">마감 공고 포함</span>
       </label>
-      <span class="fs-sm text-muted-strong">
-        게시 공고 {{ evaluation.programs.value.length }}건 중 마감 {{ closedCount }}건{{ includeClosed ? ' 포함' : '은 숨김' }}
-      </span>
     </div>
 
     <p v-if="unjudgedCount > 0" class="recommend__unjudged">
