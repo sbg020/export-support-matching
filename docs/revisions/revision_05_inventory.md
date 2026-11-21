@@ -213,3 +213,7 @@
 - **화면:** 관리자 > 기업마당 수집(`/admin/bizinfo`)의 수집 상태(마지막 수집 시각·건수), 수집 로그 1줄(수정공고 `-`), '수집한 공고' 표(중분류 필터·검색·20건씩 쪽 나눔·행 펼침 상세). 공고 검수·공고 관리·사용자 화면에는 넣지 않았다.
 - **코드:** `AdminRepository.getBizinfoCollection()`, `SnapshotAdminRepository.listCollectionRuns()`, `components/admin/BizinfoCollectedTable.vue`, 테스트 `src/__tests__/bizinfoCollection.spec.ts`. 데이터는 관리자 화면을 열 때만 따로 불러온다(빌드 청크 gzip 약 64KB).
 - **다시 받기:** 같은 방식으로 API 응답을 받아 이 JSON 파일만 바꾸고 다시 배포한다.
+
+## 17. 관리자 메뉴 구조 (2026-11-21)
+
+- 상위 메뉴: 관리자 홈 · **API 수집** · **직접 업로드** · 공고 검수 · 공고 관리 · 기준·설정. 하위 탭(화면 제목 아래, 사용자 화면의 하위 메뉴와 같은 모양): API 수집 > 기업마당(`/admin/bizinfo`), 직접 업로드 > KOTRA(`/admin/kotra`)·KITA(`/admin/kita`). 상위 메뉴를 누르면 첫 하위 탭을 열고, 하위 화면에서는 상위 메뉴를 현재로 표시한다. 주소는 그대로다 (`frontend/src/constants/adminNavigation.ts`, `components/layout/SectionNav.vue`).

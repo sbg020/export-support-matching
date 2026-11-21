@@ -12,7 +12,7 @@ import { ADMIN_HOME_PATH, AFTER_LOGIN_PATH, afterLoginPath, safeRedirect } from 
 import { programRepository } from '@/repositories'
 import { adminRepository, EmptyAdminRepository, NOT_CONNECTED_ERROR, type AdminRepository } from '@/repositories/admin'
 import { NAV_SECTIONS, firstRouteName, sectionByKey } from '@/constants/navigation'
-import { ADMIN_NAV_ITEMS, ADMIN_ONLY_MESSAGE } from '@/constants/adminNavigation'
+import { ADMIN_ONLY_MESSAGE, ADMIN_PAGES } from '@/constants/adminNavigation'
 import { recommendationDeadlineText, supportContentLine } from '@/lib/programDisplay'
 import { createTestAccountProfile } from '@/data/testAccountProfile'
 import { createEmptyProfile } from '@/lib/profile'
@@ -355,7 +355,7 @@ describe('이동 규칙 (§5.2)', () => {
 describe('관리자 영역 (§5.3·§6~§12)', () => {
   it('관리자 경로 7개가 관리자 레이아웃·메뉴·관리자 전용으로 등록되어 있다', () => {
     const router = makeRouter()
-    expect(ADMIN_PATHS.map((path) => router.resolve(path).name)).toEqual(ADMIN_NAV_ITEMS.map((item) => item.routeName))
+    expect(ADMIN_PATHS.map((path) => router.resolve(path).name)).toEqual(ADMIN_PAGES.map((item) => item.routeName))
     for (const path of ADMIN_PATHS) {
       expect(router.resolve(path).meta).toMatchObject({ layout: 'admin', requiresAdmin: true })
       expect(router.resolve(path).meta.section).toBeUndefined()
@@ -363,7 +363,7 @@ describe('관리자 영역 (§5.3·§6~§12)', () => {
   })
 
   it('사용자 메뉴(주 메뉴·하위 메뉴·서랍)에는 관리자 항목이 없다', async () => {
-    const adminRoutes = new Set(ADMIN_NAV_ITEMS.map((item) => item.routeName))
+    const adminRoutes = new Set(ADMIN_PAGES.map((item) => item.routeName))
     expect(NAV_SECTIONS.flatMap((s) => s.items).some((item) => adminRoutes.has(item.routeName))).toBe(false)
     const router = makeRouter()
     await at(router, '/programs')
@@ -372,17 +372,38 @@ describe('관리자 영역 (§5.3·§6~§12)', () => {
     header.unmount()
   })
 
-  it('관리자 헤더: 메뉴 7개 (REVISION_05: KITA 업로드 추가), 현재 화면 aria-current, 사용자 화면 보기', async () => {
+  it('관리자 헤더: 상위 메뉴 6개 (API 수집 > 기업마당, 직접 업로드 > KOTRA·KITA), 현재 화면 aria-current, 사용자 화면 보기', async () => {
     const router = makeRouter()
     await at(router, '/admin/notices')
     const header = mount(AdminHeader, { props: { menuOpen: false }, global: { plugins: [router] } })
     const links = header.findAll('.admin-nav__link')
-    expect(links.map((a) => a.text())).toEqual(['관리자 홈', '기업마당 수집', 'KOTRA 업로드', 'KITA 업로드', '공고 검수', '공고 관리', '기준·설정'])
+    expect(links.map((a) => a.text())).toEqual(['관리자 홈', 'API 수집', '직접 업로드', '공고 검수', '공고 관리', '기준·설정'])
+    expect(links[1]?.attributes('href')).toBe('/admin/bizinfo')
+    expect(links[2]?.attributes('href')).toBe('/admin/kotra')
     expect(header.findAll('[aria-current="page"]').map((a) => a.text())).toEqual(['공고 관리'])
     const userView = header.findAll('a').find((a) => a.text() === '사용자 화면 보기')
     expect(userView?.attributes('href')).toBe('/programs/recommended')
     expect(header.get('.brand-link').attributes('href')).toBe('/admin')
     header.unmount()
+  })
+
+  it.each([
+    ['/admin/bizinfo', 'API 수집', ['기업마당'], '기업마당'],
+    ['/admin/kotra', '직접 업로드', ['KOTRA', 'KITA'], 'KOTRA'],
+    ['/admin/kita', '직접 업로드', ['KOTRA', 'KITA'], 'KITA'],
+  ])('%s: 상위 메뉴 %s가 현재이고, 화면 제목 아래 하위 탭이 있다', async (path, group, tabs, current) => {
+    const wrapper = await mountApp(path)
+    expect(wrapper.find('.admin-nav__link[aria-current="page"]').text()).toBe(group)
+    const sub = wrapper.get(`nav[aria-label="${group} 하위 메뉴"]`)
+    expect(sub.findAll('a').map((a) => a.text())).toEqual(tabs)
+    expect(sub.get('[aria-current="page"]').text()).toBe(current)
+    wrapper.unmount()
+  })
+
+  it('하위 탭이 없는 관리자 화면에는 하위 메뉴가 없다', async () => {
+    const wrapper = await mountApp('/admin/notices')
+    expect(wrapper.find('.section-nav').exists()).toBe(false)
+    wrapper.unmount()
   })
 
   it.each(ADMIN_PATHS)('%s: 저장소 안내가 있고, 저장이 필요한 버튼은 모두 비활성이며 이유가 연결된다', async (path) => {

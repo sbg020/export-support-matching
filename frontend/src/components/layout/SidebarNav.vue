@@ -3,12 +3,12 @@
  * 모바일 서랍의 메뉴 (REVISION_03 §3.3, REVISION_04 §6.1). 아이콘 없이 글자만 둔다.
  * - user: 주 메뉴 5개. 각 메뉴는 그 섹션의 첫 번째 하위 메뉴로 이동한다. 홈·로그인·기업 프로필에서는 아무것도
  *   선택하지 않는다. 하위 화면은 각 화면 제목 아래의 하위 메뉴 탭으로 이동한다.
- * - admin: 관리자 메뉴 6개와 '사용자 화면 보기'. 사용자 메뉴에는 관리자 항목을 넣지 않는다.
+ * - admin: 관리자 상위 메뉴 6개(API 수집·직접 업로드는 첫 하위 탭으로)와 '사용자 화면 보기'. 하위 탭은 화면 제목 아래에 있다. 사용자 메뉴에는 관리자 항목을 넣지 않는다.
  */
 import { computed } from 'vue'
 import { useRoute, type RouteLocationRaw } from 'vue-router'
 import { NAV_SECTIONS, firstRouteName } from '@/constants/navigation'
-import { ADMIN_NAV_ITEMS } from '@/constants/adminNavigation'
+import { ADMIN_NAV_ITEMS, adminItemCurrent } from '@/constants/adminNavigation'
 
 const props = withDefaults(defineProps<{ variant?: 'user' | 'admin' }>(), { variant: 'user' })
 
@@ -28,7 +28,7 @@ const items = computed<DrawerItem[]>(() =>
           key: item.key,
           label: item.label,
           to: { name: item.routeName },
-          current: route.meta.adminMenu === item.key,
+          current: adminItemCurrent(item, route) === 'page',
         })),
         { key: 'user-view', label: '사용자 화면 보기', to: { name: 'programs-recommended' }, current: false },
       ]

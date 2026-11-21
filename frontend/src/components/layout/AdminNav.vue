@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /**
- * 관리자 메뉴 6개 (데스크톱, REVISION_04 §6.1). 하위 메뉴 없음.
+ * 관리자 상위 메뉴 6개 (데스크톱, REVISION_04 §6.1). API 수집(기업마당)·직접 업로드(KOTRA·KITA)의 하위 탭은
+ * 화면 제목 아래(SectionNav)에 있고, 하위 화면에 있으면 상위 메뉴를 현재로 표시한다.
  * 현재 화면은 aria-current="page", 굵은 글씨, 강조 글자색, 3px 밑줄 (사용자 상단 메뉴와 같은 표시).
  */
 import { useRoute } from 'vue-router'

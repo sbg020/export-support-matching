@@ -6,9 +6,21 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { navItemCurrent, sectionByKey } from '@/constants/navigation'
+import { adminGroupOf, adminItemCurrent } from '@/constants/adminNavigation'
 
 const route = useRoute()
-const section = computed(() => sectionByKey(route.meta.section))
+
+/** 사용자 화면은 섹션의 하위 메뉴, 관리자 화면은 상위 메뉴(API 수집·직접 업로드)의 하위 탭 */
+const section = computed(() => {
+  if (route.meta.layout === 'admin') {
+    const group = adminGroupOf(route.meta.adminMenu)
+    return group
+      ? { label: group.label, items: (group.children ?? []).map((c) => ({ ...c, current: adminItemCurrent(c, route) })) }
+      : null
+  }
+  const user = sectionByKey(route.meta.section)
+  return user ? { label: user.label, items: user.items.map((i) => ({ ...i, current: navItemCurrent(i, route) })) } : null
+})
 </script>
 
 <template>
@@ -19,8 +31,8 @@ const section = computed(() => sectionByKey(route.meta.section))
           <a
             :href="href"
             class="section-nav__link"
-            :class="{ 'is-current': navItemCurrent(item, route) }"
-            :aria-current="navItemCurrent(item, route)"
+            :class="{ 'is-current': item.current }"
+            :aria-current="item.current"
             @click="navigate"
           >
             {{ item.label }}
