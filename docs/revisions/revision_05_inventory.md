@@ -218,3 +218,10 @@
 
 - 상위 메뉴: 관리자 홈 · **API 수집** · **직접 업로드** · 공고 검수 · 공고 관리 · 기준·설정. 하위 탭(화면 제목 아래, 사용자 화면의 하위 메뉴와 같은 모양): API 수집 > 기업마당(`/admin/bizinfo`), 직접 업로드 > KOTRA(`/admin/kotra`)·KITA(`/admin/kita`). 상위 메뉴를 누르면 첫 하위 탭을 열고, 하위 화면에서는 상위 메뉴를 현재로 표시한다. 주소는 그대로다 (`frontend/src/constants/adminNavigation.ts`, `components/layout/SectionNav.vue`).
 - (2026-11-21) 모든 관리자 화면 제목 아래의 '공고 저장소가 연결되지 않았습니다 (읽기 전용)' 안내 카드(`AdminStoreNotice`)를 삭제했다. 저장이 필요한 버튼은 그대로 비활성이며 버튼마다 이유를 보여 준다.
+
+## 18. 운영 확인용 검수 대기 5건 (2026-11-21)
+
+- `frontend/src/data/published/admin-review-trial.json`: 게시 공고(정답세트, 조건·원문 텍스트가 있는 공고)에서 무작위로 고른 5건(시드 20261121) — P029 해외지사화, P053 FTA 맞춤형 컨설팅, P083 수출입 애로 바우처(부산), P098 EMS 해외물류비, P101 울산 수출 전문가 컨설팅. 사본 ID는 `RV-P029`처럼 앞에 `RV-`를 붙여 게시 공고와 겹치지 않게 했고, 상태는 `검수 대기`, 원문 텍스트는 `backend/data/cache/goldset_texts.json`에서 가져왔다.
+- 관리자 저장소(`snapshotAdminRepository.loadAdminReview`)가 backend가 만든 `admin-review.json`과 합쳐 읽는다(백엔드 스냅샷 파일은 고치지 않음). 관리자 홈의 검수 대기 수·공고 검수 목록·검수 상세·공고 관리에 나온다. 사용자 화면이 읽는 `notices.json`(324건)은 바뀌지 않는다. 승인·반려는 저장소가 없어 지금처럼 비활성이다.
+- 지우려면 이 JSON 파일의 `items`를 비우고 다시 배포한다.
+

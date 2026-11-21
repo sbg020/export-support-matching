@@ -1,6 +1,7 @@
 /*
  * 관리자 화면용 읽기 전용 저장소 (REVISION_05). 서버 DB가 없는 배포 환경에서 쓴다.
  * - 게시 공고: src/data/published/notices.json, 검수 대기·텍스트 추출 불가: admin-review.json
+ * - 운영 확인용 검수 대기 5건: admin-review-trial.json (게시 공고 사본, 사용자 화면에는 쓰지 않는다)
  * - 기업마당 수집: bizinfo-collection.json (기업마당 지원사업정보 API 수출 분야 응답을 한 번 받아 둔 것. 키는 들어 있지 않다)
  *   (backend `export_public_snapshot`이 만든다. 공고 원문과 추출 조건만 있고 사용자 정보는 없다)
  * - 쓰기(승인·반려·일괄 게시·수집·업로드 반영 등)는 저장소가 없어 막는다. canWrite = false.
@@ -38,8 +39,21 @@ interface AdminReviewSnapshot {
 }
 
 let reviewCache: Promise<AdminReviewSnapshot> | null = null
+/**
+ * 검수 대기 = 스냅샷(admin-review.json, backend가 만든다) + 운영 확인용 검수 대기(admin-review-trial.json).
+ * 운영 확인용은 게시 공고에서 무작위로 고른 5건의 사본(ID 앞에 'RV-')이며 관리자 화면에서만 읽는다.
+ */
 export function loadAdminReview(): Promise<AdminReviewSnapshot> {
-  reviewCache ??= import('@/data/published/admin-review.json').then((m) => m.default as unknown as AdminReviewSnapshot)
+  reviewCache ??= Promise.all([
+    import('@/data/published/admin-review.json').then((m) => m.default as unknown as AdminReviewSnapshot),
+    import('@/data/published/admin-review-trial.json').then((m) => m.default as unknown as { items: AdminReviewEntry[] }),
+  ]).then(([base, trial]) => {
+    const trialPending = trial.items.filter((r) => r.status === 'pending-review').length
+    return {
+      meta: { ...base.meta, counts: { ...base.meta.counts, pending: base.meta.counts.pending + trialPending } },
+      items: [...trial.items, ...base.items],
+    }
+  })
   return reviewCache
 }
 

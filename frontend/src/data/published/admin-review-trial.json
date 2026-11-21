@@ -1,0 +1,2110 @@
+{
+ "meta": {
+  "purpose": "운영 확인용 검수 대기 공고. 게시 공고에서 무작위로 고른 사본이며 사용자 화면에는 쓰지 않는다",
+  "createdAt": "2026-11-21",
+  "seed": 20261121,
+  "poolSize": 130,
+  "sourceIds": [
+   "P029",
+   "P053",
+   "P083",
+   "P098",
+   "P101"
+  ]
+ },
+ "items": [
+  {
+   "notice": {
+    "id": "RV-P029",
+    "parentId": "P029",
+    "subProgramName": null,
+    "title": "『2026년 중소기업 해외지사화 지원사업』모집공고",
+    "sourceTitle": "『2026년 중소기업 해외지사화 지원사업』모집공고",
+    "sourceFile": "기업마당_[경기] 안양시 2026년 중소기업 해외지사화 지원사업 공고.pdf",
+    "sourceUrl": null,
+    "sourcePublishedAt": null,
+    "verifiedAt": null,
+    "applyStart": "2026-03-24",
+    "applyEnd": "2026-12-11",
+    "applyPeriodNote": "접수기간 2026. 3. 24. ~ 12. 11 (예산 소진 시 종료), 이메일·방문 접수. p3에는 접수기간이 2026. 2. 17. ~ 12. 10.으로 적혀 있어 다름. 공고일은 '2026년 3월'로 일자 없음. 매월 말 접수분을 검토해 익월 지급",
+    "applyPeriodSource": {
+     "quote": "❍ 접수기간 : 2026. 3. 24. ~ 2026. 12. 11 (예산 소진시 종료)",
+     "url": null,
+     "locator": "1쪽"
+    },
+    "receptionStatus": "open",
+    "receptionStatusAsOf": "2026-10-20",
+    "announcementDate": null,
+    "agreementDate": null,
+    "ministry": "안양산업진흥원",
+    "agency": "안양산업진흥원 마케팅지원부",
+    "agencyType": "public-agency",
+    "regions": [
+     "gyeonggi"
+    ],
+    "regionDistricts": [
+     "안양시"
+    ],
+    "regionNote": null,
+    "supportTypes": [
+     "grant",
+     "in-kind"
+    ],
+    "supportTypesNote": "비용 보조 (해외지사화 사업 참가비 사후 지원)",
+    "maxAmountKrw": 2000000,
+    "totalBudgetMaxKrw": null,
+    "amountNote": "해외지사화 사업 참가비, 기업당 1개 지역 최대 200만원 한도",
+    "amountSource": {
+     "quote": "❍ 지원내용 : 해외지사화 사업 참가비 최대 2,000천원 지원",
+     "url": null,
+     "locator": "1쪽"
+    },
+    "selfPayment": {
+     "ratioPercent": null,
+     "note": "참가비 중 200만원 초과분",
+     "source": {
+      "quote": "❍ 지원내용 : 해외지사화 사업 참가비 최대 2,000천원 지원",
+      "url": null,
+      "locator": "1쪽"
+     }
+    },
+    "settlement": {
+     "type": "reimbursement",
+     "source": {
+      "quote": "비용 보조 (해외지사화 사업 참가비 사후 지원)",
+      "url": null,
+      "locator": null
+     }
+    },
+    "selectionSize": "10개사 내외 (적격성 검토)",
+    "targetExportStages": null,
+    "targetStageSource": null,
+    "supportCategories": [
+     "C01"
+    ],
+    "categorySource": {
+     "quote": "❍ 지원내용 : 해외지사화 사업 참가비 최대 2,000천원 지원",
+     "url": null,
+     "locator": "1쪽"
+    },
+    "isVoucherMenu": false,
+    "outOfCategoryScope": false,
+    "summaryEasy": null,
+    "targetDescription": null,
+    "useExamples": null,
+    "obligations": null,
+    "prepEstimate": null,
+    "eligibilityRules": null,
+    "requiredDocs": [
+     {
+      "id": "P029-D01",
+      "name": "사업신청서",
+      "originalName": "[서식1] 지원사업 신청서",
+      "requirement": "required",
+      "documentType": null,
+      "isProgramForm": true,
+      "note": null,
+      "source": {
+       "quote": "1. [서식1] 지원사업 신청서",
+       "url": null,
+       "locator": "3쪽"
+      }
+     },
+     {
+      "id": "P029-D02",
+      "name": "개인(신용)정보 동의서",
+      "originalName": "[서식2] 개인·기업 정보이용 및 제공 동의서",
+      "requirement": "required",
+      "documentType": null,
+      "isProgramForm": true,
+      "note": null,
+      "source": {
+       "quote": "정보이용 및 제공 동의서",
+       "url": null,
+       "locator": "3쪽"
+      }
+     },
+     {
+      "id": "P029-D03",
+      "name": "서약서",
+      "originalName": "[서식3] 서약서",
+      "requirement": "required",
+      "documentType": null,
+      "isProgramForm": true,
+      "note": null,
+      "source": {
+       "quote": "3. [서식3] 서약서",
+       "url": null,
+       "locator": "3쪽"
+      }
+     },
+     {
+      "id": "P029-D04",
+      "name": "사업자등록증",
+      "originalName": "사업자등록증",
+      "requirement": "required",
+      "documentType": "business-registration",
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "4. 사업자등록증",
+       "url": null,
+       "locator": "3쪽"
+      }
+     },
+     {
+      "id": "P029-D05",
+      "name": "기타",
+      "originalName": "해외지사화 사업 협약서",
+      "requirement": "required",
+      "documentType": null,
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "5. 해외지사화 사업 협약서",
+       "url": null,
+       "locator": "3쪽"
+      }
+     },
+     {
+      "id": "P029-D06",
+      "name": "기타",
+      "originalName": "지출증빙 (전자세금계산서와 송금확인증 또는 카드매출전표)",
+      "requirement": "required",
+      "documentType": null,
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "6. 지출증빙 (전자세금계산서와 송금확인증 또는 카드매출전표)",
+       "url": null,
+       "locator": "3쪽"
+      }
+     },
+     {
+      "id": "P029-D07",
+      "name": "통장 사본",
+      "originalName": "통장 사본",
+      "requirement": "required",
+      "documentType": "bank-account-copy",
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "7. 통장 사본",
+       "url": null,
+       "locator": "3쪽"
+      }
+     }
+    ],
+    "bonusItems": [],
+    "duplicateSupportNotes": null,
+    "groupKey": null,
+    "relatedProgramIds": [],
+    "draftNotes": "KOTRA·중진공·OKTA 해외지사화 사업에 협약을 마친 뒤 낸 참가비를 사후 지원(P028 시흥과 같은 유형, C01). 간이영수증·현금 지출 불인정. 수행 도중 해지 시 잔액 환수, 특별한 사유 없이 미수행·포기하면 2년간 진흥원 사업 참가 제한 가능.",
+    "review": {
+     "author": "Claude (초안)",
+     "status": "확인",
+     "source": "미검수(초안)",
+     "reviewer": "구성빈"
+    },
+    "dataState": "draft",
+    "publishSource": "answer-set",
+    "publishSourceLabel": "정답세트(2026-11)",
+    "autoExtracted": false,
+    "publishStatus": "published",
+    "conditions": [
+     {
+      "condId": "P029-R01",
+      "programId": "P029",
+      "parentId": "P029",
+      "scope": null,
+      "kind": "필수",
+      "group": "A",
+      "condType": "A01",
+      "condTypes": "A01",
+      "affectsVerdict": true,
+      "field": "company_type",
+      "op": "in",
+      "valueRaw": "중소기업",
+      "expr": {
+       "atom": "company_type",
+       "op": "in",
+       "value": [
+        "중소기업"
+       ]
+      },
+      "exprText": "company_type ∈ [중소기업]",
+      "certainty": "명확",
+      "evidence": "▸ 중소기업기본법 제2조에 의한 중소기업",
+      "page": 1,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     },
+     {
+      "condId": "P029-R02",
+      "programId": "P029",
+      "parentId": "P029",
+      "scope": null,
+      "kind": "필수",
+      "group": "B",
+      "condType": "A02",
+      "condTypes": "A02",
+      "affectsVerdict": true,
+      "field": "hq_region",
+      "op": "in",
+      "valueRaw": "경기 안양시",
+      "expr": {
+       "atom": "hq_region",
+       "op": "in",
+       "value": [
+        "경기 안양시"
+       ]
+      },
+      "exprText": "hq_region ∈ [경기 안양시]",
+      "certainty": "명확",
+      "evidence": "▸ 안양시 본사 또는 공장 소재",
+      "page": 1,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": "R03과 '또는'"
+     },
+     {
+      "condId": "P029-R03",
+      "programId": "P029",
+      "parentId": "P029",
+      "scope": null,
+      "kind": "필수",
+      "group": "B",
+      "condType": "A03",
+      "condTypes": "A03",
+      "affectsVerdict": true,
+      "field": "site_region",
+      "op": "in",
+      "valueRaw": "경기 안양시",
+      "expr": {
+       "atom": "site_region",
+       "op": "in",
+       "value": [
+        "경기 안양시"
+       ]
+      },
+      "exprText": "site_region ∈ [경기 안양시]",
+      "certainty": "명확",
+      "evidence": "▸ 안양시 본사 또는 공장 소재",
+      "page": 1,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": "R02와 '또는'"
+     },
+     {
+      "condId": "P029-R04",
+      "programId": "P029",
+      "parentId": "P029",
+      "scope": null,
+      "kind": "필수",
+      "group": "C",
+      "condType": "C01",
+      "condTypes": "C01",
+      "affectsVerdict": true,
+      "field": "manual_check",
+      "op": "-",
+      "valueRaw": "2026년 산업통상자원부 해외지사화 사업 협약 체결 완료 (KOTRA·중진공·OKTA)",
+      "expr": {
+       "check": "2026년 산업통상자원부 해외지사화 사업 협약 체결 완료 (KOTRA·중진공·OKTA)"
+      },
+      "exprText": "확인필요:\"2026년 산업통상자원부 해외지사화 사업 협약 체결 완료 (KOTRA·중진공·OKTA)\"",
+      "certainty": "명확",
+      "evidence": "▸ 2026년 산업통상자원부 해외지사화 사업 협약 체결 완료 기업",
+      "page": 1,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     },
+     {
+      "condId": "P029-R05",
+      "programId": "P029",
+      "parentId": "P029",
+      "scope": null,
+      "kind": "제외",
+      "group": "-",
+      "condType": "A01",
+      "condTypes": "A01",
+      "affectsVerdict": true,
+      "field": "company_type",
+      "op": "in",
+      "valueRaw": "중견기업, 대기업",
+      "expr": {
+       "atom": "company_type",
+       "op": "in",
+       "value": [
+        "중견기업",
+        "대기업"
+       ]
+      },
+      "exprText": "company_type ∈ [중견기업, 대기업]",
+      "certainty": "명확",
+      "evidence": "▸ 중견기업 및 대기업",
+      "page": 1,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     },
+     {
+      "condId": "P029-R06",
+      "programId": "P029",
+      "parentId": "P029",
+      "scope": null,
+      "kind": "제외",
+      "group": "-",
+      "condType": "B06",
+      "condTypes": "B06",
+      "affectsVerdict": true,
+      "field": "manual_check",
+      "op": "-",
+      "valueRaw": "같은 내역으로 정부·지자체·유관기관 지원을 받음 (일부 또는 전체)",
+      "expr": {
+       "flag": "B06"
+      },
+      "exprText": "자기신고:B06 해당",
+      "certainty": "명확",
+      "evidence": "▸ 정부, 지자체 또는 유관기관 등으로부터 동일 내역에 대해 일부 또는 전체를 지원받는 기업",
+      "page": 1,
+      "importance": "체크리스트",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": "중복 지원이면 지원 취소"
+     }
+    ]
+   },
+   "status": "pending-review",
+   "fileName": "기업마당_[경기] 안양시 2026년 중소기업 해외지사화 지원사업 공고.pdf",
+   "reason": null,
+   "pages": [
+    "안양산업진흥원 공고 제2026 - 24호\n『2026년 중소기업 해외지사화 지원사업』모집공고\n안양산업진흥원은 공공기관의 해외 네트워크를 현지 비즈니스 거점으로 활용하여 관내\n중소기업의 해외진출 및 수출 촉진을 지원하기 위한 「2026년 중소기업 해외지사화 지원\n사업」 시행을 다음과 같이 공고합니다.\n2026년 3월\n안양산업진흥원장(직인생략)\nⅠ 사업개요\n❍ 공고기간 : 2026. 3. 24. ~ 2026. 12. 11\n❍ 접수기간 : 2026. 3. 24. ~ 2026. 12. 11 (예산 소진시 종료)\n❍ 지원규모 : 10개사 내외\n❍ 지원대상 : 안양시 소재 중소기업\n▸ 2026년 산업통상자원부 해외지사화 사업 협약 체결 완료 기업\n※수행기관 : 대한무역투자진흥공사(KOTRA), 중소벤처기업진흥공단(KOSME), 세계한인무역협회(OKTA)\n▸ 안양시 본사 또는 공장 소재\n▸ 중소기업기본법 제2조에 의한 중소기업\n❍ 지원제외\n▸ 중견기업 및 대기업\n▸ 정부, 지자체 또는 유관기관 등으로부터 동일 내역에 대해 일부 또는 전체를 지원받는 기업\n❍ 지원내용 : 해외지사화 사업 참가비 최대 2,000천원 지원\nⅡ 세부내용\n❍ 지원 내용 : 해외지사화 사업 참가비 지원\n▶ 기업당 1개 지역, 최대 200만원 한도\n▶ 협약 체결 완료 후 지원 접수\n단계 주요 지원내용 기간 기업부담금 수행기관\n[기초 마케팅 지원]\n진입 기초 시장조사, 잠재바이어 조사, 네트워크 교류, 기초 홍보자료 현지어 번역, 6개월 100만원 OKTA\n시판매(소비재 전용)\n150~360만원\n6개월 KORTA\n[마케팅 및 수출지원] (지역별 차등)\n수출성약 지원, 전시･상담회 참가 지원, 물류통관 자문, 출장지원, 기존 거래선\n225~375만원\n발전 9개월 중진공\n(지역별 차등)\n관리, 현지 유통망 입점, 인허가 취득지원, 브랜드 홍보, 프로젝트 참가, IP등록,\n현지법인 설립 지원 250~600만원\n1년 KOTRA\n(지역별 차등)\n[수출 및 현지화 지원]\n기술수출(제휴), 글로벌 밸류체인 진출, 액셀러레이팅 서비스, 데이터사이언스 600만원\n확장 9개월 중진공\n컨설팅, 조달진출, 품목별 타겟진출, 인큐베이팅 서비스, O2O 지원 서비스, 현지 (지역별 차등)\n투자지원, 법률자문\n※사업 수행 도중 해지 요청 시, 수행 기간의 금액을 제외한 잔액은 환수조치\n❍ 지원절차\n수행기관 해외지사화 사업 신청\n1 사업신청 - 수출바우처 홈페이지 … 수행기관\n(www.exportvoucher.com)\nê\n수행기관 해외지사화 사업 선정\n2 사업선정 및 협약 … 수행기관\n참가비 납부 및 협약 체결\nê\n3 사업수행 협약 내용에 따른 마케팅 활동 전개 … 수행기관\nê\n이메일 및 방문접수\n4 지원금 지급 … 안양산업진흥원\ncws@aba.or.kr / 마케팅지원부\nⅢ 접수 및 선정\n❍ 접수기간 : 2026. 2. 17. ~ 2026. 12. 10.\n❍ 접수방법 : 이메일 및 방문 접수\n❍ 제출서류 ※ 1개 파일로 통합하여 제출\n1. [서식1] 지원사업 신청서\n2. [서식2] 개인․기업 정보이용 및 제공 동의서\n3. [서식3] 서약서\n4. 사업자등록증\n5. 해외지사화 사업 협약서\n6. 지출증빙 (전자세금계산서와 송금확인증 또는 카드매출전표)\n7. 통장 사본\n❍ 선정방법 : 적격성검토(지원자격 및 기본요건)\n❍ 지급절차 : 매월 말 접수 건 취합 검토 후 익월 지급\n▶ 지원기업 개별 통보\nⅣ 주의사항\n❍ 동일 내역으로 타기관에서 지원을 수혜받거나, 수혜 예정 등 중복 지원일 경우 지원 취소\n❍ 간이영수증, 현금 지출 인정 불가\n❍ 지원 선정기업은 특별한 사유 없이 본 사업을 미 수행 또는 포기하는 경우\n향후 2년간 우리원에서 진행하는 기업지원 관련 지원 사업 등에 참가 제한\n등의 불이익을 받을 수 있음\n❍ 동 공고문에서 정하지 아니한 내용은 진흥원 지침을 따르는 것을 원칙으로 함\n❍ 운영상황에 따라 사업이 변경 될 수 있음\nⅥ 문의처\n❍ 마케팅지원부 최원석 차장 (031-8045-6711/cws@aba.or.kr)"
+   ],
+   "trialOf": "P029"
+  },
+  {
+   "notice": {
+    "id": "RV-P053",
+    "parentId": "P053",
+    "subProgramName": null,
+    "title": "FTA 맞춤형 컨설팅 지원사업 공고",
+    "sourceTitle": "FTA 맞춤형 컨설팅 지원사업 공고",
+    "sourceFile": "기업마당_[경북] 2026년 FTA 맞춤형 컨설팅 지원사업 공고.pdf",
+    "sourceUrl": null,
+    "sourcePublishedAt": "2026-03-16",
+    "verifiedAt": null,
+    "applyStart": "2026-03-16",
+    "applyEnd": null,
+    "applyPeriodNote": "2026. 3. 16 ~ 사업비 소진 시까지 연중 수시접수, 이메일 신청",
+    "applyPeriodSource": {
+     "quote": "1. 사업기간 : 2026. 3. 16 ∼ 사업비 소진 시 까지",
+     "url": null,
+     "locator": "1쪽"
+    },
+    "receptionStatus": "open",
+    "receptionStatusAsOf": "2026-10-20",
+    "announcementDate": null,
+    "agreementDate": null,
+    "ministry": "산업통상부, 경상북도, 포항상공회의소 (경북동부FTA통상진흥센터)",
+    "agency": "포항상공회의소 경북동부FTA통상진흥센터",
+    "agencyType": "central-ministry",
+    "regions": [
+     "gyeongbuk"
+    ],
+    "regionDistricts": [],
+    "regionNote": null,
+    "supportTypes": [
+     "consulting",
+     "in-kind"
+    ],
+    "supportTypesNote": "컨설팅 제공 (전문가 POOL 컨설턴트 지정, 기업부담금 없음, 업체당 유형별 1건)",
+    "maxAmountKrw": null,
+    "totalBudgetMaxKrw": null,
+    "amountNote": "컨설팅 유형별 지원 금액(VAT 포함, 기업부담금 없음): 원산지확인서 100만원, 수출기업 맞춤 150만원, 원산지인증수출자 200만원, 원산지 사후검증 200만원. 기업에 현금 지급이 아니라 수치 열은 비움(P049 관행)",
+    "amountSource": {
+     "quote": "③ 원산지인증수출자 컨설팅 : 2,000,000원",
+     "url": null,
+     "locator": "1쪽"
+    },
+    "selfPayment": {
+     "ratioPercent": null,
+     "note": "없음",
+     "source": {
+      "quote": "③ 원산지인증수출자 컨설팅 : 2,000,000원",
+      "url": null,
+      "locator": "1쪽"
+     }
+    },
+    "settlement": null,
+    "selectionSize": "표기 없음 (사업비 소진 시까지)",
+    "targetExportStages": null,
+    "targetStageSource": null,
+    "supportCategories": [
+     "C03"
+    ],
+    "categorySource": {
+     "quote": "① 원산지확인서 컨설팅",
+     "url": null,
+     "locator": "1쪽"
+    },
+    "isVoucherMenu": false,
+    "outOfCategoryScope": false,
+    "summaryEasy": null,
+    "targetDescription": null,
+    "useExamples": null,
+    "obligations": null,
+    "prepEstimate": null,
+    "eligibilityRules": null,
+    "requiredDocs": [
+     {
+      "id": "P053-D01",
+      "name": "사업신청서",
+      "originalName": "신청서 (전문가 POOL 컨설턴트 지정)",
+      "requirement": "required",
+      "documentType": null,
+      "isProgramForm": true,
+      "note": null,
+      "source": {
+       "quote": "- 신청서 작성시 전문가 POOL에 등록된 컨설턴트를 지정후 신청",
+       "url": null,
+       "locator": "2쪽"
+      }
+     },
+     {
+      "id": "P053-D02",
+      "name": "중소기업확인서",
+      "originalName": "중소기업 확인서",
+      "requirement": "required",
+      "documentType": "sme-confirmation",
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "ㅇ 기준 : 중소기업 확인서 + 아래 4가지 중 1가지 조건 이상 충족시 지원",
+       "url": null,
+       "locator": "1쪽"
+      }
+     },
+     {
+      "id": "P053-D03",
+      "name": "공장등록증",
+      "originalName": "경북 소재 공장등록증 (요건 ①)",
+      "requirement": "conditional",
+      "documentType": "factory-registration",
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "① 경북도내 소재한 공장등록증 보유 중소기업",
+       "url": null,
+       "locator": "1쪽"
+      }
+     },
+     {
+      "id": "P053-D04",
+      "name": "기타",
+      "originalName": "건축물대장 (요건 ②)",
+      "requirement": "conditional",
+      "documentType": null,
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "② 제조시설면적 500㎡ 미만으로 건물건축물대상 용도가 경북도내 소재로",
+       "url": null,
+       "locator": "1쪽"
+      }
+     },
+     {
+      "id": "P053-D05",
+      "name": "기타",
+      "originalName": "수출신고필증 (요건 ③)",
+      "requirement": "conditional",
+      "documentType": null,
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "③ 수출신고필증 내 수출대행자 또는 수출화주 또는 제조자가 경북소재로 표기",
+       "url": null,
+       "locator": "1쪽"
+      }
+     },
+     {
+      "id": "P053-D06",
+      "name": "사업자등록증",
+      "originalName": "경북 소재 사업자등록증 (요건 ④ 수출 초보기업)",
+      "requirement": "conditional",
+      "documentType": "business-registration",
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "④ (예외) 수출 초보기업의 경우 경상북도 내 사업자 등록증",
+       "url": null,
+       "locator": "1쪽"
+      }
+     },
+     {
+      "id": "P053-D07",
+      "name": "수출실적증명서",
+      "originalName": "수출실적증명서 (요건 ④ 수출 초보기업)",
+      "requirement": "conditional",
+      "documentType": "export-performance",
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "(수출실적증명서 제출 필요)",
+       "url": null,
+       "locator": "1쪽"
+      }
+     }
+    ],
+    "bonusItems": [],
+    "duplicateSupportNotes": null,
+    "groupKey": "G09",
+    "relatedProgramIds": [
+     "P054",
+     "P055",
+     "P060"
+    ],
+    "draftNotes": "FTA 원산지 컨설팅이라 P049·P054와 같이 C03 (수출기업 맞춤 컨설팅 포함). 유형: 원산지확인서, 수출기업 맞춤, 원산지인증수출자, 원산지 사후검증. 절차: 센터 관세사 사전진단 → 전문가 컨설팅 → 결과보고서 → 만족도 조사. 경북 동부 센터 사업이라 구미 센터(P054·P055) 수행 지역 외 기업이 먼저 신청하는 곳. 요건 ②의 원문 표기는 건물건축물대상(대장의 오기로 보임). 같은 그룹: P060.",
+    "review": {
+     "author": "Claude (초안)",
+     "status": "검수대기",
+     "source": "미검수(초안)",
+     "reviewer": null
+    },
+    "dataState": "draft",
+    "publishSource": "answer-set",
+    "publishSourceLabel": "정답세트(2026-11)",
+    "autoExtracted": false,
+    "publishStatus": "published",
+    "conditions": [
+     {
+      "condId": "P053-R01",
+      "programId": "P053",
+      "parentId": "P053",
+      "scope": null,
+      "kind": "필수",
+      "group": "A",
+      "condType": "A01",
+      "condTypes": "A01",
+      "affectsVerdict": true,
+      "field": "company_type",
+      "op": "in",
+      "valueRaw": "중소기업",
+      "expr": {
+       "atom": "company_type",
+       "op": "in",
+       "value": [
+        "중소기업"
+       ]
+      },
+      "exprText": "company_type ∈ [중소기업]",
+      "certainty": "명확",
+      "evidence": "ㅇ 대상 : 경북소재 중소기업 中 직·간접 수출 또는 수출 희망업체",
+      "page": 1,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": "중소기업 확인서 필수"
+     },
+     {
+      "condId": "P053-R02",
+      "programId": "P053",
+      "parentId": "P053",
+      "scope": null,
+      "kind": "필수",
+      "group": "B",
+      "condType": "B09",
+      "condTypes": "B09",
+      "affectsVerdict": true,
+      "field": "intent",
+      "op": "-",
+      "valueRaw": "직·간접 수출 중이거나 수출 희망",
+      "expr": {
+       "intent": "export"
+      },
+      "exprText": "의향:export",
+      "certainty": "명확",
+      "evidence": "ㅇ 대상 : 경북소재 중소기업 中 직·간접 수출 또는 수출 희망업체",
+      "page": 1,
+      "importance": "체크리스트",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": "수출실적은 필수 아님"
+     },
+     {
+      "condId": "P053-R03",
+      "programId": "P053",
+      "parentId": "P053",
+      "scope": null,
+      "kind": "필수",
+      "group": "C",
+      "condType": "A03",
+      "condTypes": "A03",
+      "affectsVerdict": true,
+      "field": "site_region",
+      "op": "in",
+      "valueRaw": "경북",
+      "expr": {
+       "atom": "site_region",
+       "op": "in",
+       "value": [
+        "경북"
+       ]
+      },
+      "exprText": "site_region ∈ [경북]",
+      "certainty": "명확",
+      "evidence": "① 경북도내 소재한 공장등록증 보유 중소기업",
+      "page": 1,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": "4개 요건 중 1개 이상. R04·R05·R06과 '또는'"
+     },
+     {
+      "condId": "P053-R04",
+      "programId": "P053",
+      "parentId": "P053",
+      "scope": null,
+      "kind": "필수",
+      "group": "C",
+      "condType": "A03",
+      "condTypes": "A03,C03",
+      "affectsVerdict": true,
+      "field": "site_region",
+      "op": "-",
+      "valueRaw": "(제조시설 500㎡ 미만) 건축물대장 용도가 경북 소재 공장·제조업소",
+      "expr": {
+       "all": [
+        {
+         "atom": "site_region",
+         "op": "in",
+         "value": [
+          "경북"
+         ]
+        },
+        {
+         "check": "건축물대장 용도 공장·제조업소 (제조시설 500㎡ 미만)"
+        }
+       ]
+      },
+      "exprText": "모두(site_region ∈ [경북]; 확인필요:\"건축물대장 용도 공장·제조업소 (제조시설 500㎡ 미만)\")",
+      "certainty": "명확",
+      "evidence": "② 제조시설면적 500㎡ 미만으로 건물건축물대상 용도가 경북도내 소재로",
+      "page": 1,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙(구조화 변환)",
+      "note": "R03·R05·R06과 '또는'"
+     },
+     {
+      "condId": "P053-R05",
+      "programId": "P053",
+      "parentId": "P053",
+      "scope": null,
+      "kind": "필수",
+      "group": "C",
+      "condType": "C04",
+      "condTypes": "C04,C05",
+      "affectsVerdict": true,
+      "field": "manual_check",
+      "op": "-",
+      "valueRaw": "수출신고필증상 수출대행자·수출화주·제조자 중 하나가 경북 소재",
+      "expr": {
+       "check": "수출신고필증상 수출대행자·수출화주·제조자 중 하나가 경북 소재"
+      },
+      "exprText": "확인필요:\"수출신고필증상 수출대행자·수출화주·제조자 중 하나가 경북 소재\"",
+      "certainty": "명확",
+      "evidence": "③ 수출신고필증 내 수출대행자 또는 수출화주 또는 제조자가 경북소재로 표기",
+      "page": 1,
+      "importance": "체크리스트",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": "R03·R04·R06과 '또는'"
+     },
+     {
+      "condId": "P053-R06",
+      "programId": "P053",
+      "parentId": "P053",
+      "scope": null,
+      "kind": "필수",
+      "group": "C",
+      "condType": "A02",
+      "condTypes": "A02,A06,A08",
+      "affectsVerdict": true,
+      "field": "business_age_years",
+      "op": "-",
+      "valueRaw": "(예외) 수출 초보기업(창업 5년 이내 또는 전년 수출실적 8천달러 이하)으로 경북 소재 사업자등록",
+      "expr": {
+       "all": [
+        {
+         "any": [
+          {
+           "atom": "business_age_years",
+           "op": "<=",
+           "value": 5
+          },
+          {
+           "atom": "export_usd",
+           "op": "<=",
+           "value": 8000
+          }
+         ]
+        },
+        {
+         "atom": "hq_region",
+         "op": "in",
+         "value": [
+          "경북"
+         ]
+        }
+       ]
+      },
+      "exprText": "모두(하나라도(business_age_years ≤ 5; export_usd ≤ 8000); hq_region ∈ [경북])",
+      "certainty": "명확",
+      "evidence": "④ (예외) 수출 초보기업의 경우 경상북도 내 사업자 등록증",
+      "page": 1,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙(구조화 변환)",
+      "note": "hq_region 경북 AND (업력 5년 이내 OR 전년 수출 8천달러 이하) 복합 조건이라 manual_check (P054 관행). R03~R05와 '또는'"
+     },
+     {
+      "condId": "P053-R07",
+      "programId": "P053",
+      "parentId": "P053",
+      "scope": null,
+      "kind": "제외",
+      "group": "-",
+      "condType": "C07",
+      "condTypes": "C07",
+      "affectsVerdict": false,
+      "field": "manual_check",
+      "op": "-",
+      "valueRaw": "제출 서류 허위 작성",
+      "expr": {
+       "check": "제출 서류 허위 작성"
+      },
+      "exprText": "확인필요:\"제출 서류 허위 작성\"",
+      "certainty": "명확",
+      "evidence": "7. 유의사항 : 제출된 서류가 허위로 작성된 경우 지원대상에서 제외",
+      "page": 2,
+      "importance": "체크리스트",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     }
+    ]
+   },
+   "status": "pending-review",
+   "fileName": "기업마당_[경북] 2026년 FTA 맞춤형 컨설팅 지원사업 공고.pdf",
+   "reason": null,
+   "pages": [
+    "FTA 맞춤형 컨설팅 지원사업 공고\n산업통상부, 경상북도, 포항상공회의소가 운영하는「경북동부FTA통상진흥\n센터」에서는 전문인력 부족으로 FTA 활용에 어려움을 겪고 있는 경북지역\n수출입기업 및 수출물품 제조업체들을 위하여 다음과 같이 FTA 맞춤형 컨설팅\n지원사업을 공고하오니 많은 신청 바랍니다.\n2026. 3. 16\n포항상공회의소 경북동부FTA통상진흥센터 \n 1. 사업기간 : 2026. 3. 16 ~ 사업비 소진 시 까지\n 2. FTA 맞춤형 컨설팅(업체당 컨설팅 유형별 1건 지원)\n ㅇ 유형\n①원산지확인서컨설팅\n.\n②수출기업맞춤컨설팅\n\n③원산지인증수출자컨설팅\n④원산지사후검증컨설팅\n 3. 신청대상\n ㅇ 대상 : 경북소재 중소기업 中 직·간접 수출 또는 수출 희망업체\nㅇ 기준 : 중소기업 확인서 + 아래 4가지 중 1가지 조건 이상 충족시 지원\n ① 경북도내 소재한 공장등록증 보유 중소기업\n ② 제조시설면적 500㎡ 미만으로 건물건축물대상 용도가 경북도내 소재로\n 공장 또는 제조업소로 명시된 기업\n ③ 수출신고필증 내 수출대행자 또는 수출화주 또는 제조자가 경북소재로 표기\n ④ (예외) 수출 초보기업의 경우 경상북도 내 사업자 등록증\n -수출 초보기준 : 창업 이후 5년이내 기업 또는 전년 수출실적 8천달러 이하 기업 \n (수출실적증명서 제출 필요)\n 4. 지원금액(기업부담금 없음, VAT포함)\n ① 원산지확인서 컨설팅 : 1,000,000원 . \n ② 수출기업 맞춤 컨설팅 : 1,500,000원\n ③ 원산지인증수출자 컨설팅 : 2,000,000원 \n ④ 원산지 사후검증 컨설팅 : 2,000,000원\n5. 신청방법 : 사업비 소진시까지 연중 수시접수\n - 신청서는 E-mail(chaems@korcham.net)로만 접수가능(발송후 확인요망)\n - 신청서 작성시 전문가 POOL에 등록된 컨설턴트를 지정후 신청\n ※ 전문가 POOL은 별첨파일 참조\n 6. 지원절차\n대상기업 컨설팅 컨설팅 만족도\n기업체\n➡ 사전진단 ➡ 수행 ➡ 결과보고서 ➡ 조사및\n모집\n(센터관세사) (전문가컨설팅) 제공 평가\n 7. 유의사항 : 제출된 서류가 허위로 작성된 경우 지원대상에서 제외\n 8. 문의처:포항상공회의소경북동부FTA통상진흥센터(054-270-1234)"
+   ],
+   "trialOf": "P053"
+  },
+  {
+   "notice": {
+    "id": "RV-P083",
+    "parentId": "P083",
+    "subProgramName": null,
+    "title": "“2026 수출입 애로 중소기업 바우처 지원사업” 신청기업 모집 (2026. 03.)",
+    "sourceTitle": "“2026 수출입 애로 중소기업 바우처 지원사업” 신청기업 모집 (2026. 03.)",
+    "sourceFile": "기업마당_[부산] 2026년 수출입 애로 중소기업 바우처 지원사업 신청기업 모집 공고.pdf",
+    "sourceUrl": null,
+    "sourcePublishedAt": null,
+    "verifiedAt": null,
+    "applyStart": null,
+    "applyEnd": null,
+    "applyPeriodNote": "공고일 ~ 예산 소진 시까지 상시 모집 (공고문 날짜는 '2026. 03.'만 표기), 부산 수출플랫폼 온라인 신청. 지원가능기간 2026년 4월~11월, '26년 1월 이후 수출 활동 대상, 매 분기 말 지급",
+    "applyPeriodSource": {
+     "quote": "가) 신청기간 : 공고일 ~ 예산 소진시까지(예산 소진시 사업종료)",
+     "url": null,
+     "locator": "3쪽"
+    },
+    "receptionStatus": null,
+    "receptionStatusAsOf": "2026-10-20",
+    "announcementDate": null,
+    "agreementDate": null,
+    "ministry": "(재)부산경제진흥원",
+    "agency": "(재)부산경제진흥원 글로벌사업추진단",
+    "agencyType": "public-agency",
+    "regions": [
+     "busan"
+    ],
+    "regionDistricts": [],
+    "regionNote": null,
+    "supportTypes": [
+     "grant"
+    ],
+    "supportTypesNote": "비용 보조 (2026년 수출활동 비용의 90%를 심사 후 분기 말 지급)",
+    "maxAmountKrw": 3000000,
+    "totalBudgetMaxKrw": null,
+    "amountNote": "지원한도 내 소요금액(VAT 제외)의 90%, 최대 300만원",
+    "amountSource": {
+     "quote": "일부 지원(지원한도內 소요금액(VAT제외)의 90%, 최대한도 300만원 지원)",
+     "url": null,
+     "locator": "1쪽"
+    },
+    "selfPayment": {
+     "ratioPercent": null,
+     "note": "소요금액의 10% + 300만원 초과분",
+     "source": {
+      "quote": "일부 지원(지원한도內 소요금액(VAT제외)의 90%, 최대한도 300만원 지원)",
+      "url": null,
+      "locator": "1쪽"
+     }
+    },
+    "settlement": null,
+    "selectionSize": "290개사 내외 (예산 범위 내, 변동 가능)",
+    "targetExportStages": null,
+    "targetStageSource": null,
+    "supportCategories": [
+     "C12",
+     "C06",
+     "C08",
+     "C09",
+     "C01",
+     "C13",
+     "C05",
+     "C04",
+     "C15",
+     "C14"
+    ],
+    "categorySource": {
+     "quote": "라) 지원분야 : 총9개 분야(기존8개, 신규 1개)",
+     "url": null,
+     "locator": "1쪽"
+    },
+    "isVoucherMenu": true,
+    "outOfCategoryScope": false,
+    "summaryEasy": null,
+    "targetDescription": null,
+    "useExamples": null,
+    "obligations": null,
+    "prepEstimate": null,
+    "eligibilityRules": null,
+    "requiredDocs": [
+     {
+      "id": "P083-D01",
+      "name": "사업신청서",
+      "originalName": "‘지급산정 및 참가신청서’ 양식",
+      "requirement": "required",
+      "documentType": null,
+      "isProgramForm": true,
+      "note": null,
+      "source": {
+       "quote": "수출입 애로 중소기업 바우처 지원사업 ‘지급산정 및 참가신청서’ 양식",
+       "url": null,
+       "locator": "3쪽"
+      }
+     },
+     {
+      "id": "P083-D02",
+      "name": "서약서",
+      "originalName": "‘서약서’ 양식",
+      "requirement": "required",
+      "documentType": null,
+      "isProgramForm": true,
+      "note": null,
+      "source": {
+       "quote": "수출입 애로 중소기업 바우처 지원사업 ‘서약서’ 양식",
+       "url": null,
+       "locator": "3쪽"
+      }
+     },
+     {
+      "id": "P083-D03",
+      "name": "사업자등록증",
+      "originalName": "사업자등록증 (소재지·업력·업태·업종 확인)",
+      "requirement": "required",
+      "documentType": "business-registration",
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "➀ 사업자등록증(소재지, 업력, 업태, 업종 등 확인)",
+       "url": null,
+       "locator": "3쪽"
+      }
+     },
+     {
+      "id": "P083-D04",
+      "name": "기타",
+      "originalName": "수출입면장(수입신고필증·수출신고필증·구매확인서 등) — 국제운송 신청 건만",
+      "requirement": "conditional",
+      "documentType": null,
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "➁ 수출입면장(수입신고필증, 수출신고필증, 구매확인서 등) (원자재수입 증빙 용도)",
+       "url": null,
+       "locator": "3쪽"
+      }
+     },
+     {
+      "id": "P083-D05",
+      "name": "수출실적증명서",
+      "originalName": "최근 1년간(2025) 수출실적 증명서 (한국무역협회, 없으면 2023~2024)",
+      "requirement": "required",
+      "documentType": "export-performance",
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "➂ 최근 1년간(2025) 수출실적 증명서(수출 경쟁력 확인)",
+       "url": null,
+       "locator": "3쪽"
+      }
+     },
+     {
+      "id": "P083-D06",
+      "name": "기타",
+      "originalName": "신청 건 내용증빙 서류 (서비스별 결과물, 선적서류 등)",
+      "requirement": "required",
+      "documentType": null,
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "➃ 신청 건에 대한 내용증빙 서류(서비스별 결과물, 선적서류 등 관련서류)",
+       "url": null,
+       "locator": "3쪽"
+      }
+     },
+     {
+      "id": "P083-D07",
+      "name": "기타",
+      "originalName": "신청 건 비용증빙 서류 (영수증, 송금확인증 등)",
+      "requirement": "required",
+      "documentType": null,
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "➄ 신청 건에 대한 비용증빙 서류(영수증, 송금확인증 등 관련서류)",
+       "url": null,
+       "locator": "3쪽"
+      }
+     }
+    ],
+    "bonusItems": [
+     {
+      "id": "P083-B01",
+      "item": "전년도 지원사업 선정 후 기업 사정으로 포기",
+      "effectText": "차년도 신청 시 감점",
+      "certainty": "clear",
+      "points": null,
+      "matchKeys": null,
+      "source": {
+       "quote": "‣ 지원 기업의 사정으로 지원사업 포기 시, 차년도 지원사업 신청 시 감점 적용",
+       "url": null,
+       "locator": "3쪽"
+      }
+     }
+    ],
+    "duplicateSupportNotes": [
+     {
+      "quote": "‣ 유사한 부산시 및 정부 지원사업*과 중복 지원 불가(동일 건, 동일 기간)하며, 추후 중복 지원 사실이",
+      "url": null,
+      "locator": "3쪽"
+     }
+    ],
+    "groupKey": "G12",
+    "relatedProgramIds": [
+     "P082"
+    ],
+    "draftNotes": "같은 사업의 3월 공고(5월 공고는 P082, 180개사). 9개 분야: 통번역, 홍보/광고, 디자인/동영상, 전시회/해외영업, 국제운송, 해외규격인증/지재권, 탄소중립 전환(15분류에 없음, P082 쟁점과 같음), 관세대응, 무역보험·보증(신설). 3월 공고는 지원 자격이 부산 소재 수출입 중소기업 하나만 있음(5월 공고에는 원자재 수입 기업 자격이 추가됨). 2단 편집에 같은 쪽이 두 번씩 들어간 PDF라 텍스트 순서가 섞임 → 원본 이미지로 확인함. 선정은 부산수출 플랫폼 참가기업 선정기준.",
+    "review": {
+     "author": "Claude (초안)",
+     "status": "확인",
+     "source": "미검수(초안)",
+     "reviewer": "구성빈"
+    },
+    "dataState": "draft",
+    "publishSource": "answer-set",
+    "publishSourceLabel": "정답세트(2026-11)",
+    "autoExtracted": false,
+    "publishStatus": "published",
+    "conditions": [
+     {
+      "condId": "P083-R01",
+      "programId": "P083",
+      "parentId": "P083",
+      "scope": null,
+      "kind": "필수",
+      "group": "A",
+      "condType": "A01",
+      "condTypes": "A01",
+      "affectsVerdict": true,
+      "field": "company_type",
+      "op": "in",
+      "valueRaw": "중소기업",
+      "expr": {
+       "atom": "company_type",
+       "op": "in",
+       "value": [
+        "중소기업"
+       ]
+      },
+      "exprText": "company_type ∈ [중소기업]",
+      "certainty": "명확",
+      "evidence": "5. 지원대상 : 아래의 자격 중 한 가지에 해당되는 부산 소재 중소기업",
+      "page": 3,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     },
+     {
+      "condId": "P083-R02",
+      "programId": "P083",
+      "parentId": "P083",
+      "scope": null,
+      "kind": "필수",
+      "group": "B",
+      "condType": "A02",
+      "condTypes": "A02",
+      "affectsVerdict": true,
+      "field": "hq_region",
+      "op": "in",
+      "valueRaw": "부산",
+      "expr": {
+       "atom": "hq_region",
+       "op": "in",
+       "value": [
+        "부산"
+       ]
+      },
+      "exprText": "hq_region ∈ [부산]",
+      "certainty": "명확",
+      "evidence": "- 사업자등록증상 본점 또는 사업장 소재지가 부산인 중소기업",
+      "page": 3,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": "R03과 '또는'"
+     },
+     {
+      "condId": "P083-R03",
+      "programId": "P083",
+      "parentId": "P083",
+      "scope": null,
+      "kind": "필수",
+      "group": "B",
+      "condType": "A03",
+      "condTypes": "A03",
+      "affectsVerdict": true,
+      "field": "site_region",
+      "op": "in",
+      "valueRaw": "부산",
+      "expr": {
+       "atom": "site_region",
+       "op": "in",
+       "value": [
+        "부산"
+       ]
+      },
+      "exprText": "site_region ∈ [부산]",
+      "certainty": "애매",
+      "evidence": "- 사업자등록증상 본점 또는 사업장 소재지가 부산인 중소기업",
+      "page": 3,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": "'사업장'을 공장 소재지 필드로 대응(P082 관행). R02와 '또는'"
+     },
+     {
+      "condId": "P083-R04",
+      "programId": "P083",
+      "parentId": "P083",
+      "scope": null,
+      "kind": "필수",
+      "group": "C",
+      "condType": "A06",
+      "condTypes": "A06",
+      "affectsVerdict": true,
+      "field": "export_usd",
+      "op": "<",
+      "valueRaw": "30000000",
+      "expr": {
+       "atom": "export_usd",
+       "op": "<",
+       "value": 30000000.0
+      },
+      "exprText": "export_usd < 30000000.0",
+      "certainty": "명확",
+      "evidence": "- 직전년도 직수출액 3,000만 달러 미만 기업",
+      "page": 3,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     },
+     {
+      "condId": "P083-R05",
+      "programId": "P083",
+      "parentId": "P083",
+      "scope": null,
+      "kind": "제외",
+      "group": "-",
+      "condType": "B06",
+      "condTypes": "B06",
+      "affectsVerdict": true,
+      "field": "manual_check",
+      "op": "-",
+      "valueRaw": "유사한 부산시·정부 지원사업과 같은 건·같은 기간 중복 지원",
+      "expr": {
+       "flag": "B06"
+      },
+      "exprText": "자기신고:B06 해당",
+      "certainty": "명확",
+      "evidence": "‣ 유사한 부산시 및 정부 지원사업*과 중복 지원 불가(동일 건, 동일 기간)하며, 추후 중복 지원 사실이",
+      "page": 3,
+      "importance": "체크리스트",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": "예: KOTRA 개별전시회 지원을 받은 전시회는 중복 신청 불가"
+     },
+     {
+      "condId": "P083-R06",
+      "programId": "P083",
+      "parentId": "P083",
+      "scope": null,
+      "kind": "제외",
+      "group": "-",
+      "condType": "C07",
+      "condTypes": "C07",
+      "affectsVerdict": false,
+      "field": "manual_check",
+      "op": "-",
+      "valueRaw": "제출 서류·인증서 위변조",
+      "expr": {
+       "check": "제출 서류·인증서 위변조"
+      },
+      "exprText": "확인필요:\"제출 서류·인증서 위변조\"",
+      "certainty": "명확",
+      "evidence": "‣ 제출 서류의 기재사항 및 첨부서류, 인증서 등의 위변조 사실이 확인될 경우에는 지원 대상에서 제외",
+      "page": 3,
+      "importance": "체크리스트",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     }
+    ]
+   },
+   "status": "pending-review",
+   "fileName": "기업마당_[부산] 2026년 수출입 애로 중소기업 바우처 지원사업 신청기업 모집 공고.pdf",
+   "reason": null,
+   "pages": [
+    "\"2026 수출입 애로 중소기업 바우처 지원사업\" 신청기업 모집 step 01 step 02 step 03\n수출입 준비 수출입 이행 후속관리\n원자재 수입에 애로를 겪은 기업을 포함하여 수출입에 어려움을 겪고 있는 부산지 ·전시회/해외영업 ·(신설)무역보험·보증\n·통/번역\n전시회/상담회/세미나 등 수출 수출신용보증, 단기수출보험, 환\n역 중소기업을 위하여 기업 위기 극복 및 수출 경쟁력 강화를 목적으로 \"2026 수출 수출을 위한 기업의 활동에 필요\n관련 행사 기획·지원 및 해외 변동보험, 국외기업 신용조사,\n한 외국어 통번역 서비스 지원\n입 애로 중소기업 바우처 지원사업\" 참가기업을 모집합니다. 참가를 희망하는 기업 관 영업 지원을 통한 수출 지원 해외채권 회수대행 서비스\n계자께서는 아래 내용을 참조하시어 정해진 기한 내 신청하시기 바랍니다. ·홍보/광고 마케팅 ·국제운송 ·탄소중립 전환 지원\n기업/제품/브랜드의 해외 마케 수출자가 부담하는 국제운송 기업의 탄소중립 전환을 위\n팅을 위한 홍보 및 광고 지원 료(해운·항공) 및 보험료 한 컨설팅 및 공정개선 지원\n2026. 03.\n·디자인/동영상 ·해외규격인증/지재권 취득\n· 관세대응 지원\n재단법인 부산경제진흥원장 해외 진출에 필요한 외국어 디 기업의 수출을 위한 해외규 기업의 수출을 위한 관세 대응 지원\n자인 및 홍보동영상 개발 지원 격 인증/지재권 취득 지원\n분류 정의 주요내용\n가. 모집 개요\n수출을 위한 기업의 활동 계약/법률 문서, 소프트웨어콘텐츠, 게임/모바일App 콘텐츠, 비즈\n1. 사 업 명 : 수출입 애로 중소기업 바우처 지원사업 통/번역 에 필요한 외국어 통번역 니스/기술문서, 홈페이지 번역 등 통번역 분야 전반에 걸친 유사\n서비스 지원 서비스 *단, 통·번역을 목적으로 하는 서비스 제한\n2. 지원목적 : 원자재 비용 상승으로 인해 매출에 영향을 받은 기업을 포함하여\n기업/제품/브랜드의 해 기업/제품/브랜드 관련 TV·PPL, 신문·잡지 홍보/광고, SNS·검색엔\n홍보/광고\n수출입에 어려움을 겪고있는 부산지역 중소기업을 대상으로, 외 마케팅을 위한 홍보 진 마케팅, 바이럴 마케팅, IMC 마케팅 등 광고 매체를 활용한 홍\n마케팅\n및 광고 지원 보/광고 분야 전반에 걸친 유사 서비스\n2026년 수출 활동에 활용한 비용 일부를 지원\n해외 진출에 필요한 외 외국어 종이/전자 카달로그 제작, 외국어 포장디자인, 외국어 홈페\n디자인\n3. 모집규모 : 290개사 내외 ※ 예산 범위 내 지원, 모집규모 변동가능 국어 디자인 및 홍보 이지(반응형), 모바일용 앱, 해외 온라인 쇼핑몰 상품페이지, 제품\n/동영상\n영상 개발 지원 디자인, CI 및 BI 개발, 홍보 동영상 제작 등\n4. 지원내용\n국내개최 국제전시회 참가, 현지 바이어 매칭 상담회/세미나/제품시\n가) 지원내용 전시회 전시회/상담회/세미나 등 연회, 해외바이어 국내초청 미팅/설명회/세미나, 해외전시회 사전·사\n수출관련 행사 기획·지원\n/해외영업 후 지원, 세일즈랩, 해외프로젝트 수주지원 등 전시회/행사/해외영\n- 수출입 애로 중소기업 : 지원분야 내용을 토대로 2026년 수출활동에 활용한 비용 및 해외영업 지원\n업지원 분야 전반에 걸친 유사 서비스\n일부 지원(지원한도內 소요금액(VAT제외)의 90%, 최대한도 300만원 지원) 수출업자가 부담하는 국제운송료(해운·항공) 및 보험료(국내운임,\nex) 전시회 참가 임차료 지급비용이 (300만원 → 300만원의 90%인 270만원 지원) 국제 수출입 기업이 부담 하는 취급수수료 및 도착국 발생비용, 세금은 정산 제외)\n※ 지원 불가 사항\n운송 국제운송비\nex) 전시회 참가 임차료 지급비용이 (350만원 → 350만원의 90% 315만원, 최대한도 300만원 지원) (수입에 대한 물류비, 출발국이 한국이 아닌경우, 국내 내륙운송비, 인코\n텀즈 E조건 및 F조건, 국내 및 도착지에서 발생하는 기타 부대비용)\n나) 지원가능기간 : 2026년 4월 ~ 11월 해외규격 기업의 해외시장 진출을 위한 수출 요건 충족을 위한 해\n기업의 수출을 위한 해외규격 외 규격 인증 취득(신규취득, 갱신)에 소요된 비용(인증비,\n인증/지재\n인증/지재권 취득 지원 시험비, 컨설팅비 등) 및 지식재산권(특허·상표 등) 출원\n다) 지원서비스 추진절차 권취득\n에 소요된 비용(출원비·컨설팅비 등)\n탄소중립 기업의 탄소중립 전환을 위한 기업의 탄소배출 저감을 위한 컨설팅(탄소배출 수준 진단, 탄소저감계\n신청업체 모집 및 지원 기업 선정 지원금 산정 및 지급\n→ 전환지원 컨설팅 및 공정개선 지원 획 컨설팅 등), 공정개선(친환경·저탄소 설비 구축) 등\n상시 모집 매분기 말 지급예정 기업의 수출 관련 관세부과 대응을 위한 물류·통관 관세법\n관세 기업의 수출을 위한 관세\n인 컨설팅, 해외거점이전 법률 등 자문, 중간재 조달처 다\n‣ '26년 1월부터 지원기간 내 수출 활동에 대해 지원 신청시 심사 이후 매 분기 말 지원금 지급예정 대응지원 대응 지원 변화 컨설팅 등\n‣ 당월 바우처 심사 탈락 시, 미비서류 보완하여 익월 신청가능(단, 지원기간 내에만 지원신청 가능)\n(신설)무역 수출관련 보험·보증 서비 급변하는 해외 무역 리스크로부터 보호를 위한 수출신용\n보증, 단기수출보험, 환변동보험, 국외기업 신용조사, 해외\n보험·보증 스 지원 채권 회수대행 서비스 지원\n마) 지원금 지급 제외\n라) 지원분야 : 총9개 분야(기존8개, 신규 1개)\n- 1 - - 2 -\n\"2026 수출입 애로 중소기업 바우처 지원사업\" 신청기업 모집 step 01 step 02 step 03\n수출입 준비 수출입 이행 후속관리\n원자재 수입에 애로를 겪은 기업을 포함하여 수출입에 어려움을 겪고 있는 부산지 ·전시회/해외영업 ·(신설)무역보험·보증\n·통/번역\n전시회/상담회/세미나 등 수출 수출신용보증, 단기수출보험, 환\n역 중소기업을 위하여 기업 위기 극복 및 수출 경쟁력 강화를 목적으로 \"2026 수출 수출을 위한 기업의 활동에 필요\n관련 행사 기획·지원 및 해외 변동보험, 국외기업 신용조사,\n한 외국어 통번역 서비스 지원\n입 애로 중소기업 바우처 지원사업\" 참가기업을 모집합니다. 참가를 희망하는 기업 관 영업 지원을 통한 수출 지원 해외채권 회수대행 서비스\n계자께서는 아래 내용을 참조하시어 정해진 기한 내 신청하시기 바랍니다. ·홍보/광고 마케팅 ·국제운송 ·탄소중립 전환 지원\n기업/제품/브랜드의 해외 마케 수출자가 부담하는 국제운송 기업의 탄소중립 전환을 위\n팅을 위한 홍보 및 광고 지원 료(해운·항공) 및 보험료 한 컨설팅 및 공정개선 지원\n2026. 03.\n·디자인/동영상 ·해외규격인증/지재권 취득\n· 관세대응 지원\n재단법인 부산경제진흥원장 해외 진출에 필요한 외국어 디 기업의 수출을 위한 해외규 기업의 수출을 위한 관세 대응 지원\n자인 및 홍보동영상 개발 지원 격 인증/지재권 취득 지원\n분류 정의 주요내용\n가. 모집 개요\n수출을 위한 기업의 활동 계약/법률 문서, 소프트웨어콘텐츠, 게임/모바일App 콘텐츠, 비즈\n1. 사 업 명 : 수출입 애로 중소기업 바우처 지원사업 통/번역 에 필요한 외국어 통번역 니스/기술문서, 홈페이지 번역 등 통번역 분야 전반에 걸친 유사\n서비스 지원 서비스 *단, 통·번역을 목적으로 하는 서비스 제한\n2. 지원목적 : 원자재 비용 상승으로 인해 매출에 영향을 받은 기업을 포함하여\n기업/제품/브랜드의 해 기업/제품/브랜드 관련 TV·PPL, 신문·잡지 홍보/광고, SNS·검색엔\n홍보/광고\n수출입에 어려움을 겪고있는 부산지역 중소기업을 대상으로, 외 마케팅을 위한 홍보 진 마케팅, 바이럴 마케팅, IMC 마케팅 등 광고 매체를 활용한 홍\n마케팅\n및 광고 지원 보/광고 분야 전반에 걸친 유사 서비스\n2026년 수출 활동에 활용한 비용 일부를 지원\n해외 진출에 필요한 외 외국어 종이/전자 카달로그 제작, 외국어 포장디자인, 외국어 홈페\n디자인\n3. 모집규모 : 290개사 내외 ※ 예산 범위 내 지원, 모집규모 변동가능 국어 디자인 및 홍보 이지(반응형), 모바일용 앱, 해외 온라인 쇼핑몰 상품페이지, 제품\n/동영상\n영상 개발 지원 디자인, CI 및 BI 개발, 홍보 동영상 제작 등\n4. 지원내용\n국내개최 국제전시회 참가, 현지 바이어 매칭 상담회/세미나/제품시\n가) 지원내용 전시회 전시회/상담회/세미나 등 연회, 해외바이어 국내초청 미팅/설명회/세미나, 해외전시회 사전·사\n수출관련 행사 기획·지원\n/해외영업 후 지원, 세일즈랩, 해외프로젝트 수주지원 등 전시회/행사/해외영\n- 수출입 애로 중소기업 : 지원분야 내용을 토대로 2026년 수출활동에 활용한 비용 및 해외영업 지원\n업지원 분야 전반에 걸친 유사 서비스\n일부 지원(지원한도內 소요금액(VAT제외)의 90%, 최대한도 300만원 지원) 수출업자가 부담하는 국제운송료(해운·항공) 및 보험료(국내운임,\nex) 전시회 참가 임차료 지급비용이 (300만원 → 300만원의 90%인 270만원 지원) 국제 수출입 기업이 부담 하는 취급수수료 및 도착국 발생비용, 세금은 정산 제외)\n※ 지원 불가 사항\n운송 국제운송비\nex) 전시회 참가 임차료 지급비용이 (350만원 → 350만원의 90% 315만원, 최대한도 300만원 지원) (수입에 대한 물류비, 출발국이 한국이 아닌경우, 국내 내륙운송비, 인코\n텀즈 E조건 및 F조건, 국내 및 도착지에서 발생하는 기타 부대비용)\n나) 지원가능기간 : 2026년 4월 ~ 11월 해외규격 기업의 해외시장 진출을 위한 수출 요건 충족을 위한 해\n기업의 수출을 위한 해외규격 외 규격 인증 취득(신규취득, 갱신)에 소요된 비용(인증비,\n인증/지재\n인증/지재권 취득 지원 시험비, 컨설팅비 등) 및 지식재산권(특허·상표 등) 출원\n다) 지원서비스 추진절차 권취득\n에 소요된 비용(출원비·컨설팅비 등)\n탄소중립 기업의 탄소중립 전환을 위한 기업의 탄소배출 저감을 위한 컨설팅(탄소배출 수준 진단, 탄소저감계\n신청업체 모집 및 지원 기업 선정 지원금 산정 및 지급\n→ 전환지원 컨설팅 및 공정개선 지원 획 컨설팅 등), 공정개선(친환경·저탄소 설비 구축) 등\n상시 모집 매분기 말 지급예정 기업의 수출 관련 관세부과 대응을 위한 물류·통관 관세법\n관세 기업의 수출을 위한 관세\n인 컨설팅, 해외거점이전 법률 등 자문, 중간재 조달처 다\n‣ '26년 1월부터 지원기간 내 수출 활동에 대해 지원 신청시 심사 이후 매 분기 말 지원금 지급예정 대응지원 대응 지원 변화 컨설팅 등\n‣ 당월 바우처 심사 탈락 시, 미비서류 보완하여 익월 신청가능(단, 지원기간 내에만 지원신청 가능)\n(신설)무역 수출관련 보험·보증 서비 급변하는 해외 무역 리스크로부터 보호를 위한 수출신용\n보증, 단기수출보험, 환변동보험, 국외기업 신용조사, 해외\n보험·보증 스 지원 채권 회수대행 서비스 지원\n마) 지원금 지급 제외\n라) 지원분야 : 총9개 분야(기존8개, 신규 1개)\n- 1 - - 2 -\n‣ 제출 서류의 기재사항 및 첨부서류, 인증서 등의 위변조 사실이 확인될 경우에는 지원 대상에서 제외 ③ \"수출입 애로 중소기업 바우처 지원사업\" 선택 → 화면하단의 \"참가신청\" 선택\n조치 및 향후 지원사업 참가 제한 ④ 신청절차에 따라 지원사업 신청서 작성 및 첨부서류 업로드\n‣ 지원 기업의 사정으로 지원사업 포기 시, 차년도 지원사업 신청 시 감점 적용\n2. 제출서류\n‣ 지원금 지급후, 위변조 사실이 확인될 경우, 지급된 지원금을 전액 환수하고 향후 지원사업 참가제한\n제출구분 제출서류\n‣ 유사한 부산시 및 정부 지원사업*과 중복 지원 불가(동일 건, 동일 기간)하며, 추후 중복 지원 사실이\n수출입 애로 중소기업 바우처 지원사업 '지급산정 및 참가신청서' 양식\n확인될 경우, 기지급된 지원금 반환 및 향후 지원사업 참가 제한 신청서(2)\n수출입 애로 중소기업 바우처 지원사업 '서약서' 양식\nex) KOTRA 개별전시회 지원사업을 지원 받고, 본 사업을 통해 동일 전시회에 대해 지원 신청\n➀ 사업자등록증(소재지, 업력, 업태, 업종 등 확인)\n해서는 안되며, 중복 지원 불가함.\n➁ 수출입면장(수입신고필증, 수출신고필증, 구매확인서 등) (원자재수입 증빙 용도)\n< *유사한 성격의 부산시 및 정부 수출지원사업 예시> ※ 국제운송 신청건에 한하여 제출\n필수서류(5) ➂ 최근 1년간(2025) 수출실적 증명서(수출 경쟁력 확인) ※ 한국무역협회에서 발급한 자료\n산업통상자원부 소재·부품·장비 선도기업육성 / 소비재 선도기업 육성/ 서비스 선도기업 육성 / 중견 ※ 2025 수출실적 없을시 2023~2024 가능\n지원사업 기업 글로벌 지원 / (긴급) 바우처 지원사업 등 ➃ 신청 건에 대한 내용증빙 서류(서비스별 결과물, 선적서류 등 관련서류)\n중소벤처기업부 스타트업 / 내수기업 / 수출초보기업 / 수출유망기업/ 수출성장기업 / 글로벌강소기업 ➄ 신청 건에 대한 비용증빙 서류(영수증, 송금확인증 등 관련서류)\n지원사업 해외마케팅지원/ 브랜드K기업 / 규제자유특구 / 스마트제조혁신 등\n※ 그 밖에도 해당기관에서 필요로 할 경우, 제출서류를 추가로 요청할 수 있습니다.\n부산 글로벌 수출 스타기업 육성 / 수출중소기업 해외물류 지원사업 / 온라인마케팅 성공\n부산시\n패키지 지원 / 해외지사화 지원사업 /글로벌 규격인증 지재권 확보지원 사업 / 전문무역 3. 참가기업 선정\n지원사업\n상사 해외마케팅 지원사업 / 아마존닷컴 입점 지원사업 / 알리바바닷컴 입점 지원사업 등\n가) 선정방법 : \"부산수출 플랫폼 참가기업 선정기준\"에 따라 선발\n※ 제출서류 중 필수항목 미제출 시 미선정될 수 있음\n5. 지원대상 : 아래의 자격 중 한 가지에 해당되는 부산 소재 중소기업\n※ 선정이 되더라도 지원사업 방침에 부적합 발견 시 선정 취소될 수 있음\n➀ 부산소재의 수출입 중소기업\n나) 결과통보 : 심사 완료 후 선정 및 예비 선정기업에 한하여 이메일로 개별 통보\n- 사업자등록증상 본점 또는 사업장 소재지가 부산인 중소기업\n※ 신청결과는 \"부산 수출플랫폼\"에 로그인하여 확인 가능\n- 직전년도 직수출액 3,000만 달러 미만 기업\n4. 신청관련 문의 : 부산경제진흥원 글로벌사업추진단 하진우 주임\n○ 주 소 : 부산광역시 연제구 중앙대로 1090, 프라임시티빌딩 3층 부산경제진흥원\n나. 신청 개요 ○ 연락처 : 전화 051-600-1829 / 이메일 jin82232@bepa.kr\n1. 신청방법\n2026. 03.\n가) 신청기간 : 공고일 ~ 예산 소진시까지(예산 소진시 사업종료)\n나) 신청방법\n①부산 수출플랫폼 접속(http://trade.bepa.kr) → 회원가입 → 로그인\n재단법인 부산경제진흥원장\n※회원가입은 필수이며, 가입 회원은 부산시 해외마케팅 지원사업 신청 가능\n② 상단의 청색 메뉴 중 \"지원사업 신청\" 선택 → 메뉴 중 \"무역대응력\" 선택\n- 3 - - 4 -\n‣ 제출 서류의 기재사항 및 첨부서류, 인증서 등의 위변조 사실이 확인될 경우에는 지원 대상에서 제외 ③ \"수출입 애로 중소기업 바우처 지원사업\" 선택 → 화면하단의 \"참가신청\" 선택\n조치 및 향후 지원사업 참가 제한 ④ 신청절차에 따라 지원사업 신청서 작성 및 첨부서류 업로드\n‣ 지원 기업의 사정으로 지원사업 포기 시, 차년도 지원사업 신청 시 감점 적용\n2. 제출서류\n‣ 지원금 지급후, 위변조 사실이 확인될 경우, 지급된 지원금을 전액 환수하고 향후 지원사업 참가제한\n제출구분 제출서류\n‣ 유사한 부산시 및 정부 지원사업*과 중복 지원 불가(동일 건, 동일 기간)하며, 추후 중복 지원 사실이\n수출입 애로 중소기업 바우처 지원사업 '지급산정 및 참가신청서' 양식\n확인될 경우, 기지급된 지원금 반환 및 향후 지원사업 참가 제한 신청서(2)\n수출입 애로 중소기업 바우처 지원사업 '서약서' 양식\nex) KOTRA 개별전시회 지원사업을 지원 받고, 본 사업을 통해 동일 전시회에 대해 지원 신청\n➀ 사업자등록증(소재지, 업력, 업태, 업종 등 확인)\n해서는 안되며, 중복 지원 불가함.\n➁ 수출입면장(수입신고필증, 수출신고필증, 구매확인서 등) (원자재수입 증빙 용도)\n< *유사한 성격의 부산시 및 정부 수출지원사업 예시> ※ 국제운송 신청건에 한하여 제출\n필수서류(5) ➂ 최근 1년간(2025) 수출실적 증명서(수출 경쟁력 확인) ※ 한국무역협회에서 발급한 자료\n산업통상자원부 소재·부품·장비 선도기업육성 / 소비재 선도기업 육성/ 서비스 선도기업 육성 / 중견 ※ 2025 수출실적 없을시 2023~2024 가능\n지원사업 기업 글로벌 지원 / (긴급) 바우처 지원사업 등 ➃ 신청 건에 대한 내용증빙 서류(서비스별 결과물, 선적서류 등 관련서류)\n중소벤처기업부 스타트업 / 내수기업 / 수출초보기업 / 수출유망기업/ 수출성장기업 / 글로벌강소기업 ➄ 신청 건에 대한 비용증빙 서류(영수증, 송금확인증 등 관련서류)\n지원사업 해외마케팅지원/ 브랜드K기업 / 규제자유특구 / 스마트제조혁신 등\n※ 그 밖에도 해당기관에서 필요로 할 경우, 제출서류를 추가로 요청할 수 있습니다.\n부산 글로벌 수출 스타기업 육성 / 수출중소기업 해외물류 지원사업 / 온라인마케팅 성공\n부산시\n패키지 지원 / 해외지사화 지원사업 /글로벌 규격인증 지재권 확보지원 사업 / 전문무역 3. 참가기업 선정\n지원사업\n상사 해외마케팅 지원사업 / 아마존닷컴 입점 지원사업 / 알리바바닷컴 입점 지원사업 등\n가) 선정방법 : \"부산수출 플랫폼 참가기업 선정기준\"에 따라 선발\n※ 제출서류 중 필수항목 미제출 시 미선정될 수 있음\n5. 지원대상 : 아래의 자격 중 한 가지에 해당되는 부산 소재 중소기업\n※ 선정이 되더라도 지원사업 방침에 부적합 발견 시 선정 취소될 수 있음\n➀ 부산소재의 수출입 중소기업\n나) 결과통보 : 심사 완료 후 선정 및 예비 선정기업에 한하여 이메일로 개별 통보\n- 사업자등록증상 본점 또는 사업장 소재지가 부산인 중소기업\n※ 신청결과는 \"부산 수출플랫폼\"에 로그인하여 확인 가능\n- 직전년도 직수출액 3,000만 달러 미만 기업\n4. 신청관련 문의 : 부산경제진흥원 글로벌사업추진단 하진우 주임\n○ 주 소 : 부산광역시 연제구 중앙대로 1090, 프라임시티빌딩 3층 부산경제진흥원\n나. 신청 개요 ○ 연락처 : 전화 051-600-1829 / 이메일 jin82232@bepa.kr\n1. 신청방법\n2026. 03.\n가) 신청기간 : 공고일 ~ 예산 소진시까지(예산 소진시 사업종료)\n나) 신청방법\n①부산 수출플랫폼 접속(http://trade.bepa.kr) → 회원가입 → 로그인\n재단법인 부산경제진흥원장\n※회원가입은 필수이며, 가입 회원은 부산시 해외마케팅 지원사업 신청 가능\n② 상단의 청색 메뉴 중 \"지원사업 신청\" 선택 → 메뉴 중 \"무역대응력\" 선택\n- 3 - - 4 -"
+   ],
+   "trialOf": "P083"
+  },
+  {
+   "notice": {
+    "id": "RV-P098",
+    "parentId": "P098",
+    "subProgramName": null,
+    "title": "2026년 EMS 해외물류비 지원사업 모집공고",
+    "sourceTitle": "2026년 EMS 해외물류비 지원사업 모집공고",
+    "sourceFile": "기업마당_[세종] 2026년 EMS 해외물류비 지원사업 모집 공고.pdf",
+    "sourceUrl": null,
+    "sourcePublishedAt": "2026-03-18",
+    "verifiedAt": null,
+    "applyStart": "2026-03-18",
+    "applyEnd": "2026-12-10",
+    "applyPeriodNote": "공고일(2026. 3. 18.) ~ 2026. 12. 10. 발송분까지 상시·건별 접수(접수순), 이메일 제출. 예산 소진 시 조기 마감",
+    "applyPeriodSource": {
+     "quote": "○ (접수기간) 공고일 ~ 2026. 12. 10. 발송분까지(상시접수, 건별 신청)",
+     "url": null,
+     "locator": "2쪽"
+    },
+    "receptionStatus": "open",
+    "receptionStatusAsOf": "2026-10-20",
+    "announcementDate": null,
+    "agreementDate": null,
+    "ministry": "(재)세종일자리경제진흥원",
+    "agency": "세종일자리경제진흥원 경제육성팀 / 세종우체국(충청지방우정청)",
+    "agencyType": "public-agency",
+    "regions": [
+     "sejong"
+    ],
+    "regionDistricts": [],
+    "regionNote": null,
+    "supportTypes": [
+     "grant"
+    ],
+    "supportTypesNote": "비용 보조 (세종우체국 EMS 이용요금 70%, 발송 익월 우정청이 정산 지급)",
+    "maxAmountKrw": 1000000,
+    "totalBudgetMaxKrw": null,
+    "amountNote": "EMS 최종 이용요금(기본 12% 할인·특별감액 적용 후)의 70%, 기업당 연간 100만원 한도(여러 건 합산). 총 예산 500만원 중 200만원은 중동사태 피해기업 우선 배정",
+    "amountSource": {
+     "quote": "- 기업당 연간 100만원 한도 내(여러 건 합산 가능)",
+     "url": null,
+     "locator": "1쪽"
+    },
+    "selfPayment": {
+     "ratioPercent": null,
+     "note": "최종 이용요금의 30% 및 한도 초과분",
+     "source": {
+      "quote": "- 기업당 연간 100만원 한도 내(여러 건 합산 가능)",
+      "url": null,
+      "locator": "1쪽"
+     }
+    },
+    "settlement": null,
+    "selectionSize": "표기 없음 (총 예산 500만원, 접수순)",
+    "targetExportStages": null,
+    "targetStageSource": null,
+    "supportCategories": [
+     "C13"
+    ],
+    "categorySource": {
+     "quote": "○ (지원내용) 세종우체국을 통한 EMS 이용 물류 발송 비용의 70% 지원",
+     "url": null,
+     "locator": "1쪽"
+    },
+    "isVoucherMenu": false,
+    "outOfCategoryScope": false,
+    "summaryEasy": null,
+    "targetDescription": null,
+    "useExamples": null,
+    "obligations": null,
+    "prepEstimate": null,
+    "eligibilityRules": null,
+    "requiredDocs": [
+     {
+      "id": "P098-D01",
+      "name": "사업신청서",
+      "originalName": "사업신청서 및 계획서 (hwp 1부, PDF 1부)",
+      "requirement": "required",
+      "documentType": null,
+      "isProgramForm": true,
+      "note": null,
+      "source": {
+       "quote": "▪ 사업신청서 및 계획서(hwp 1부, PDF 1부) 첨부 서식",
+       "url": null,
+       "locator": "2쪽"
+      }
+     },
+     {
+      "id": "P098-D02",
+      "name": "서약서",
+      "originalName": "사업참여 및 중복지원금지 확약서",
+      "requirement": "required",
+      "documentType": null,
+      "isProgramForm": true,
+      "note": null,
+      "source": {
+       "quote": "▪ 사업참여 및 중복지원금지 확약서",
+       "url": null,
+       "locator": "2쪽"
+      }
+     },
+     {
+      "id": "P098-D03",
+      "name": "개인(신용)정보 동의서",
+      "originalName": "개인정보 수집·이용·제공 동의서",
+      "requirement": "required",
+      "documentType": null,
+      "isProgramForm": true,
+      "note": null,
+      "source": {
+       "quote": "▪ 개인정보 수집·이용·제공 동의서 첨부 서식",
+       "url": null,
+       "locator": "2쪽"
+      }
+     },
+     {
+      "id": "P098-D04",
+      "name": "개인(신용)정보 동의서",
+      "originalName": "중소기업 지원사업 통합관리시스템 정보 활용 동의서",
+      "requirement": "required",
+      "documentType": null,
+      "isProgramForm": true,
+      "note": null,
+      "source": {
+       "quote": "▪ 중소기업 지원사업 통합관리시스템 정보 활용을 위한 동의서",
+       "url": null,
+       "locator": "2쪽"
+      }
+     },
+     {
+      "id": "P098-D05",
+      "name": "중소기업확인서",
+      "originalName": "중소기업확인서",
+      "requirement": "required",
+      "documentType": "sme-confirmation",
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "▪ 중소기업확인서",
+       "url": null,
+       "locator": "2쪽"
+      }
+     },
+     {
+      "id": "P098-D06",
+      "name": "사업자등록증",
+      "originalName": "사업자등록증",
+      "requirement": "required",
+      "documentType": "business-registration",
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "▪ 사업자등록증, 법인등기부등본(최근 3개월 내 발행분)",
+       "url": null,
+       "locator": "2쪽"
+      }
+     },
+     {
+      "id": "P098-D07",
+      "name": "기타",
+      "originalName": "법인등기부등본 (최근 3개월 내 발행분)",
+      "requirement": "required",
+      "documentType": null,
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "▪ 사업자등록증, 법인등기부등본(최근 3개월 내 발행분)",
+       "url": null,
+       "locator": "2쪽"
+      }
+     },
+     {
+      "id": "P098-D08",
+      "name": "국세·지방세 납세증명서",
+      "originalName": "국세/지방세 완납증명서",
+      "requirement": "required",
+      "documentType": "tax-certificate",
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "▪ 국세/지방세 완납증명서",
+       "url": null,
+       "locator": "2쪽"
+      }
+     },
+     {
+      "id": "P098-D09",
+      "name": "기타",
+      "originalName": "중동 피해기업 증빙 (직접: 중동 수출 확인 서류 + 수출 피해 증빙 / 간접: 원자재 취급 업종 확인 + 매출·영업이익 10% 이상 감소 증빙)",
+      "requirement": "conditional",
+      "documentType": null,
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "▪ 중동 수출기업 여부 확인 서류(수출실적증명서, 신고필증, 계약서 등, 품목‧국가 필수)",
+       "url": null,
+       "locator": "2쪽"
+      }
+     }
+    ],
+    "bonusItems": [
+     {
+      "id": "P098-B01",
+      "item": "중동사태 피해기업",
+      "effectText": "총 예산 500만원 중 200만원 우선지원분 별도 배정",
+      "certainty": "clear",
+      "points": null,
+      "matchKeys": null,
+      "source": {
+       "quote": "※ 총 지원예산 500만원 중 200만원은 중동사태 피해기업 우선지원분 별도 배정",
+       "url": null,
+       "locator": "1쪽"
+      }
+     },
+     {
+      "id": "P098-B02",
+      "item": "동시 접수 시 우선순위 (1순위 수출실적 적은 기업, 2순위 본 사업 미수혜기업, 3순위 전년도 매출액 적은 기업)",
+      "effectText": "동시 접수 시 선정 순위",
+      "certainty": "clear",
+      "points": null,
+      "matchKeys": null,
+      "source": {
+       "quote": ": (1순위) 수출실적 적은 기업, (2순위) 본 사업 미수혜기업, (3순위) 전년도 매출액 적은 기업",
+       "url": null,
+       "locator": "3쪽"
+      }
+     }
+    ],
+    "duplicateSupportNotes": [
+     {
+      "quote": "- 2026년 해외판로 수출이음사업 지원기업 중 물류비 지원 수혜 기업(중복지원 불가)",
+      "url": null,
+      "locator": "1쪽"
+     },
+     {
+      "quote": "- 동일 제품‧내용으로 정부‧지방비 중복지원을 받거나 진행중인 경우",
+      "url": null,
+      "locator": "1쪽"
+     }
+    ],
+    "groupKey": null,
+    "relatedProgramIds": [],
+    "draftNotes": "확인서 발급 후 1개월 이내 EMS 이용 필수(미사용 시 취소). 발송 후 1개월 이내 완료보고서·운송장 제출. 허위·과다 신청 시 2년간 진흥원 사업 참여 제한 및 환수. 이 사업 수혜 시 타 지원사업에서 제외될 수 있음.",
+    "review": {
+     "author": "Claude (초안)",
+     "status": "검수대기",
+     "source": "미검수(초안)",
+     "reviewer": null
+    },
+    "dataState": "draft",
+    "publishSource": "answer-set",
+    "publishSourceLabel": "정답세트(2026-11)",
+    "autoExtracted": false,
+    "publishStatus": "published",
+    "conditions": [
+     {
+      "condId": "P098-R01",
+      "programId": "P098",
+      "parentId": "P098",
+      "scope": null,
+      "kind": "필수",
+      "group": "A",
+      "condType": "A01",
+      "condTypes": "A01",
+      "affectsVerdict": true,
+      "field": "company_type",
+      "op": "in",
+      "valueRaw": "중소기업",
+      "expr": {
+       "atom": "company_type",
+       "op": "in",
+       "value": [
+        "중소기업"
+       ]
+      },
+      "exprText": "company_type ∈ [중소기업]",
+      "certainty": "명확",
+      "evidence": "○ (지원대상) 세종시 내 본사 또는 사업장이 소재한 중소기업",
+      "page": 1,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     },
+     {
+      "condId": "P098-R02",
+      "programId": "P098",
+      "parentId": "P098",
+      "scope": null,
+      "kind": "필수",
+      "group": "B",
+      "condType": "A02",
+      "condTypes": "A02",
+      "affectsVerdict": true,
+      "field": "hq_region",
+      "op": "in",
+      "valueRaw": "세종",
+      "expr": {
+       "atom": "hq_region",
+       "op": "in",
+       "value": [
+        "세종"
+       ]
+      },
+      "exprText": "hq_region ∈ [세종]",
+      "certainty": "명확",
+      "evidence": "○ (지원대상) 세종시 내 본사 또는 사업장이 소재한 중소기업",
+      "page": 1,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": "R03과 '또는'. 지원기간 중 세종 밖으로 이전하면 제외"
+     },
+     {
+      "condId": "P098-R03",
+      "programId": "P098",
+      "parentId": "P098",
+      "scope": null,
+      "kind": "필수",
+      "group": "B",
+      "condType": "A03",
+      "condTypes": "A03",
+      "affectsVerdict": true,
+      "field": "site_region",
+      "op": "in",
+      "valueRaw": "세종",
+      "expr": {
+       "atom": "site_region",
+       "op": "in",
+       "value": [
+        "세종"
+       ]
+      },
+      "exprText": "site_region ∈ [세종]",
+      "certainty": "애매",
+      "evidence": "○ (지원대상) 세종시 내 본사 또는 사업장이 소재한 중소기업",
+      "page": 1,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": "'사업장'을 공장 소재지 필드로 대응함. R02와 '또는'"
+     },
+     {
+      "condId": "P098-R04",
+      "programId": "P098",
+      "parentId": "P098",
+      "scope": null,
+      "kind": "제외",
+      "group": "-",
+      "condType": "B07",
+      "condTypes": "B07",
+      "affectsVerdict": true,
+      "field": "manual_check",
+      "op": "-",
+      "valueRaw": "2026년 해외판로 수출이음사업에서 물류비 지원 수혜",
+      "expr": {
+       "flag": "B07"
+      },
+      "exprText": "자기신고:B07 해당",
+      "certainty": "명확",
+      "evidence": "- 2026년 해외판로 수출이음사업 지원기업 중 물류비 지원 수혜 기업(중복지원 불가)",
+      "page": 1,
+      "importance": "체크리스트",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     },
+     {
+      "condId": "P098-R05",
+      "programId": "P098",
+      "parentId": "P098",
+      "scope": null,
+      "kind": "제외",
+      "group": "-",
+      "condType": "C07",
+      "condTypes": "C07",
+      "affectsVerdict": false,
+      "field": "manual_check",
+      "op": "-",
+      "valueRaw": "신청서 등 제출서류 미비",
+      "expr": {
+       "check": "신청서 등 제출서류 미비"
+      },
+      "exprText": "확인필요:\"신청서 등 제출서류 미비\"",
+      "certainty": "명확",
+      "evidence": "- 신청서 등 제출서류 미비 기업",
+      "page": 1,
+      "importance": "체크리스트",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     },
+     {
+      "condId": "P098-R06",
+      "programId": "P098",
+      "parentId": "P098",
+      "scope": null,
+      "kind": "제외",
+      "group": "-",
+      "condType": "C09",
+      "condTypes": "C09",
+      "affectsVerdict": true,
+      "field": "manual_check",
+      "op": "-",
+      "valueRaw": "지원기간 중 본사·사업장을 세종시 밖으로 이전",
+      "expr": {
+       "check": "지원기간 중 본사·사업장을 세종시 밖으로 이전"
+      },
+      "exprText": "확인필요:\"지원기간 중 본사·사업장을 세종시 밖으로 이전\"",
+      "certainty": "명확",
+      "evidence": "- 지원기간 중, 세종시 외 지역으로 본사 또는 사업장이 이전한 경우",
+      "page": 1,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     },
+     {
+      "condId": "P098-R07",
+      "programId": "P098",
+      "parentId": "P098",
+      "scope": null,
+      "kind": "제외",
+      "group": "-",
+      "condType": "B06",
+      "condTypes": "B06",
+      "affectsVerdict": true,
+      "field": "manual_check",
+      "op": "-",
+      "valueRaw": "같은 제품·내용으로 정부·지방비 중복지원을 받았거나 진행 중",
+      "expr": {
+       "flag": "B06"
+      },
+      "exprText": "자기신고:B06 해당",
+      "certainty": "명확",
+      "evidence": "- 동일 제품‧내용으로 정부‧지방비 중복지원을 받거나 진행중인 경우",
+      "page": 1,
+      "importance": "체크리스트",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     },
+     {
+      "condId": "P098-R08",
+      "programId": "P098",
+      "parentId": "P098",
+      "scope": null,
+      "kind": "제외",
+      "group": "-",
+      "condType": "B01",
+      "condTypes": "B01,B02,B03,B04",
+      "affectsVerdict": true,
+      "field": "manual_check",
+      "op": "-",
+      "valueRaw": "공통 결격사유: 부도, 휴·폐업, 국세·지방세 체납, 채무불이행, 파산·회생 (재기지원·정상 변제 기업은 예외)",
+      "expr": {
+       "any": [
+        {
+         "flag": "B01"
+        },
+        {
+         "flag": "B02"
+        },
+        {
+         "flag": "B03"
+        },
+        {
+         "flag": "B04"
+        }
+       ]
+      },
+      "exprText": "하나라도(자기신고:B01 해당; 자기신고:B02 해당; 자기신고:B03 해당; 자기신고:B04 해당)",
+      "certainty": "명확",
+      "evidence": "- 부도, 휴폐업, 국세‧지방세 체납*, 채무불이행*, 파산‧회생**",
+      "page": 1,
+      "importance": "체크리스트",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     }
+    ]
+   },
+   "status": "pending-review",
+   "fileName": "기업마당_[세종] 2026년 EMS 해외물류비 지원사업 모집 공고.pdf",
+   "reason": null,
+   "pages": [
+    "세종일자리경제진흥원 공고 제2026-22호\n2026년 EMS 해외물류비 지원사업 모집공고\n세종시 중소기업을 대상으로 수출 물류비 부담 경감 및 수출경쟁력\n강화를 위해 「EMS(국제특급우편) 해외물류비 지원사업」을 다음과 같이\n시행하오니, 관심있는 기업의 많은 참여 바랍니다.\n2026년 3월 18일\n재단법인 세종일자리경제진흥원장\n1 사업개요\n○ (사 업 명) 2026년 EMS 해외물류비 지원사업\n○ (지원기간) 공고일 ~ 2026. 12. 10. 발송분까지 ※ 예산 소진시까지\n○ (지원대상) 세종시 내 본사 또는 사업장이 소재한 중소기업\n< 지원제외대상 >\n- 2026년 해외판로 수출이음사업 지원기업 중 물류비 지원 수혜 기업(중복지원 불가)\n- 신청서 등 제출서류 미비 기업\n- 지원기간 중, 세종시 외 지역으로 본사 또는 사업장이 이전한 경우\n- 동일 제품·내용으로 정부·지방비 중복지원을 받거나 진행중인 경우\n- 부도, 휴폐업, 국세·지방세 체납*, 채무불이행*, 파산·회생**\n* 단, 중소기업진흥공단 및 신용회복위원회(재창업지원위원회)를 통해 재창업자금을 지원받은 경우, 신용보증기금 및 기술\n신용보증기금으로부터 재도전기업주 재기 지원보증을 받은 경우는 예외\n** 단, 법원의 인가를 받은 회생계획 또는 변제계획에 따른 채무변제를 정상적으로 이행하고 있는 경우는 예외\n○ (지원규모) 총 500만원\n※ 총 지원예산 500만원 중 200만원은 중동사태 피해기업 우선지원분 별도 배정\n○ (지원내용) 세종우체국을 통한 EMS 이용 물류 발송 비용의 70% 지원\n- 기업당 연간 100만원 한도 내(여러 건 합산 가능)\n- 기본요금 12% 할인·조건별 특별 감액 적용 후 최종 이용요금의 70% 지원\n< EMS·EMS프리미엄 적용 특별감액률 >\ne-shipping 수출정보 전자상거래 국가별 국가별\n직접운송 청장감액\n접수 제공 업체 특별 감액 특별 감액 이용활성화\n(2%p이하) (2%p이하)\n(3%p이하) (2%p이하) (3%p이하) (15%p이하) (5%p이하)\n3%p 2%p 3%p 15%p 5%p\n※ EMS프리미엄은 국가별 특별감액 적용대상 아님 / EMS프리미엄 고중량 특송은 기본·특별감액 적용대상 아님\n- 1 -\n2 지원절차 및 방법\n□ 추진절차\n모집공고 서류접수·평가·승인 이용계약·물류발송 지원금 정산\n· 지원금 지급\n· 이메일 제출\n·기업-세종우체국 (우정청→기업)\n· 모집공고 ➜ · 접수순 적격검토(내부) ➜ ➜\n이용계약 후 물류발송 · 결과보고서 제출\n· 승인 시 확인서 발급\n(기업→진흥원)\n'26.3.18. 상시 확인서 발급 후 30일 이내 발송 익월\n※ 본 사업의 세부내용 및 추진일정은 내부사정에 따라 변경될 수 있음\n□ 접수방법\n○ (지원방식) 접수순 지원 ※ 예산 소진시 접수가 조기 마감될 수 있음\n○ (접수기간) 공고일 ~ 2026. 12. 10. 발송분까지(상시접수, 건별 신청)\n○ (접수방법) 이메일 접수(담당자 이메일 제출 : jej2064@sjepa.or.kr)\n○ (제출서류)\n구 분 내 용 비고\n신청서류 ▪ 사업신청서 및 계획서(hwp 1부, PDF 1부) 첨부 서식\n1 ▪ 사업참여 및 중복지원금지 확약서\n붙\n2 ▪ 개인정보 수집·이용·제공 동의서 첨부 서식\n임\n3 ▪ 중소기업 지원사업 통합관리시스템 정보 활용을 위한 동의서\n1 ▪ 중소기업확인서\n별\n2 ▪ 사업자등록증, 법인등기부등본(최근 3개월 내 발행분)\n첨\n3 ▪ 국세/지방세 완납증명서\n▪ 중동 수출기업 여부 확인 서류(수출실적증명서, 신고필증, 계약서 등, 품목·국가 필수)\n1\n▪ 수출 피해 증빙서류\n(직접)\n중동 (선적지연확인서, 물류 운임 인상 증빙, 계약취소 또는 납기 연기 공문, 현지 바이어 통보문 등) 해당시\n피해 ▪ 전년도 부가가치세 신고서(석유·화학, 플라스틱, 고무 원재료 취급 업종 확인) (1 또는 2\n▪ 증빙서류(원자재 가격 급등으로 매출액 또는 영업이익 10% 이상 감소)\n기업 2 선택)\n(매출감소 입증 서류_재무제표, 부가세 신고자료, 원자재 가격 상승 관련 계약서, 계산서 등)\n(간접)\n(매출액 비교 시점 : 직전반기-직전전반기 또는 전년동반기, 직전분기-직전전분기 또는 전년\n동분기, 신청전월-전전월 또는 전년동월 중 기업에 유리한 시점으로 택)\n※ 이메일 접수 및 증빙서류 제출(붙임, 별첨) 모두 완료해야만 최종 접수 처리된 것으로 판단\n※ 제출서류는 반환하지 않으며, 기재내용이 사실과 다를 경우 선정 취소할 수 있음\n※ 진흥원은 공정한 사업 추진을 위해 필요 시 추가서류 제출을 요청할 수 있음\n□ 문의처\n○ (재)세종일자리경제진흥원 경제육성팀 장은지 주임연구원\n☎ 044-251-3214 * jej2064@sjepa.or.kr\n- 2 -\n3 평가 및 지원금 지급\n□ 평가 및 선정\n○ (서류적격검토) 지원대상 적격 여부 내부 검토\n- 제출서류 구비 여부, 신청자격 충족 여부, 제외대상 해당 여부 등 확인\n※ 서류 검토 과정에서 필요 시 추가 자료 제출을 요청할 수 있음\n○ (선정방법) 신청서류 접수순으로 예산 범위 내에서 선정\n※ 동시접수 시 우선순위\n: (1순위) 수출실적 적은 기업, (2순위) 본 사업 미수혜기업, (3순위) 전년도 매출액 적은 기업\n○ (선정통보) 선정결과 개별 통보(선정기업 대상 확인서 이메일 발송)\n□ 지원금 지급\n○ 선정기업이 세종우체국을 방문하여 EMS 이용 후 발송 익월 정산을\n통해 지원금 지급(충청지방우정청→기업)\n※ 2026.12.10.까지 발송분에 한하여 지원하며, 12월 발송분은 당월 정산 예정\n○ 확인서 발급일로부터 1개월 이내 EMS 이용 필수(기한 내 미사용 시 지원 취소)\n○ EMS 발송일로부터 1개월 이내 완료보고서 및 관련 증빙 제출\n- (제출서류) 완료보고서, 운송장\n※ 기한 내 완료보고서를 제출하지 않을경우 지원이 제한될 수 있음\n4 유의사항\n○ 제출서류 미비 또는 기재사항 오류로 발생하는 불이익은 신청기업의\n책임으로 함\n○ 신청서류를 조작·과다·허위로 신청한 경우 지원을 중단하며, 향후\n2년간 진흥원의 모든 지원사업 참여 제한 및 지원금 환수 조치\n○ 본 사업에 참여하여 지원받을 경우 타 지원사업 대상에서 제외될\n수 있으므로, 유사사업 여부를 사전에 확인 후 신청\n○ 예산 소진 시 사업 접수는 조기 마감될 수 있음\n○ 본 공고문에 명시되지 않은 사항은 진흥원의 해석에 따름\n- 3 -"
+   ],
+   "trialOf": "P098"
+  },
+  {
+   "notice": {
+    "id": "RV-P101",
+    "parentId": "P101",
+    "subProgramName": null,
+    "title": "2026년 울산지역 수출 전문가 컨설팅 지원사업 참여기업 모집공고",
+    "sourceTitle": "2026년 울산지역 수출 전문가 컨설팅 지원사업 참여기업 모집공고",
+    "sourceFile": "기업마당_[울산] 2026년 수출 전문가 컨설팅 지원사업 참여기업 모집 공고.pdf",
+    "sourceUrl": null,
+    "sourcePublishedAt": "2026-10-01",
+    "verifiedAt": null,
+    "applyStart": "2026-10-01",
+    "applyEnd": null,
+    "applyPeriodNote": "’26. 10. 1. ~ 선착순 모집 (마감일 표기 없음, 사업기간 ~12. 4.)",
+    "applyPeriodSource": {
+     "quote": "□ 신청기간 : ’26. 10. 1.(목) ~ 선착순 모집",
+     "url": null,
+     "locator": "3쪽"
+    },
+    "receptionStatus": "open",
+    "receptionStatusAsOf": "2026-10-20",
+    "announcementDate": null,
+    "agreementDate": null,
+    "ministry": "울산지방중소벤처기업청",
+    "agency": "울산지방중소벤처기업청 수출지원센터",
+    "agencyType": "central-ministry",
+    "regions": [
+     "ulsan"
+    ],
+    "regionDistricts": [],
+    "regionNote": null,
+    "supportTypes": [
+     "consulting",
+     "in-kind"
+    ],
+    "supportTypesNote": "컨설팅 제공 (전문가 1:1 방문, 1~2회, 회당 2시간)",
+    "maxAmountKrw": null,
+    "totalBudgetMaxKrw": null,
+    "amountNote": "참가비 무료, 부가세는 기업 부담",
+    "amountSource": {
+     "quote": "□ 참가비 : 무료(부가세는 기업 부담)",
+     "url": null,
+     "locator": "1쪽"
+    },
+    "selfPayment": {
+     "ratioPercent": null,
+     "note": "부가세",
+     "source": {
+      "quote": "□ 참가비 : 무료(부가세는 기업 부담)",
+      "url": null,
+      "locator": "1쪽"
+     }
+    },
+    "settlement": null,
+    "selectionSize": "10개사 내외",
+    "targetExportStages": [
+     "domestic",
+     "beginner"
+    ],
+    "targetStageSource": {
+     "quote": "◦ 글로벌 이슈로 인해 어려움을 겪는 내수 및 수출초보 중소기업을",
+     "url": null,
+     "locator": "1쪽"
+    },
+    "supportCategories": [
+     "C02"
+    ],
+    "categorySource": {
+     "quote": "◦ 수출 전문가를 1:1 매칭, 기업을 직접 방문하여 사전에 제출한 애",
+     "url": null,
+     "locator": "1쪽"
+    },
+    "isVoucherMenu": false,
+    "outOfCategoryScope": false,
+    "summaryEasy": null,
+    "targetDescription": null,
+    "useExamples": null,
+    "obligations": null,
+    "prepEstimate": null,
+    "eligibilityRules": null,
+    "requiredDocs": [
+     {
+      "id": "P101-D01",
+      "name": "사업신청서",
+      "originalName": "사업 참여 신청서 (붙임1)",
+      "requirement": "required",
+      "documentType": null,
+      "isProgramForm": true,
+      "note": null,
+      "source": {
+       "quote": "① 사업 참여 신청서 붙임1 양식에 작성",
+       "url": null,
+       "locator": "3쪽"
+      }
+     },
+     {
+      "id": "P101-D02",
+      "name": "개인(신용)정보 동의서",
+      "originalName": "정보제공 동의서 (붙임2)",
+      "requirement": "required",
+      "documentType": null,
+      "isProgramForm": true,
+      "note": null,
+      "source": {
+       "quote": "② 정보제공 동의서 붙임2 양식에 작성",
+       "url": null,
+       "locator": "3쪽"
+      }
+     },
+     {
+      "id": "P101-D03",
+      "name": "사업자등록증명원",
+      "originalName": "사업자등록증명원 (신청일 3개월 이내 사본)",
+      "requirement": "required",
+      "documentType": "business-registration",
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "③ 사업자등록증명원 신청일 3개월 이내 사본",
+       "url": null,
+       "locator": "3쪽"
+      }
+     },
+     {
+      "id": "P101-D04",
+      "name": "중소기업확인서",
+      "originalName": "중소기업확인서 (sminfo 발급)",
+      "requirement": "required",
+      "documentType": "sme-confirmation",
+      "isProgramForm": false,
+      "note": null,
+      "source": {
+       "quote": "④ 중소기업확인서 중소기업현황정보시스템(sminfo.mss.go.kr) 발급",
+       "url": null,
+       "locator": "3쪽"
+      }
+     }
+    ],
+    "bonusItems": [],
+    "duplicateSupportNotes": null,
+    "groupKey": null,
+    "relatedProgramIds": [],
+    "draftNotes": "사업목적에 '내수 및 수출초보 중소기업'이 명시되어 대상 수출단계로 기록했지만, 자격 조건에는 수출액 제한이 없음. 컨설팅 예시: 수출전략, 무역실무, 정부지원사업 활용, 해외 마케팅, FTA 원산지·관세, 바이어 발굴, 인증(CE·PPWR).",
+    "review": {
+     "author": "Claude (초안)",
+     "status": "수정",
+     "source": "원문 확인",
+     "reviewer": "신서윤"
+    },
+    "dataState": "draft",
+    "publishSource": "answer-set",
+    "publishSourceLabel": "정답세트(2026-11)",
+    "autoExtracted": false,
+    "publishStatus": "published",
+    "conditions": [
+     {
+      "condId": "P101-R01",
+      "programId": "P101",
+      "parentId": "P101",
+      "scope": null,
+      "kind": "필수",
+      "group": "A",
+      "condType": "A01",
+      "condTypes": "A01",
+      "affectsVerdict": true,
+      "field": "company_type",
+      "op": "in",
+      "valueRaw": "중소기업",
+      "expr": {
+       "atom": "company_type",
+       "op": "in",
+       "value": [
+        "중소기업"
+       ]
+      },
+      "exprText": "company_type ∈ [중소기업]",
+      "certainty": "명확",
+      "evidence": "①「중소기업기본법」제2조 및 시행령 제3조에 따른 중소기업",
+      "page": 2,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     },
+     {
+      "condId": "P101-R02",
+      "programId": "P101",
+      "parentId": "P101",
+      "scope": null,
+      "kind": "필수",
+      "group": "B",
+      "condType": "A02",
+      "condTypes": "A02",
+      "affectsVerdict": true,
+      "field": "hq_region",
+      "op": "in",
+      "valueRaw": "울산",
+      "expr": {
+       "atom": "hq_region",
+       "op": "in",
+       "value": [
+        "울산"
+       ]
+      },
+      "exprText": "hq_region ∈ [울산]",
+      "certainty": "명확",
+      "evidence": "② 사업자등록증상 본점 또는 사업장이 울산지역에 소재한 기업",
+      "page": 2,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": "R03과 '또는'"
+     },
+     {
+      "condId": "P101-R03",
+      "programId": "P101",
+      "parentId": "P101",
+      "scope": null,
+      "kind": "필수",
+      "group": "B",
+      "condType": "A03",
+      "condTypes": "A03",
+      "affectsVerdict": true,
+      "field": "site_region",
+      "op": "in",
+      "valueRaw": "울산",
+      "expr": {
+       "atom": "site_region",
+       "op": "in",
+       "value": [
+        "울산"
+       ]
+      },
+      "exprText": "site_region ∈ [울산]",
+      "certainty": "애매",
+      "evidence": "② 사업자등록증상 본점 또는 사업장이 울산지역에 소재한 기업",
+      "page": 2,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": "'사업장'을 공장 소재지 필드로 대응함. R02와 '또는'"
+     },
+     {
+      "condId": "P101-R04",
+      "programId": "P101",
+      "parentId": "P101",
+      "scope": null,
+      "kind": "제외",
+      "group": "-",
+      "condType": "B01",
+      "condTypes": "B01,B02",
+      "affectsVerdict": true,
+      "field": "manual_check",
+      "op": "-",
+      "valueRaw": "공통 결격사유: 휴·폐업, 국세·지방세 체납",
+      "expr": {
+       "any": [
+        {
+         "flag": "B01"
+        },
+        {
+         "flag": "B02"
+        }
+       ]
+      },
+      "exprText": "하나라도(자기신고:B01 해당; 자기신고:B02 해당)",
+      "certainty": "명확",
+      "evidence": "◈ 휴·폐업했거나 국세·지방세 체납중인 경우",
+      "page": 2,
+      "importance": "체크리스트",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     },
+     {
+      "condId": "P101-R05",
+      "programId": "P101",
+      "parentId": "P101",
+      "scope": null,
+      "kind": "제외",
+      "group": "-",
+      "condType": "B04",
+      "condTypes": "B04",
+      "affectsVerdict": true,
+      "field": "manual_check",
+      "op": "-",
+      "valueRaw": "채무불이행자 등재 (재기지원 인정 기업은 예외)",
+      "expr": {
+       "flag": "B04"
+      },
+      "exprText": "자기신고:B04 해당",
+      "certainty": "명확",
+      "evidence": "◈ 민사집행법에 의하여 채무불이행자명부에 등재되거나, 전국은행연합회 등 신용정보",
+      "page": 2,
+      "importance": "체크리스트",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     },
+     {
+      "condId": "P101-R06",
+      "programId": "P101",
+      "parentId": "P101",
+      "scope": null,
+      "kind": "제외",
+      "group": "-",
+      "condType": "B05",
+      "condTypes": "B05",
+      "affectsVerdict": true,
+      "field": "manual_check",
+      "op": "-",
+      "valueRaw": "부정행위로 정부지원사업 참여제한 중",
+      "expr": {
+       "flag": "B05"
+      },
+      "exprText": "자기신고:B05 해당",
+      "certainty": "명확",
+      "evidence": "◈ 보조금법 위반 등 부정행위로 인해 정부 지원 사업에 참여제한 중인 기업",
+      "page": 2,
+      "importance": "체크리스트",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     },
+     {
+      "condId": "P101-R07",
+      "programId": "P101",
+      "parentId": "P101",
+      "scope": null,
+      "kind": "제외",
+      "group": "-",
+      "condType": "B08",
+      "condTypes": "B08,C08",
+      "affectsVerdict": true,
+      "field": "manual_check",
+      "op": "-",
+      "valueRaw": "사회적 물의로 지원 부적합",
+      "expr": {
+       "flag": "B08"
+      },
+      "exprText": "자기신고:B08 해당",
+      "certainty": "애매",
+      "evidence": "◈ 사회적 물의를 일으켜 지원이 적합하지 않다고 인정되는 경우",
+      "page": 2,
+      "importance": "체크리스트",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     },
+     {
+      "condId": "P101-R08",
+      "programId": "P101",
+      "parentId": "P101",
+      "scope": null,
+      "kind": "제외",
+      "group": "-",
+      "condType": "A04",
+      "condTypes": "A04",
+      "affectsVerdict": true,
+      "field": "industry",
+      "op": "in",
+      "valueRaw": "사행·유흥 등 지원제외 업종 (KSIC 33402·33409·46102·46~47·58·76390 중 일부, 46331·46333, 5621, 9124)",
+      "expr": {
+       "atom": "industry",
+       "op": "in",
+       "value": [
+        "사행·유흥 등 지원제외업종"
+       ]
+      },
+      "exprText": "industry ∈ [사행·유흥 등 지원제외업종]",
+      "certainty": "애매",
+      "evidence": "◈ 사행산업 등 국민 정서상 지원이 부적절한 업종 영위 기업",
+      "page": 2,
+      "importance": "주요",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": "'中' 표기 코드는 일부만 해당. 주업종 기준"
+     },
+     {
+      "condId": "P101-R09",
+      "programId": "P101",
+      "parentId": "P101",
+      "scope": null,
+      "kind": "제외",
+      "group": "-",
+      "condType": "B05",
+      "condTypes": "B05,C08",
+      "affectsVerdict": true,
+      "field": "manual_check",
+      "op": "-",
+      "valueRaw": "기타 참여제한이 필요하다고 판단",
+      "expr": {
+       "flag": "B05"
+      },
+      "exprText": "자기신고:B05 해당",
+      "certainty": "애매",
+      "evidence": "◈ 기타 참여제한이 필요하다고 판단한 기업",
+      "page": 2,
+      "importance": "체크리스트",
+      "confidence": null,
+      "source": "기존 규칙",
+      "note": null
+     }
+    ]
+   },
+   "status": "pending-review",
+   "fileName": "기업마당_[울산] 2026년 수출 전문가 컨설팅 지원사업 참여기업 모집 공고.pdf",
+   "reason": null,
+   "pages": [
+    "울산지방중소벤처기업청 공고 제2026-14호\n2026년 울산지역 수출 전문가 컨설팅 지원사업 참여기업 모집공고\n울산지역 중소벤처기업의 수출 지원을 위한 「2026년 울산지역 수출 전문가 컨설팅\n지원사업」 참여기업 모집 계획을 다음과 같이 공고합니다.\n2026년 10월 1일\n울산지방중소벤처기업청장 직무대리\n1. 사업 개요\n□ 사업목적\n◦ 글로벌 이슈로 인해 어려움을 겪는 내수 및 수출초보 중소기업을\n위해 기업 수요에 기반한 수출 전문가 컨설팅을 제공하여 수출\n역량 강화 지원\n□ 모집규모 : 10개사 내외\n□ 참가비 : 무료(부가세는 기업 부담)\n□ 사업기간 : 2026. 10. 1. ~ 12. 4.\n□ 지원내용\n◦ 수출 전문가를 1:1 매칭, 기업을 직접 방문하여 사전에 제출한 애\n로 수요에 기반한 맞춤형 컨설팅 진행\n- 기업 수요에 따라 1~2회 제공 (1회당 2시간)\n- 1 -\n< 예시 : 컨설팅 항목 >\n① 수출 계획(전략) 수립\n② 무역실무(수출 프로세스, 물품인도조건, 대금지불조건 등)\n③ 정부지원사업 활용 지원\n④ 해외 마케팅(오프라인·온라인 마케팅)\n⑤ 수출지표(수출액, 목표국가, 바이어, 전담인력 등) 계획수립 및 관리\n⑥ FTA 원산지증명 등 관세 컨설팅\n⑦ 바이어 발굴 방법\n⑧ 수출 관련 인증(CE, PPWR 등)\n2. 지원대상 및 요건\n□ 지원대상 : 다음 조건을 모두 충족하는 기업\n①「중소기업기본법」제2조 및 시행령 제3조에 따른 중소기업\n② 사업자등록증상 본점 또는 사업장이 울산지역에 소재한 기업\n< 신청 및 지원 제외 대상 >\n◈ 휴·폐업했거나 국세·지방세 체납중인 경우\n◈ 민사집행법에 의하여 채무불이행자명부에 등재되거나, 전국은행연합회 등 신용정보\n집중기관에 채무불이행자로 등록된 경우\n* 단, 신용회복위원회의 프리워크아웃, 개인워크아웃 제도에서 채무조정합의서를 체결한 경우,\n법원의 개인회생제도에서 변제계획인가를 받거나 파산면책 선고자, 회생인가를 받은 기\n업 등 정부·공공기관으로부터 재기지원 필요성을 인정받은 기업은 참여 가능\n◈ 보조금법 위반 등 부정행위로 인해 정부 지원 사업에 참여제한 중인 기업\n◈ 사회적 물의를 일으켜 지원이 적합하지 않다고 인정되는 경우\n◈ 사행산업 등 국민 정서상 지원이 부적절한 업종 영위 기업\n업종 분류 품목코드 지원제외 업종\n33402中 불건전 영상게임기 제조업\n제조업\n33409中 도박게임장비 등 사행성, 불건전 오락기구 제조업\n46102中 담배 중개업\n도박기계 및 사행성, 불건전 오락기구 중개 및 도소매업, 사행성,\n도매 및 소매업 46~47中\n사치성 상품 중개업 및 도소매업, 주류, 담배 소매업\n46331, 3 주류, 담배 도매업\n숙박 및 음식점업 5621 주점업\n정보통신업 58中 불건전 게임소프트웨어 개발 및 공급업\n임대업 76390中 도박기계 및 사행성, 불건전 오락기구 임대업\n예술, 스포츠 및\n9124 사행시설 관리 및 운영업\n여가관련 서비스업\n* 업종 분류는 통계청 고시 한국표준산업분류에 따르며, 2개 이상의 업종을 영위하는 경우\n에는 매출액 비중이 가장 큰 업종을 해당 기업의 주업종으로 함\n◈ 기타 참여제한이 필요하다고 판단한 기업\n- 2 -\n3. 참여기업 신청 안내 및 사업진행 절차\n□ 신청기간 : '26. 10. 1.(목) ~ 선착순 모집\n□ 신청방법\n◦ 이메일 신청 : 울산지방중소벤처기업청 수출지원센터(aay1008@korea.kr)\n※ 이메일 제목을 「26년 울산지역 수출 전문가 컨설팅 지원사업(기업명)」으로 작성\n□ 신청서류\n연번 서식명 참고\n① 사업 참여 신청서 붙임1 양식에 작성\n② 정보제공 동의서 붙임2 양식에 작성\n③ 사업자등록증명원 신청일 3개월 이내 사본\n④ 중소기업확인서 중소기업현황정보시스템(sminfo.mss.go.kr) 발급\n※ 신청일 기준 유효한 서류만 인정\n□ 추진단계\n컨설팅\n신청․접수 사후관리\n➡ 전문가 매칭 ➡ 전문가 컨설팅 ➡ 결과서제출 ➡\n(기업) (만족도 조사)\n(컨설팅위원)\n5. 문 의 처\n구 분 내 용\n담당자 울산지방중소벤처기업청 수출지원센터 수출전문관\n전화 052-210-0063\n이메일 aay1008@korea.kr\n- 3 -\n붙임1 - 사업신청서]\n사업 신청서\n기업명 대표자\n대표자 휴대전화 대표자 이메일\n사업자등록번호 법인등록번호\n업종 생산 품목\n기업\n주소\n현황\n담당자/직위 연락처\n휴대전화 이메일\n매출액(25년/원) 수출액(25년/달러)\n매출액(24년/원) 수출액(24년/달러)\n컨설팅 희망 주제 ex) 수출 계획 수립, 해외 마케팅 방법 등\n컨설팅 희망 횟수 회 (최대 2회까지 신청 가능)\n컨설팅\n① 수출 관련 애로사항 :\n애로사항 및 ② 상담 희망 내용 :\n상담 희망 내용\n※ 작성 분량이 많은 경우 페이지 추가해서 작성 가능\n당사는 울산지방중소벤처기업청에서 추진하는 수출 전문가 컨설팅 지원사업에\n참여하기 위하여 동 참여 신청서를 제출합니다.\n년 월 일\n기업명 : 대표이사 : (직인)\n- 4 -\n[붙임2 - 기업(개인)정보 수집·이용·제공동의서]\n개인정보 및 기업정보 수집·이용 동의서\n울산지방중소벤처기업청은 「2026년 울산지역 수출 전문가 컨설팅 사업」 운영을 위해 아래와 같이 개인\n정보 및 기업정보를 수집·이용하고자 합니다. 내용을 확인하신 후 동의 여부를 표시해 주시기 바랍니다.\n1. 개인정보 수집·이용\n수집·이용 목적 신청기업 확인, 컨설팅 지원, 사업 성과관리·만족도 조사, 민원 대응\n대표자명, 대표자 이메일·연락처(선택), 실무담당자 성명·부서·직위, 이메일, 휴대전화, 사무실\n수집 항목\n전화\n보유·이용 기간 사업 종료 후5년 또는 관계 법령 및 기관 기록물 관리기준에 따른 기간\n개인정보 수집·이용에 대한 동의를 거부할 수 있습니다. 다만, 필수항목에 동의하지 않을 경우\n동의 거부 권리\n사업 신청 및 지원이 제한될 수 있습니다.\n동의 여부 □ 동의함 □ 동의하지 않음\n2. 기업정보 수집·이용 및 공동활용\n수집·이용 목적 지원대상 확인, 수출컨설팅, 수출지원사업 연계, 성과관리 및 정책자료 활용\n회사명, 사업자등록번호, 주소, 업종, 직원 수, 매출·수출액, 취급품목, 대표제품, 수출국가, 관심\n수집 항목\n국가, 인증·수출지원사업 참여현황 등\n사업 수행 및 후속 지원을 위해 필요한 경우 중소벤처기업부, 중소벤처기업진흥공단, 지방자\n공동활용 기관\n치단체 및 수출지원 유관기관과 필요한 범위에서 공동 활용할 수 있음\n보유·이용 기간 사업 종료 후5년 또는 관계 법령 및 기관 기록물 관리기준에 따른 기간\n동의 여부 □ 동의함 □ 동의하지 않음\n2026년 월 일\n기업명 대표자\n(인)\n실무담당자 연락처\n울산지방중소벤처기업청장 귀하\n- 5 -"
+   ],
+   "trialOf": "P101"
+  }
+ ]
+}
