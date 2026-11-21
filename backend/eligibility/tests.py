@@ -91,3 +91,20 @@ class ThreeTabClassificationTest(SimpleTestCase):
         conds = [{**cond("R1", cond_type="A06", expr={"atom": "export_usd", "op": ">=", "value": 1000}), "importance": "체크리스트"}]
         result = classify_tabs(conds, {**BASE_PROFILE, "export_usd": None}, "X1")
         self.assertEqual(result.tab, "needs-check")
+
+
+class NoticeSourceLinksTableTest(SimpleTestCase):
+    """공고 원문 링크·제목 보정표 (backend/data/notice_source_links.csv, 2026-11-22)"""
+
+    def test_table_is_valid(self):
+        from eligibility.management.commands.apply_notice_source_links import load_table
+
+        rows = load_table()
+        ids = [r["program_id"] for r in rows]
+        self.assertEqual(len(rows), 324)
+        self.assertEqual(len(set(ids)), len(ids))
+        self.assertTrue(all(r["source_url"].startswith("https://") for r in rows))
+        # 원문 대조 제목을 유지한 1건 (엑셀 제안은 suggested_title에 보존)
+        n003 = next(r for r in rows if r["program_id"] == "N003")
+        self.assertEqual(n003["title"], "수출24 글로벌 대행 (해외시장조사) 서비스")
+        self.assertEqual(n003["suggested_title"], "(수출24) 거래 교신 지원")
