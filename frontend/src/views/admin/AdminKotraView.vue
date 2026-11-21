@@ -12,7 +12,6 @@ import SectionCard from '@/components/common/SectionCard.vue'
 import StatusBadge from '@/components/common/StatusBadge.vue'
 import NoticeBanner from '@/components/common/NoticeBanner.vue'
 import SegmentedControl from '@/components/common/SegmentedControl.vue'
-import AdminStoreNotice from '@/components/admin/AdminStoreNotice.vue'
 import AdminTable from '@/components/admin/AdminTable.vue'
 import AdminFilePicker from '@/components/admin/AdminFilePicker.vue'
 import StoreButton from '@/components/admin/StoreButton.vue'
@@ -122,8 +121,6 @@ const timeText = (date: Date) => date.toLocaleTimeString('ko-KR', { hour: '2-dig
     />
 
     <div class="stack">
-      <AdminStoreNotice />
-
       <ol class="upload-steps" aria-label="업로드 단계">
         <li
           v-for="(step, index) in STEPS"

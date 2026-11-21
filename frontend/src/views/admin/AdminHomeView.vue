@@ -9,7 +9,6 @@ import PageHeader from '@/components/layout/PageHeader.vue'
 import SectionCard from '@/components/common/SectionCard.vue'
 import StatTile from '@/components/common/StatTile.vue'
 import DataValue from '@/components/common/DataValue.vue'
-import AdminStoreNotice from '@/components/admin/AdminStoreNotice.vue'
 import AdminTable from '@/components/admin/AdminTable.vue'
 import StoreButton from '@/components/admin/StoreButton.vue'
 import { ADMIN_PIPELINE_STEPS, adminSourceLabel } from '@/constants/adminOptions'
@@ -54,8 +53,6 @@ function pipelineCount(key: (typeof ADMIN_PIPELINE_STEPS)[number]['key']): numbe
     </PageHeader>
 
     <div class="stack">
-      <AdminStoreNotice />
-
       <div class="tile-grid">
         <StatTile
           label="오늘 수집 건수"

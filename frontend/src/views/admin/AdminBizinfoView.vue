@@ -19,7 +19,6 @@ import FormFieldset from '@/components/form/FormFieldset.vue'
 import SelectInput from '@/components/form/SelectInput.vue'
 import CheckCards from '@/components/form/CheckCards.vue'
 import TagInput from '@/components/form/TagInput.vue'
-import AdminStoreNotice from '@/components/admin/AdminStoreNotice.vue'
 import AdminTable from '@/components/admin/AdminTable.vue'
 import StoreButton from '@/components/admin/StoreButton.vue'
 import BizinfoCollectedTable from '@/components/admin/BizinfoCollectedTable.vue'
@@ -75,8 +74,6 @@ const countFormat = (n: number) => `${n}건`
     </PageHeader>
 
     <div class="stack">
-      <AdminStoreNotice />
-
       <div class="grid-12">
         <SectionCard class="col-span-12 lg-span-6" title="수집 상태" heading-id="bizinfo-status-title">
           <template #actions>

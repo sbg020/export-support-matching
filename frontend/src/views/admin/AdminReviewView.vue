@@ -14,7 +14,6 @@ import InfoRow from '@/components/common/InfoRow.vue'
 import DataValue from '@/components/common/DataValue.vue'
 import ActionButton from '@/components/common/ActionButton.vue'
 import DisabledReason from '@/components/common/DisabledReason.vue'
-import AdminStoreNotice from '@/components/admin/AdminStoreNotice.vue'
 import AdminTable from '@/components/admin/AdminTable.vue'
 import StoreButton from '@/components/admin/StoreButton.vue'
 import { REJECT_REASON_OPTIONS, REVIEW_EXTRACTION_FIELDS, adminSourceLabel } from '@/constants/adminOptions'
@@ -89,8 +88,6 @@ const notice = computed(() => item.value?.notice ?? null)
     />
 
     <div class="stack">
-      <AdminStoreNotice />
-
       <div class="grid-12 review">
         <SectionCard class="col-span-12 lg-span-4" title="대기 목록" heading-id="review-queue-title">
           <template #actions>

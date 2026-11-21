@@ -12,7 +12,6 @@ import SegmentedControl from '@/components/common/SegmentedControl.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import DataValue from '@/components/common/DataValue.vue'
 import StatusBadge from '@/components/common/StatusBadge.vue'
-import AdminStoreNotice from '@/components/admin/AdminStoreNotice.vue'
 import AdminTable from '@/components/admin/AdminTable.vue'
 import StoreButton from '@/components/admin/StoreButton.vue'
 import AnswerSetSection from '@/components/admin/AnswerSetSection.vue'
@@ -116,8 +115,6 @@ const countNumber = (n: number) => n.toLocaleString('ko-KR')
     </PageHeader>
 
     <div class="stack">
-      <AdminStoreNotice />
-
       <SectionCard
         title="자동 추출 공고 일괄 게시"
         heading-id="notices-bulk-publish-title"

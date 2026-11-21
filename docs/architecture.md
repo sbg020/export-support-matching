@@ -181,7 +181,7 @@ interface ProgramRepository {
 - 동작: `ActionButton`(비활성 시 `aria-disabled` + 이유 연결), `DisabledReason`, `TabNav`(방향키 이동), `SegmentedControl`, `AppModal`(포커스 가두기·Esc 닫기)
 - 도메인: 단계 폼(`diagnose/steps/*`, `StepProgress`), 필터(`ProgramFilters`), 공고 카드(`ProgramCard`)·추천 카드(`RecommendationCard`) — 실제 공고가 있을 때만 렌더링, 비교 영역(`CompareSection` + `CompareTable`, 선택은 `useCompareSelection`), 캘린더(`MonthCalendar`, 일정은 `lib/calendarEvents.ts`), 관리 기록(`mypage/*Panel`, `ApplicationRecordTable`, 상태 정의는 `constants/applicationStatus.ts`. 폴더 이름 `views/mypage`·`components/mypage`는 그대로 두고 화면 이름만 `지원사업 관리`)
 - revision_02: `CategoryChips`, `ProgramHighlights`(둘러보기), `CommonChecksPanel`(공통 확인 사항), `EligibilityConditions`·`ConditionItem`·`SelfCheckControl`(조건별 판정·직접 확인), `FitBreakdownTable`(적합도 계산 근거), `DocumentChecklist`, `OpportunityCostGrid`, `ProgramReviewsSection`(참여 후기), `CompareDock`(하단 비교 바), `diagnose/ExportStageCriteriaNote`, `community/CommunityPostList` (REVISION_04에서 `DataSourceNotice`·`DraftTag`·`ProfileSummary`를 지웠다)
-- revision_04: `RecommendationList`(맞춤 추천 탭·목록), 관리자 공통 `admin/AdminStoreNotice`(저장소 연결 상태 안내), `admin/StoreButton`(저장이 필요한 비활성 버튼 + 이유), `admin/AdminTable`(가로 스크롤 표), `admin/AdminFilePicker`(끌어다 놓기·파일 선택), `admin/AnswerSetSection`(정답세트 검사)
+- revision_04: `RecommendationList`(맞춤 추천 탭·목록), 관리자 공통 `admin/StoreButton`(저장이 필요한 비활성 버튼 + 이유), `admin/AdminTable`(가로 스크롤 표), `admin/AdminFilePicker`(끌어다 놓기·파일 선택), `admin/AnswerSetSection`(정답세트 검사)
 - 디자인 토큰: `frontend/src/styles/tokens.css` (색·간격·반경·그림자·타이포). 브랜드 색은 채움·아이콘에 쓰고, 작은 글자·흰 글자 버튼에는 대비 4.5:1 이상인 `*-strong` 색을 쓴다.
 
 ## 7-1. 관리자 데이터 경계 (REVISION_04)

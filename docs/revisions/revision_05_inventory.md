@@ -217,3 +217,4 @@
 ## 17. 관리자 메뉴 구조 (2026-11-21)
 
 - 상위 메뉴: 관리자 홈 · **API 수집** · **직접 업로드** · 공고 검수 · 공고 관리 · 기준·설정. 하위 탭(화면 제목 아래, 사용자 화면의 하위 메뉴와 같은 모양): API 수집 > 기업마당(`/admin/bizinfo`), 직접 업로드 > KOTRA(`/admin/kotra`)·KITA(`/admin/kita`). 상위 메뉴를 누르면 첫 하위 탭을 열고, 하위 화면에서는 상위 메뉴를 현재로 표시한다. 주소는 그대로다 (`frontend/src/constants/adminNavigation.ts`, `components/layout/SectionNav.vue`).
+- (2026-11-21) 모든 관리자 화면 제목 아래의 '공고 저장소가 연결되지 않았습니다 (읽기 전용)' 안내 카드(`AdminStoreNotice`)를 삭제했다. 저장이 필요한 버튼은 그대로 비활성이며 버튼마다 이유를 보여 준다.

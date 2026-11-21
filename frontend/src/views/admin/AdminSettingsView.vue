@@ -11,7 +11,6 @@ import InfoList from '@/components/common/InfoList.vue'
 import InfoRow from '@/components/common/InfoRow.vue'
 import StatusBadge from '@/components/common/StatusBadge.vue'
 import ExportStageCriteriaNote from '@/components/diagnose/ExportStageCriteriaNote.vue'
-import AdminStoreNotice from '@/components/admin/AdminStoreNotice.vue'
 import AdminTable from '@/components/admin/AdminTable.vue'
 import StoreButton from '@/components/admin/StoreButton.vue'
 import { ACTIVE_EXPORT_STAGE_CRITERIA, bandText } from '@/lib/engine/diagnosis'
@@ -95,8 +94,6 @@ function downloadStrategyTemplate() {
     />
 
     <div class="stack">
-      <AdminStoreNotice />
-
       <SectionCard title="기준 시점" heading-id="settings-basis-title">
         <InfoList>
           <InfoRow label="판정 기준일" :value="basisDate" hint="접수 상태·남은 일수·업력 계산에 쓰입니다. 공고 데이터 연결 후 표시" />

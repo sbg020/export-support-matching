@@ -406,9 +406,10 @@ describe('관리자 영역 (§5.3·§6~§12)', () => {
     wrapper.unmount()
   })
 
-  it.each(ADMIN_PATHS)('%s: 저장소 안내가 있고, 저장이 필요한 버튼은 모두 비활성이며 이유가 연결된다', async (path) => {
+  it.each(ADMIN_PATHS)('%s: 저장소 안내 카드가 없고, 저장이 필요한 버튼은 모두 비활성이며 이유가 연결된다', async (path) => {
     const wrapper = await mountApp(path)
-    expect(wrapper.text()).toContain('공고 저장소가 연결되지 않았습니다')
+    // 저장소 연결 안내 카드는 2026-11-21에 삭제했다
+    expect(wrapper.text()).not.toContain('공고 저장소가 연결되지 않았습니다')
     const disabled = wrapper.findAll('main [aria-disabled="true"]')
     for (const button of disabled) {
       const id = button.attributes('aria-describedby')
