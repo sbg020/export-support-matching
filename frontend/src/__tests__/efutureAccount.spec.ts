@@ -80,14 +80,14 @@ describe('이퓨쳐 재무 비율·수출단계·재무 원형', () => {
     expect(financeArchetype(p, 'growth').clusterName).toBe('성장 고성장·고수익 스타형')
   })
 
-  it('게시 공고 324건에 대해 판정·적합도를 계산한다 (재무 요소 포함)', async () => {
+  it('게시 공고 325건에 대해 판정·적합도를 계산한다 (재무 요소 포함)', async () => {
     const programs = (await loadPublishedSnapshot()).notices.map((raw) => normalizeProgram(raw))
     const set = evaluateAll(programs, p, { asOf: SITE_TODAY, selfChecks: { common: createEfutureCommonChecks(), programs: {} } })
     const counts = { eligible: 0, 'needs-check': 0, ineligible: 0 }
     for (const e of set.byId.values()) if (e.eligibility) counts[e.eligibility.status] += 1
     const withFinance = [...set.byId.values()].filter((e) => e.fitFactors.some((f) => f.key === 'finance' && f.value !== null))
-    // 2026-10-20 게시 공고 기준: 신청 가능 30 · 확인 필요 106 · 신청 불가 188
-    expect(counts).toEqual({ eligible: 30, 'needs-check': 106, ineligible: 188 })
+    // 2026-10-20 게시 공고 325건 기준 (2026-11-21 KOTRA 4건 원문 보정·추가 후): 신청 가능 32 · 확인 필요 106 · 신청 불가 187
+    expect(counts).toEqual({ eligible: 32, 'needs-check': 106, ineligible: 187 })
     expect(withFinance.length).toBe(counts.eligible)
     console.info('[이퓨쳐] 탭별 공고 수', counts)
   })

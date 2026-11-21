@@ -30,8 +30,8 @@ describe('운영 확인용 검수 대기', () => {
     expect((await repo.getDashboard()).pendingReview).toBe(5)
   })
 
-  it('사용자 화면이 읽는 게시 공고는 그대로다 (324건, RV- 없음)', () => {
-    expect(published.notices).toHaveLength(324)
+  it('사용자 화면이 읽는 게시 공고는 그대로다 (325건, RV- 없음)', () => {
+    expect(published.notices).toHaveLength(325)
     expect(published.notices.some((n) => n.id.startsWith('RV-'))).toBe(false)
   })
 })
