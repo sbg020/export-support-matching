@@ -1,6 +1,7 @@
 /*
  * 관리자 화면용 읽기 전용 저장소 (REVISION_05). 서버 DB가 없는 배포 환경에서 쓴다.
  * - 게시 공고: src/data/published/notices.json, 검수 대기·텍스트 추출 불가: admin-review.json
+ * - 기업마당 수집: bizinfo-collection.json (기업마당 지원사업정보 API 수출 분야 응답을 한 번 받아 둔 것. 키는 들어 있지 않다)
  *   (backend `export_public_snapshot`이 만든다. 공고 원문과 추출 조건만 있고 사용자 정보는 없다)
  * - 쓰기(승인·반려·일괄 게시·수집·업로드 반영 등)는 저장소가 없어 막는다. canWrite = false.
  *   일괄 게시·적재는 로컬에서 관리 명령(publish_auto_extracted, ingest_notice_folder)으로 하고 스냅샷을 다시 만든다.
@@ -9,6 +10,8 @@ import type { IsoDate } from '@/types/common'
 import type { NoticeCondition, Program } from '@/types/program'
 import type {
   AdminDashboard,
+  BizinfoCollection,
+  CollectionRun,
   AdminNoticeList,
   AdminNoticeQuery,
   AdminNoticeSource,
@@ -38,6 +41,26 @@ let reviewCache: Promise<AdminReviewSnapshot> | null = null
 export function loadAdminReview(): Promise<AdminReviewSnapshot> {
   reviewCache ??= import('@/data/published/admin-review.json').then((m) => m.default as unknown as AdminReviewSnapshot)
   return reviewCache
+}
+
+let bizinfoCache: Promise<BizinfoCollection> | null = null
+export function loadBizinfoCollection(): Promise<BizinfoCollection> {
+  bizinfoCache ??= import('@/data/published/bizinfo-collection.json').then((m) => m.default as unknown as BizinfoCollection)
+  return bizinfoCache
+}
+
+/** 받아 둔 기업마당 응답 한 번을 수집 로그 한 줄로 */
+export function bizinfoRun(collection: BizinfoCollection): CollectionRun {
+  return {
+    id: `bizinfo-${collection.meta.fetchedAt}`,
+    trigger: 'manual',
+    startedAt: collection.meta.fetchedAt,
+    finishedAt: collection.meta.fetchedAt,
+    fetched: collection.meta.fetched,
+    exportMatched: collection.meta.stored,
+    revised: null,
+    errors: [],
+  }
 }
 
 const SOURCES: AdminNoticeSource[] = ['bizinfo', 'kotra', 'kita', 'answer-set', 'folder']
@@ -98,6 +121,14 @@ export class SnapshotAdminRepository extends EmptyAdminRepository {
         published: notices.length,
       },
     }
+  }
+
+  override async getBizinfoCollection(): Promise<BizinfoCollection | null> {
+    return loadBizinfoCollection()
+  }
+
+  override async listCollectionRuns(): Promise<CollectionRun[]> {
+    return [bizinfoRun(await loadBizinfoCollection())]
   }
 
   override async listReviewQueue(): Promise<AdminNoticeSummary[]> {

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 /**
  * 기업마당 API 수집 (REVISION_04 §8).
- * 지금 동작: 수집 주기·필터 입력과 키워드 검증(1~20자, 중복 제거, 최대 50개).
+ * 지금 동작: 수집 주기·필터 입력과 키워드 검증(1~20자, 중복 제거, 최대 50개),
+ * 기업마당 API에서 받아 둔 수출 분야 공고(bizinfo-collection.json)의 수집 결과·목록 보기.
  * 저장소·인증키 연결 후: 지금 수집, 인증키 등록·연결 확인, 주기·필터 저장, 수집 로그.
  * 저장할 수 없는 화면에서 비밀값을 받지 않도록 인증키 입력칸은 두지 않는다 (A-11).
  */
@@ -12,6 +13,7 @@ import SectionCard from '@/components/common/SectionCard.vue'
 import StatusBadge from '@/components/common/StatusBadge.vue'
 import InfoList from '@/components/common/InfoList.vue'
 import InfoRow from '@/components/common/InfoRow.vue'
+import DataValue from '@/components/common/DataValue.vue'
 import FormField from '@/components/form/FormField.vue'
 import FormFieldset from '@/components/form/FormFieldset.vue'
 import SelectInput from '@/components/form/SelectInput.vue'
@@ -20,6 +22,7 @@ import TagInput from '@/components/form/TagInput.vue'
 import AdminStoreNotice from '@/components/admin/AdminStoreNotice.vue'
 import AdminTable from '@/components/admin/AdminTable.vue'
 import StoreButton from '@/components/admin/StoreButton.vue'
+import BizinfoCollectedTable from '@/components/admin/BizinfoCollectedTable.vue'
 import {
   BIZINFO_CATEGORY_OPTIONS,
   BIZINFO_DEFAULT_CATEGORIES,
@@ -29,11 +32,17 @@ import {
 import { formatDateTime } from '@/lib/display'
 import { normalizeKeywords } from '@/lib/admin/settings'
 import { adminRepository } from '@/repositories/admin'
-import type { CollectionRun, CollectionSchedule, CollectionTime } from '@/types/admin'
+import type { BizinfoCollection, CollectionRun, CollectionSchedule, CollectionTime } from '@/types/admin'
 
 const runs = shallowRef<CollectionRun[]>([])
+const collection = shallowRef<BizinfoCollection | null>(null)
 onMounted(async () => {
-  runs.value = await adminRepository.listCollectionRuns()
+  const [loadedRuns, loadedCollection] = await Promise.all([
+    adminRepository.listCollectionRuns(),
+    adminRepository.getBizinfoCollection(),
+  ])
+  runs.value = loadedRuns
+  collection.value = loadedCollection
 })
 
 const schedule = ref<CollectionSchedule | null>(null)
@@ -75,6 +84,7 @@ const countFormat = (n: number) => `${n}건`
           </template>
           <InfoList>
             <InfoRow label="마지막 수집" :value="runs[0]?.startedAt ?? null" :format="formatDateTime" />
+            <InfoRow label="마지막 수집 공고 (수출 분야)" :value="runs[0]?.exportMatched ?? null" :format="countFormat" />
             <InfoRow label="다음 수집" :value="null" />
             <InfoRow label="오늘 새 공고 (수출 분야)" :value="null" :format="countFormat" />
             <InfoRow label="오류" :value="null" :format="countFormat" />
@@ -95,6 +105,21 @@ const countFormat = (n: number) => `${n}건`
           </div>
         </SectionCard>
       </div>
+
+      <SectionCard
+        title="수집한 공고"
+        heading-id="bizinfo-collected-title"
+        description="기업마당 지원사업정보 API의 수출 분야 공고입니다. 공고명을 누르면 기업마당 원문이 새 창으로 열립니다."
+      >
+        <BizinfoCollectedTable v-if="collection" :items="collection.items" />
+        <AdminTable
+          v-else
+          label="수집한 공고"
+          :columns="['공고명', '소관·수행기관', '지원분야', '신청기간', '기업마당 등록일', '상세']"
+          :row-count="0"
+          empty-title="수집한 공고가 없습니다."
+        />
+      </SectionCard>
 
       <SectionCard title="수집 주기" heading-id="bizinfo-schedule-title" description="시각은 한국 시간 기준입니다.">
         <template #actions>
@@ -173,7 +198,7 @@ const countFormat = (n: number) => `${n}건`
             <td>{{ run.trigger === 'manual' ? '지금 수집' : '자동' }}</td>
             <td>{{ run.fetched }}</td>
             <td>{{ run.exportMatched }}</td>
-            <td>{{ run.revised }}</td>
+            <td><DataValue :value="run.revised" /></td>
             <td>{{ run.errors.length > 0 ? `오류 ${run.errors.length}건` : '정상' }}</td>
           </tr>
         </AdminTable>

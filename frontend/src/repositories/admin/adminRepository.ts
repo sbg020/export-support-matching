@@ -6,6 +6,7 @@
  */
 import type {
   AdminDashboard,
+  BizinfoCollection,
   AdminNoticeList,
   AdminNoticeQuery,
   AdminNoticeSummary,
@@ -31,6 +32,8 @@ export interface AdminRepository {
   getDashboard(): Promise<AdminDashboard>
   getCollectionSettings(): Promise<CollectionSettings | null>
   listCollectionRuns(): Promise<CollectionRun[]>
+  /** 기업마당 API에서 받아 둔 공고. 없으면 null */
+  getBizinfoCollection(): Promise<BizinfoCollection | null>
   listUploads(kind: UploadKind): Promise<UploadRecord[]>
   listReviewQueue(): Promise<AdminNoticeSummary[]>
   getReviewItem(id: string): Promise<ReviewItem | null>

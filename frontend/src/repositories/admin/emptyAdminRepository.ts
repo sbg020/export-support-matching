@@ -1,5 +1,6 @@
 import type {
   AdminDashboard,
+  BizinfoCollection,
   AdminNoticeList,
   AdminNoticeQuery,
   AdminNoticeSummary,
@@ -46,6 +47,10 @@ export class EmptyAdminRepository implements AdminRepository {
 
   async listCollectionRuns(): Promise<CollectionRun[]> {
     return []
+  }
+
+  async getBizinfoCollection(): Promise<BizinfoCollection | null> {
+    return null
   }
 
   async listUploads(): Promise<UploadRecord[]> {
